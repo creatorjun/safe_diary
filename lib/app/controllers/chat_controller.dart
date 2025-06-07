@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
@@ -13,7 +14,6 @@ import 'login_controller.dart';
 import '../config/app_config.dart';
 
 class ChatController extends GetxController {
-  // 생성자를 통해 의존성을 주입받습니다.
   final ChatService _chatService;
   final LoginController _loginController;
   final String _chatPartnerUid;
@@ -117,10 +117,14 @@ class ChatController extends GetxController {
             bool isPartnerOriginatedMessage = receivedMessage.senderUid == _chatPartnerUid &&
                 receivedMessage.receiverUid == _currentUserUid;
 
-            if (isMyEchoMessage || isPartnerOriginatedMessage) {
+            if (isMyEchoMessage) {
+              // 내가 보낸 메시지가 서버로부터 에코되어 올 때, 기존 메시지 목록에 ID를 업데이트 해줄 수 있습니다. (선택적 구현)
+            } else if (isPartnerOriginatedMessage) {
               if (receivedMessage.id != null && !messages.any((m) => m.id == receivedMessage.id)) {
                 messages.insert(0, receivedMessage);
                 messages.refresh();
+                // 실시간으로 받은 파트너 메시지를 읽음 처리
+                markMessageAsRead(receivedMessage.id!);
               }
             }
           } catch (e) {
@@ -143,8 +147,17 @@ class ChatController extends GetxController {
     try {
       final response = await _chatService.getChatMessages(
           otherUserUid: _chatPartnerUid, size: 20);
+
       messages.assignAll(response.messages.reversed.toList());
       hasReachedMax.value = !response.hasNextPage;
+
+      // 이전 메시지 중 파트너가 보낸 메시지를 모두 읽음 처리
+      for (final message in messages) {
+        if (message.senderUid == _chatPartnerUid && message.id != null) {
+          markMessageAsRead(message.id!);
+        }
+      }
+
     } catch (e) {
       errorMessage.value = "메시지 로딩 중 오류: ${e.toString()}";
     } finally {
@@ -196,6 +209,26 @@ class ChatController extends GetxController {
     );
     messageInputController.clear();
   }
+
+  void markMessageAsRead(String messageId) {
+    if (stompClient == null || !stompClient!.connected) {
+      if (kDebugMode) {
+        print('[ChatController] Cannot mark message as read, STOMP client not connected.');
+      }
+      return;
+    }
+
+    final payload = {'messageId': messageId};
+    stompClient?.send(
+      destination: '/app/chat.messageRead',
+      body: json.encode(payload),
+      headers: {'Authorization': 'Bearer ${_loginController.user.safeAccessToken}'},
+    );
+    if (kDebugMode) {
+      print('[ChatController] Sent message read receipt for ID: $messageId');
+    }
+  }
+
 
   void _scrollListener() {
     if (scrollController.position.pixels <= scrollController.position.minScrollExtent + 50 &&

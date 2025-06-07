@@ -28,8 +28,6 @@ class LoginController extends GetxController {
       this._secureStorageService,
       );
 
-  // PartnerController를 getter로 변경하여 순환 의존성 문제를 해결합니다.
-  // Get.find()는 _partnerController가 실제로 사용될 때 호출됩니다.
   PartnerController get _partnerController => Get.find<PartnerController>();
 
   final Rx<User> _user = User(platform: LoginPlatform.none).obs;
@@ -45,8 +43,6 @@ class LoginController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // onInit에서 PartnerController를 찾는 코드를 제거합니다.
-    // ApiService에 토큰 제공자를 설정하는 역할만 남겨둡니다.
     Get.find<ApiService>().setTokenProvider(() => _user.value.safeAccessToken);
   }
 
@@ -175,10 +171,7 @@ class LoginController extends GetxController {
       final authenticatedUser = await _authService.signInWithSocialUser(socialUser);
       if (authenticatedUser != null) {
         _user.value = authenticatedUser;
-        final fcmToken = await FirebaseMessaging.instance.getToken();
-        if (fcmToken != null) {
-          await sendFcmTokenToServer(fcmToken);
-        }
+        await _getAndSendFcmTokenWithRetry();
         Get.offAllNamed(Routes.home);
       }
     } catch (e) {
@@ -225,10 +218,7 @@ class LoginController extends GetxController {
       final authenticatedUser = await _authService.attemptAutoLogin();
       if (authenticatedUser != null) {
         _user.value = authenticatedUser;
-        final fcmToken = await FirebaseMessaging.instance.getToken();
-        if (fcmToken != null) {
-          await sendFcmTokenToServer(fcmToken);
-        }
+        await _getAndSendFcmTokenWithRetry();
         return true;
       }
       return false;
@@ -238,6 +228,30 @@ class LoginController extends GetxController {
       _setLoading(false);
     }
   }
+
+  Future<void> _getAndSendFcmTokenWithRetry({int maxRetries = 3}) async {
+    for (int i = 0; i < maxRetries; i++) {
+      try {
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        if (fcmToken != null) {
+          await sendFcmTokenToServer(fcmToken);
+          if (kDebugMode) print('[LoginController] FCM Token successfully retrieved and sent.');
+          return; // 성공 시 함수 종료
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('[LoginController] FCM Token attempt ${i + 1} failed: $e');
+          if (i < maxRetries - 1) {
+            print('[LoginController] Retrying in 2 seconds...');
+            await Future.delayed(const Duration(seconds: 2));
+          } else {
+            print('[LoginController] All FCM token attempts failed.');
+          }
+        }
+      }
+    }
+  }
+
 
   Future<void> updateUserNickname(String newNickname) async {
     _setLoading(true);
