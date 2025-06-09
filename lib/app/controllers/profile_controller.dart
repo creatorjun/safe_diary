@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:safe_diary/app/theme/app_spacing.dart';
 import 'package:safe_diary/app/theme/app_text_styles.dart';
 
+import '../routes/app_pages.dart';
 import 'login_controller.dart';
 import 'partner_controller.dart';
 
@@ -24,6 +25,9 @@ class ProfileController extends GetxController {
   late TextEditingController newPasswordController;
   late TextEditingController confirmPasswordController;
 
+  // --- 컨트롤러를 멤버 변수로 추가 ---
+  late TextEditingController currentPasswordController;
+
   final RxBool isNewPasswordObscured = true.obs;
   final RxBool isConfirmPasswordObscured = true.obs;
 
@@ -41,6 +45,8 @@ class ProfileController extends GetxController {
 
     newPasswordController = TextEditingController();
     confirmPasswordController = TextEditingController();
+    // --- onInit에서 컨트롤러 초기화 ---
+    currentPasswordController = TextEditingController();
 
     // 닉네임이나 비밀번호 입력에 변경이 있을 때마다 hasChanges 값을 업데이트합니다.
     nicknameController.addListener(_checkForChanges);
@@ -57,6 +63,8 @@ class ProfileController extends GetxController {
     nicknameController.dispose();
     newPasswordController.dispose();
     confirmPasswordController.dispose();
+    // --- onClose에서 컨트롤러 폐기 ---
+    currentPasswordController.dispose();
     super.onClose();
   }
 
@@ -132,6 +140,61 @@ class ProfileController extends GetxController {
       Get.back(); // 로딩 다이얼로그 닫기
       Get.snackbar('오류', '변경 내용 저장에 실패했습니다: ${e.toString()}');
     }
+  }
+
+  /// 비밀번호 해제를 위해 현재 비밀번호 입력을 요청하는 다이얼로그 표시
+  void promptForPasswordAndRemove() {
+    // --- 멤버 변수로 변경된 컨트롤러를 사용하기 전에 초기화 ---
+    currentPasswordController.clear();
+
+    Get.dialog(
+      AlertDialog(
+        title: const Text('비밀번호 해제'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('비밀번호를 해제하려면 현재 비밀번호를 입력해주세요.'),
+            verticalSpaceMedium,
+            TextField(
+              // --- 지역 변수 대신 멤버 변수 사용 ---
+              controller: currentPasswordController,
+              obscureText: true,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: '현재 비밀번호',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(child: const Text('취소'), onPressed: () => Get.back()),
+          FilledButton(
+            child: const Text('해제'),
+            onPressed: () async {
+              final String currentPassword =
+                  currentPasswordController.text.trim();
+              if (currentPassword.isEmpty) {
+                Get.snackbar('오류', '현재 비밀번호를 입력해주세요.');
+                return;
+              }
+
+              Get.back(); // 입력 다이얼로그 닫기
+              final success = await loginController.removeAppPasswordOnServer(
+                currentPassword,
+              );
+
+              // 비밀번호가 성공적으로 해제되면, 인증 화면으로 돌아가서
+              // 다음 번 프로필 접근 시 비밀번호를 묻지 않도록 합니다.
+              if (success) {
+                Get.offNamedUntil(Routes.home, (route) => route.isFirst);
+                Get.toNamed(Routes.profileAuth);
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void toggleNewPasswordVisibility() =>

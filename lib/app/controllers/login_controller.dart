@@ -24,10 +24,10 @@ class LoginController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   LoginController(
-    this._authService,
-    this._userService,
-    this._secureStorageService,
-  );
+      this._authService,
+      this._userService,
+      this._secureStorageService,
+      );
 
   PartnerController get _partnerController => Get.find<PartnerController>();
 
@@ -39,7 +39,7 @@ class LoginController extends GetxController {
 
   RxBool get isLoggedIn =>
       (_user.value.platform != LoginPlatform.none &&
-              _user.value.safeAccessToken != null)
+          _user.value.safeAccessToken != null)
           .obs;
   final RxBool _isLoading = false.obs;
 
@@ -60,7 +60,7 @@ class LoginController extends GetxController {
 
   void _setError(String msg, {bool showGeneralMessageToUser = true}) {
     final message =
-        showGeneralMessageToUser ? "오류가 발생했습니다. 잠시 후 다시 시도해주세요." : msg;
+    showGeneralMessageToUser ? "오류가 발생했습니다. 잠시 후 다시 시도해주세요." : msg;
     if (kDebugMode) print("[LoginController] Error: $msg");
     _errorMessage.value = message;
   }
@@ -98,10 +98,10 @@ class LoginController extends GetxController {
         onSuccess: () => completer.complete(),
         onFailure:
             (status, message) =>
-                completer.completeError('네이버 로그인 실패: $message (코드: $status)'),
+            completer.completeError('네이버 로그인 실패: $message (코드: $status)'),
         onError:
             (code, message) =>
-                completer.completeError('네이버 로그인 오류: $message (코드: $code)'),
+            completer.completeError('네이버 로그인 오류: $message (코드: $code)'),
       ),
     );
     return completer.future;
@@ -127,12 +127,12 @@ class LoginController extends GetxController {
         },
         onFailure:
             (httpStatus, message) => completer.completeError(
-              '네이버 프로필 요청 실패: $message (HTTP $httpStatus)',
-            ),
+          '네이버 프로필 요청 실패: $message (HTTP $httpStatus)',
+        ),
         onError:
             (errorCode, message) => completer.completeError(
-              '네이버 프로필 요청 오류: $message (코드: $errorCode)',
-            ),
+          '네이버 프로필 요청 오류: $message (코드: $errorCode)',
+        ),
       ),
     );
     return completer.future;
@@ -285,11 +285,21 @@ class LoginController extends GetxController {
     _setLoading(true);
     _clearError();
     try {
-      await _userService.updateNickname(newNickname);
-      _user.value = _user.value.copyWith(nickname: newNickname);
-      Get.snackbar('성공', '닉네임이 성공적으로 변경되었습니다.');
+      print("[DEBUG] LoginController: Calling userService.updateNickname...");
+      final updatedUserFromServer = await _userService.updateNickname(newNickname);
+      print("[DEBUG] LoginController: userService.updateNickname finished. New user: $updatedUserFromServer");
+
+      // 서버 응답에는 토큰 정보가 없으므로, 기존 토큰 값은 유지하면서
+      // 나머지 정보만 새로 받은 데이터로 업데이트합니다.
+      _user.value = updatedUserFromServer.copyWith(
+        safeAccessToken: _user.value.safeAccessToken,
+        safeRefreshToken: _user.value.safeRefreshToken,
+      );
+      print("[DEBUG] LoginController: User state updated.");
     } catch (e) {
+      print("[DEBUG] LoginController: Error in updateUserNickname: $e");
       _setError('닉네임 변경 실패: ${e.toString()}', showGeneralMessageToUser: false);
+      rethrow; // ProfileController에서 오류를 인지하고 로딩을 멈출 수 있도록 에러를 다시 던집니다.
     } finally {
       _setLoading(false);
     }
@@ -309,9 +319,9 @@ class LoginController extends GetxController {
   }
 
   Future<bool> setAppPasswordOnServer(
-    String? currentPassword,
-    String newPassword,
-  ) async {
+      String? currentPassword,
+      String newPassword,
+      ) async {
     _setLoading(true);
     _clearError();
     try {

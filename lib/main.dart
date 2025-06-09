@@ -17,26 +17,7 @@ import 'app/controllers/login_controller.dart';
 import 'app/services/notification_service.dart';
 import 'firebase_options.dart';
 
-// --- 개발용: SSL 인증서 검증 우회 클래스 ---
-// 경고: 이 코드는 모든 SSL 인증서를 신뢰하게 만듭니다.
-// 프로덕션(릴리즈) 빌드에서는 반드시 제거하거나 조건부로 적용해야 합니다.
-class MyHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-  }
-}
-// ------------------------------------
-
 void main() async {
-  // --- 개발용: SSL 인증서 검증 우회 적용 ---
-  // 경고: 프로덕션(릴리즈) 빌드에서는 반드시 이 줄을 제거하거나 비활성화해야 합니다.
-  if (kDebugMode) {
-    HttpOverrides.global = MyHttpOverrides();
-  }
-  // ------------------------------------
 
   WidgetsFlutterBinding.ensureInitialized();
 

@@ -16,7 +16,7 @@ class ProfileScreen extends GetView<ProfileController> {
   ProfileScreen({super.key});
 
   final TextEditingController _invitationCodeInputController =
-      TextEditingController();
+  TextEditingController();
 
   // 비밀번호 필드 위젯 (재사용을 위해 분리)
   Widget _buildPasswordField({
@@ -27,7 +27,7 @@ class ProfileScreen extends GetView<ProfileController> {
     required VoidCallback toggleVisibility,
   }) {
     return Obx(
-      () => TextField(
+          () => TextField(
         controller: controller,
         obscureText: isObscured.value,
         style: textStyleMedium,
@@ -105,7 +105,7 @@ class ProfileScreen extends GetView<ProfileController> {
                         hintText: '새 비밀번호 (4자 이상)',
                         isObscured: controller.isNewPasswordObscured,
                         toggleVisibility:
-                            controller.toggleNewPasswordVisibility,
+                        controller.toggleNewPasswordVisibility,
                       ),
                       verticalSpaceMedium,
                       _buildPasswordField(
@@ -114,7 +114,7 @@ class ProfileScreen extends GetView<ProfileController> {
                         hintText: '새 비밀번호 다시 입력',
                         isObscured: controller.isConfirmPasswordObscured,
                         toggleVisibility:
-                            controller.toggleConfirmPasswordVisibility,
+                        controller.toggleConfirmPasswordVisibility,
                       ),
                     ],
                   ),
@@ -123,7 +123,7 @@ class ProfileScreen extends GetView<ProfileController> {
               verticalSpaceMedium,
               // 통합 저장 버튼
               Obx(
-                () => FilledButton.icon(
+                    () => FilledButton.icon(
                   icon: const Icon(Icons.save_outlined, size: 18),
                   label: const Text('변경 내용 저장'),
                   style: FilledButton.styleFrom(
@@ -136,11 +136,46 @@ class ProfileScreen extends GetView<ProfileController> {
                     disabledBackgroundColor: Colors.grey.shade300,
                   ),
                   onPressed:
-                      controller.hasChanges.value
-                          ? controller.saveChanges
-                          : null,
+                  controller.hasChanges.value
+                      ? controller.saveChanges
+                      : null,
                 ),
               ),
+
+              // --- 버튼 추가 시작 ---
+              // Obx로 감싸 isAppPasswordSet 값의 변화에 따라 UI를 다시 그리도록 함
+              Obx(() {
+                // isAppPasswordSet이 true일 때만 해제 버튼을 보여줌
+                if (controller.loginController.user.isAppPasswordSet) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: OutlinedButton.icon(
+                      icon: Icon(
+                        Icons.lock_open_outlined,
+                        color: Colors.red.shade700,
+                      ),
+                      label: Text(
+                        '앱 비밀번호 해제',
+                        style: textStyleMedium.copyWith(
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 50),
+                        side: BorderSide(color: Colors.red.shade200),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      onPressed: controller.promptForPasswordAndRemove,
+                    ),
+                  );
+                } else {
+                  // 비밀번호가 설정되지 않았으면 아무것도 보여주지 않음
+                  return const SizedBox.shrink();
+                }
+              }),
+              // --- 버튼 추가 끝 ---
 
               verticalSpaceLarge,
               const Divider(),
@@ -253,12 +288,12 @@ class ProfileScreen extends GetView<ProfileController> {
                   ),
                   onPressed:
                       () => Get.toNamed(
-                        Routes.chat,
-                        arguments: {
-                          'partnerUid': user.partnerUid,
-                          'partnerNickname': partnerNickname,
-                        },
-                      ),
+                    Routes.chat,
+                    arguments: {
+                      'partnerUid': user.partnerUid,
+                      'partnerNickname': partnerNickname,
+                    },
+                  ),
                 ),
                 verticalSpaceSmall,
                 OutlinedButton.icon(
@@ -423,20 +458,20 @@ class ProfileScreen extends GetView<ProfileController> {
                   width: 22,
                   height: 22,
                   child:
-                      user.platform == LoginPlatform.naver
-                          ? Image(
-                            image: Svg(
-                              'assets/naver_icon.svg',
-                              color: Colors.green.shade600,
-                            ),
-                          )
-                          : user.platform == LoginPlatform.kakao
-                          ? const Image(image: Svg('assets/kakao_icon.svg'))
-                          : Icon(
-                            Icons.device_unknown_outlined,
-                            color: Colors.grey.shade700,
-                            size: 22,
-                          ),
+                  user.platform == LoginPlatform.naver
+                      ? Image(
+                    image: Svg(
+                      'assets/naver_icon.svg',
+                      color: Colors.green.shade600,
+                    ),
+                  )
+                      : user.platform == LoginPlatform.kakao
+                      ? const Image(image: Svg('assets/kakao_icon.svg'))
+                      : Icon(
+                    Icons.device_unknown_outlined,
+                    color: Colors.grey.shade700,
+                    size: 22,
+                  ),
                 ),
                 horizontalSpaceSmall,
                 Text(

@@ -55,14 +55,7 @@ class AppConfig {
     }
 
     String? url;
-    if (Platform.isAndroid) {
-      url = dotenv.env['ApiUrlDev'];
-      if (kDebugMode && url != null) {
-        print('AppConfig: Using ApiUrlDev for Android: $url');
-      }
-    }
 
-    // ApiUrlDev가 없거나, 안드로이드가 아닌 경우 ApiUrl 사용
     url ??= dotenv.env['ApiUrl'];
 
     if (kDebugMode && url == null) {

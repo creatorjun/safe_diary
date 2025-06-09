@@ -1,7 +1,7 @@
 // lib/app/models/user.dart
 
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart'; // DateFormat 사용을 위해 추가
+import 'package:intl/intl.dart';
 
 enum LoginPlatform {
   naver,
@@ -11,8 +11,9 @@ enum LoginPlatform {
   String toJson() => name;
 
   static LoginPlatform fromJson(String jsonValue) {
+    // toUpperCase()를 사용하여 대소문자 구분 없이 비교하도록 수정
     return LoginPlatform.values.firstWhere(
-      (e) => e.name == jsonValue,
+          (e) => e.name.toUpperCase() == jsonValue.toUpperCase(),
       orElse: () => LoginPlatform.none,
     );
   }
@@ -96,9 +97,6 @@ class User {
     };
   }
 
-  // fromJson은 현재 LoginController에서 직접 API 응답을 파싱하여 User 객체를 생성하므로,
-  // 이 메서드는 현재 직접적으로 사용되지 않을 수 있습니다.
-  // 만약 사용된다면 partnerNickname 파싱 로직을 추가해야 합니다.
   factory User.fromJson(Map<String, dynamic> json) {
     DateTime? parsedCreatedAt;
     if (json['createdAt'] != null && (json['createdAt'] as String).isNotEmpty) {
@@ -113,22 +111,19 @@ class User {
     }
 
     return User(
-      platform: LoginPlatform.fromJson(
-        // API 응답에서는 'loginProvider' 필드를 사용하고, User 모델에서는 'platform'을 사용하므로 주의
-        json['platform'] as String? ?? LoginPlatform.none.name,
-      ),
-      // API 응답에서는 'uid' 필드를 사용하고, User 모델에서는 'id'를 사용하므로 주의
-      id: json['id'] as String?,
+      id: json['uid'] as String?, // 'uid'를 'id'로 매핑
       nickname: json['nickname'] as String?,
+      platform: LoginPlatform.fromJson(
+        // 'loginProvider'를 'platform'으로 매핑
+        json['loginProvider'] as String? ?? LoginPlatform.none.name,
+      ),
+      isAppPasswordSet: json['appPasswordSet'] as bool? ?? false, // 'appPasswordSet'을 'isAppPasswordSet'으로 매핑
       partnerUid: json['partnerUid'] as String?,
       partnerNickname: json['partnerNickname'] as String?,
-      // fromJson에 추가
       socialAccessToken: json['socialAccessToken'] as String?,
       safeAccessToken: json['safeAccessToken'] as String?,
       safeRefreshToken: json['safeRefreshToken'] as String?,
       isNew: json['isNew'] as bool? ?? false,
-      // API 응답에서는 'appPasswordSet' 필드를 사용하고, User 모델에서는 'isAppPasswordSet'을 사용하므로 주의
-      isAppPasswordSet: json['isAppPasswordSet'] as bool? ?? false,
       createdAt: parsedCreatedAt,
     );
   }

@@ -67,8 +67,12 @@ class ChatController extends GetxController {
       errorMessage.value = "STOMP 연결을 위한 API URL을 찾을 수 없습니다.";
       return;
     }
-
-    String stompUrl = "${baseApiUrl.replaceFirst(RegExp(r'^http'), 'ws')}/ws";
+    String stompUrl;
+    if (baseApiUrl.startsWith('https')) {
+      stompUrl = "${baseApiUrl.replaceFirst('https', 'wss')}/ws";
+    } else {
+      stompUrl = "${baseApiUrl.replaceFirst('http', 'ws')}/ws";
+    }
 
     final String? token = _loginController.user.safeAccessToken;
     if (token == null) {

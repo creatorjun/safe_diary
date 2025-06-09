@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'package:get/get.dart';
+import '../models/user.dart';
 import 'api_service.dart';
 
 class UserService extends GetxService {
@@ -9,10 +10,11 @@ class UserService extends GetxService {
 
   UserService(this._apiService);
 
-  Future<void> updateNickname(String newNickname) async {
-    await _apiService.patch(
+  Future<User> updateNickname(String newNickname) async {
+    return await _apiService.patch<User>(
       '/api/v1/users/me',
       body: {'nickname': newNickname},
+      parser: (data) => User.fromJson(data as Map<String, dynamic>),
     );
   }
 
