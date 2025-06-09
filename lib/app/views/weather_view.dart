@@ -263,7 +263,7 @@ class WeatherView extends GetView<WeatherController> {
         ),
         Positioned.fill(
           child: Container(
-            color: Colors.black.withAlpha(30),
+            color: Colors.white.withAlpha(30),
             padding: const EdgeInsets.symmetric(horizontal: 20.0).copyWith(
               top: MediaQuery.of(context).padding.top + 10,
               bottom: MediaQuery.of(context).padding.bottom + 20,
@@ -333,7 +333,7 @@ class WeatherView extends GetView<WeatherController> {
                       verticalSpaceLarge,
                       if (dailyForecast.weatherAm != null ||
                           dailyForecast.weatherPm != null)
-                        const Divider(color: Colors.white54),
+                        const Divider(color: Colors.white),
                       verticalSpaceSmall,
                       _buildWeatherDetailRow("오전 날씨", dailyForecast.weatherAm),
                       _buildWeatherDetailRow(
@@ -424,7 +424,7 @@ class WeatherView extends GetView<WeatherController> {
         children: [
           Text(
             label,
-            style: textStyleMedium.copyWith(color: Colors.white.withAlpha(15)),
+            style: textStyleMedium.copyWith(color: Colors.white),
           ),
           Text(
             value != null ? '$value$unit' : '-',
