@@ -1,3 +1,4 @@
+// lib/app/models/chat_models.dart
 
 enum MessageType {
   chat,
@@ -66,6 +67,29 @@ class ChatMessage {
   @override
   String toString() {
     return 'ChatMessage(id: $id, type: $type, content: $content, senderUid: $senderUid, senderNickname: $senderNickname, receiverUid: $receiverUid, timestamp: $timestamp, isRead: $isRead)';
+  }
+
+  // ✅ '읽음' 상태 변경을 위해 copyWith 메서드를 추가합니다.
+  ChatMessage copyWith({
+    String? id,
+    MessageType? type,
+    String? content,
+    String? senderUid,
+    String? senderNickname,
+    String? receiverUid,
+    int? timestamp,
+    bool? isRead,
+  }) {
+    return ChatMessage(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      content: content ?? this.content,
+      senderUid: senderUid ?? this.senderUid,
+      senderNickname: senderNickname ?? this.senderNickname,
+      receiverUid: receiverUid ?? this.receiverUid,
+      timestamp: timestamp ?? this.timestamp,
+      isRead: isRead ?? this.isRead,
+    );
   }
 }
 

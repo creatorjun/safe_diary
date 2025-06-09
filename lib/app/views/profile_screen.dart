@@ -110,7 +110,7 @@ class ProfileScreen extends GetView<ProfileController> {
               verticalSpaceMedium,
               // 통합 저장 버튼
               Obx(() => FilledButton.icon(
-                icon: const Icon(Icons.save_alt_rounded, size: 18),
+                icon: const Icon(Icons.save_outlined, size: 18),
                 label: const Text('변경 내용 저장'),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
