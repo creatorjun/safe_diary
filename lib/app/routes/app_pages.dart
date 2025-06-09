@@ -18,7 +18,6 @@ import '../bindings/profile_auth_binding.dart';
 import '../views/chat_screen.dart';
 import '../bindings/chat_binding.dart';
 
-
 part 'app_routes.dart'; // app_routes.dart 파일을 현재 파일의 일부로 포함
 
 class AppPages {

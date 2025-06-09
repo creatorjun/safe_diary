@@ -59,8 +59,14 @@ class ApiService extends GetxService {
     return headers;
   }
 
-  Future<T> get<T>(String endpoint, {Map<String, String>? queryParams, T Function(dynamic data)? parser}) async {
-    final url = Uri.parse('$_baseUrl$endpoint').replace(queryParameters: queryParams);
+  Future<T> get<T>(
+    String endpoint, {
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
+    final url = Uri.parse(
+      '$_baseUrl$endpoint',
+    ).replace(queryParameters: queryParams);
     final headers = await _getHeaders();
 
     if (kDebugMode) print('ApiService GET: $url');
@@ -69,8 +75,15 @@ class ApiService extends GetxService {
     return _handleResponse(response, parser: parser);
   }
 
-  Future<T> post<T>(String endpoint, {dynamic body, Map<String, String>? queryParams, T Function(dynamic data)? parser}) async {
-    final url = Uri.parse('$_baseUrl$endpoint').replace(queryParameters: queryParams);
+  Future<T> post<T>(
+    String endpoint, {
+    dynamic body,
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
+    final url = Uri.parse(
+      '$_baseUrl$endpoint',
+    ).replace(queryParameters: queryParams);
     final headers = await _getHeaders();
     final encodedBody = json.encode(body);
 
@@ -80,8 +93,15 @@ class ApiService extends GetxService {
     return _handleResponse(response, parser: parser);
   }
 
-  Future<T> put<T>(String endpoint, {dynamic body, Map<String, String>? queryParams, T Function(dynamic data)? parser}) async {
-    final url = Uri.parse('$_baseUrl$endpoint').replace(queryParameters: queryParams);
+  Future<T> put<T>(
+    String endpoint, {
+    dynamic body,
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
+    final url = Uri.parse(
+      '$_baseUrl$endpoint',
+    ).replace(queryParameters: queryParams);
     final headers = await _getHeaders();
     final encodedBody = json.encode(body);
 
@@ -91,8 +111,15 @@ class ApiService extends GetxService {
     return _handleResponse(response, parser: parser);
   }
 
-  Future<T> patch<T>(String endpoint, {dynamic body, Map<String, String>? queryParams, T Function(dynamic data)? parser}) async {
-    final url = Uri.parse('$_baseUrl$endpoint').replace(queryParameters: queryParams);
+  Future<T> patch<T>(
+    String endpoint, {
+    dynamic body,
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
+    final url = Uri.parse(
+      '$_baseUrl$endpoint',
+    ).replace(queryParameters: queryParams);
     final headers = await _getHeaders();
     final encodedBody = json.encode(body);
 
@@ -102,8 +129,15 @@ class ApiService extends GetxService {
     return _handleResponse(response, parser: parser);
   }
 
-  Future<T> delete<T>(String endpoint, {dynamic body, Map<String, String>? queryParams, T Function(dynamic data)? parser}) async {
-    final url = Uri.parse('$_baseUrl$endpoint').replace(queryParameters: queryParams);
+  Future<T> delete<T>(
+    String endpoint, {
+    dynamic body,
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
+    final url = Uri.parse(
+      '$_baseUrl$endpoint',
+    ).replace(queryParameters: queryParams);
     final headers = await _getHeaders();
     final request = http.Request('DELETE', url);
     request.headers.addAll(headers);
@@ -121,18 +155,26 @@ class ApiService extends GetxService {
     return _handleResponse(response, parser: parser);
   }
 
-  T _handleResponse<T>(http.Response response, {T Function(dynamic data)? parser}) {
+  T _handleResponse<T>(
+    http.Response response, {
+    T Function(dynamic data)? parser,
+  }) {
     if (kDebugMode) {
-      print('ApiService Response: ${response.request?.method} ${response.request?.url}');
+      print(
+        'ApiService Response: ${response.request?.method} ${response.request?.url}',
+      );
       print('Status Code: ${response.statusCode}');
       try {
         print('Body: ${utf8.decode(response.bodyBytes)}');
-      } catch(e) {
+      } catch (e) {
         print('Could not decode response body as UTF-8.');
       }
     }
 
-    final dynamic decodedBody = (response.body.isNotEmpty) ? json.decode(utf8.decode(response.bodyBytes)) : null;
+    final dynamic decodedBody =
+        (response.body.isNotEmpty)
+            ? json.decode(utf8.decode(response.bodyBytes))
+            : null;
 
     switch (response.statusCode) {
       case 200:
@@ -140,14 +182,22 @@ class ApiService extends GetxService {
       case 204:
         return parser != null ? parser(decodedBody) : decodedBody as T;
       case 401:
-        throw UnauthorizedException(decodedBody?['message'] ?? '인증에 실패했습니다. 다시 로그인해주세요.');
+        throw UnauthorizedException(
+          decodedBody?['message'] ?? '인증에 실패했습니다. 다시 로그인해주세요.',
+        );
       case 400:
       case 403:
       case 404:
       case 409:
-        throw ApiException(decodedBody?['message'] ?? '잘못된 요청입니다.', statusCode: response.statusCode);
+        throw ApiException(
+          decodedBody?['message'] ?? '잘못된 요청입니다.',
+          statusCode: response.statusCode,
+        );
       default:
-        throw ApiException('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', statusCode: response.statusCode);
+        throw ApiException(
+          '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+          statusCode: response.statusCode,
+        );
     }
   }
 }

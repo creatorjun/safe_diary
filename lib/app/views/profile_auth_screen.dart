@@ -11,7 +11,6 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('개인정보 접근 인증', style: textStyleMedium), //
@@ -42,17 +41,20 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
                 obscureText: true,
                 autofocus: true,
                 textAlign: TextAlign.center,
-                style: textStyleMedium, //
+                style: textStyleMedium,
+                //
                 decoration: InputDecoration(
                   hintText: '비밀번호',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                onSubmitted: (_) => controller.verifyPasswordAndNavigate(), // 엔터키로 제출
+                onSubmitted:
+                    (_) => controller.verifyPasswordAndNavigate(), // 엔터키로 제출
               ),
               verticalSpaceSmall, //
-              Obx(() { // 에러 메시지 표시
+              Obx(() {
+                // 에러 메시지 표시
                 if (controller.errorMessage.value.isNotEmpty) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
@@ -66,17 +68,21 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
                 return const SizedBox.shrink();
               }),
               verticalSpaceMedium, //
-              Obx(() { // 로딩 상태에 따라 버튼 또는 인디케이터 표시
+              Obx(() {
+                // 로딩 상태에 따라 버튼 또는 인디케이터 표시
                 return controller.isLoading.value
                     ? const Center(child: CircularProgressIndicator())
                     : ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    backgroundColor: Theme.of(context).primaryColor,
-                  ),
-                  onPressed: controller.verifyPasswordAndNavigate,
-                  child: Text('확인', style: textStyleMedium.copyWith(color: Colors.white)), //
-                );
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
+                      onPressed: controller.verifyPasswordAndNavigate,
+                      child: Text(
+                        '확인',
+                        style: textStyleMedium.copyWith(color: Colors.white),
+                      ), //
+                    );
               }),
             ],
           ),

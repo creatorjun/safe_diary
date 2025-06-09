@@ -13,10 +13,10 @@ class ProfileAuthController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   ProfileAuthController(
-      this._loginController,
-      this._partnerController,
-      this._secureStorageService,
-      );
+    this._loginController,
+    this._partnerController,
+    this._secureStorageService,
+  );
 
   late TextEditingController passwordController;
 
@@ -55,7 +55,9 @@ class ProfileAuthController extends GetxController {
       return;
     }
 
-    final bool isVerified = await _loginController.verifyAppPasswordWithServer(enteredPassword);
+    final bool isVerified = await _loginController.verifyAppPasswordWithServer(
+      enteredPassword,
+    );
 
     if (isVerified) {
       await _secureStorageService.clearFailedAttemptCount();
@@ -63,7 +65,10 @@ class ProfileAuthController extends GetxController {
       passwordController.clear();
       isLoading.value = false;
       // 인증 성공 시, 입력했던 비밀번호를 arguments로 전달하며 프로필 화면으로 이동합니다.
-      Get.offNamed(Routes.profile, arguments: {'verifiedPassword': enteredPasswordCopy});
+      Get.offNamed(
+        Routes.profile,
+        arguments: {'verifiedPassword': enteredPasswordCopy},
+      );
     } else {
       int currentAttempts = await _secureStorageService.getFailedAttemptCount();
       currentAttempts++;
@@ -93,7 +98,8 @@ class ProfileAuthController extends GetxController {
       margin: const EdgeInsets.all(12.0),
     );
 
-    if (_loginController.user.partnerUid != null && _loginController.user.partnerUid!.isNotEmpty) {
+    if (_loginController.user.partnerUid != null &&
+        _loginController.user.partnerUid!.isNotEmpty) {
       await _partnerController.unfriendPartnerAndClearChat();
     }
 

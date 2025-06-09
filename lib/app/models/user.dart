@@ -12,7 +12,7 @@ enum LoginPlatform {
 
   static LoginPlatform fromJson(String jsonValue) {
     return LoginPlatform.values.firstWhere(
-          (e) => e.name == jsonValue,
+      (e) => e.name == jsonValue,
       orElse: () => LoginPlatform.none,
     );
   }
@@ -65,7 +65,8 @@ class User {
       id: id ?? this.id,
       nickname: nickname ?? this.nickname,
       partnerUid: partnerUid ?? this.partnerUid,
-      partnerNickname: partnerNickname ?? this.partnerNickname, // copyWith에 로직 추가
+      partnerNickname: partnerNickname ?? this.partnerNickname,
+      // copyWith에 로직 추가
       socialAccessToken: socialAccessToken ?? this.socialAccessToken,
       safeAccessToken: safeAccessToken ?? this.safeAccessToken,
       safeRefreshToken: safeRefreshToken ?? this.safeRefreshToken,
@@ -120,7 +121,8 @@ class User {
       id: json['id'] as String?,
       nickname: json['nickname'] as String?,
       partnerUid: json['partnerUid'] as String?,
-      partnerNickname: json['partnerNickname'] as String?, // fromJson에 추가
+      partnerNickname: json['partnerNickname'] as String?,
+      // fromJson에 추가
       socialAccessToken: json['socialAccessToken'] as String?,
       safeAccessToken: json['safeAccessToken'] as String?,
       safeRefreshToken: json['safeRefreshToken'] as String?,

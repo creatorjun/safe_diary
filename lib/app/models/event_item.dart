@@ -9,7 +9,7 @@ class EventItem {
   final String title;
   final DateTime eventDate;
   final TimeOfDay? startTime; // Nullable로 변경
-  final TimeOfDay? endTime;   // Nullable로 변경
+  final TimeOfDay? endTime; // Nullable로 변경
   final DateTime? createdAt;
 
   EventItem({
@@ -17,12 +17,14 @@ class EventItem {
     required this.title,
     required this.eventDate,
     this.startTime, // Nullable
-    this.endTime,   // Nullable
+    this.endTime, // Nullable
     this.createdAt,
   });
 
   factory EventItem.fromJson(Map<String, dynamic> json) {
-    final DateTime parsedEventDate = DateTime.parse(json['eventDate'] as String);
+    final DateTime parsedEventDate = DateTime.parse(
+      json['eventDate'] as String,
+    );
     TimeOfDay? parsedStartTime;
     TimeOfDay? parsedEndTime;
 
@@ -64,12 +66,14 @@ class EventItem {
     return {
       'text': title,
       'eventDate': formattedEventDate,
-      'startTime': startTime != null
-          ? '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}'
-          : null, // Nullable 처리
-      'endTime': endTime != null
-          ? '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}'
-          : null, // Nullable 처리
+      'startTime':
+          startTime != null
+              ? '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}'
+              : null, // Nullable 처리
+      'endTime':
+          endTime != null
+              ? '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}'
+              : null, // Nullable 처리
     };
   }
 
@@ -101,7 +105,7 @@ class EventItem {
     String? title,
     DateTime? eventDate,
     ValueGetter<TimeOfDay?>? startTime, // Nullable TimeOfDay를 위한 ValueGetter
-    ValueGetter<TimeOfDay?>? endTime,   // Nullable TimeOfDay를 위한 ValueGetter
+    ValueGetter<TimeOfDay?>? endTime, // Nullable TimeOfDay를 위한 ValueGetter
     DateTime? createdAt,
   }) {
     return EventItem(

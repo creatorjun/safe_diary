@@ -1,4 +1,3 @@
-
 class ZodiacLuckData {
   final String requestDate; // API는 date string으로 반환하지만, DateTime으로 파싱해서 사용 가능
   final String zodiacName;
@@ -28,7 +27,9 @@ class ZodiacLuckData {
     return ZodiacLuckData(
       requestDate: json['requestDate'] as String? ?? '',
       zodiacName: json['zodiacName'] as String? ?? '',
-      applicableYears: List<String>.from(json['applicableYears'] as List? ?? []),
+      applicableYears: List<String>.from(
+        json['applicableYears'] as List? ?? [],
+      ),
       overallLuck: json['overallLuck'] as String?,
       financialLuck: json['financialLuck'] as String?,
       loveLuck: json['loveLuck'] as String?,

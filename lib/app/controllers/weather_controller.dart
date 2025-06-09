@@ -14,12 +14,13 @@ class WeatherController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   WeatherController(
-      this._weatherService,
-      this._loginController,
-      this._secureStorageService,
-      );
+    this._weatherService,
+    this._loginController,
+    this._secureStorageService,
+  );
 
-  final Rx<WeeklyForecastResponseDto?> weeklyForecast = Rx<WeeklyForecastResponseDto?>(null);
+  final Rx<WeeklyForecastResponseDto?> weeklyForecast =
+      Rx<WeeklyForecastResponseDto?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
@@ -27,8 +28,20 @@ class WeatherController extends GetxController {
   final RxString selectedCityName = _defaultCityName.obs;
 
   final List<String> availableCities = [
-    "서울", "부산", "대구", "인천", "광주", "대전", "울산",
-    "수원", "춘천", "강릉", "청주", "전주", "포항", "제주"
+    "서울",
+    "부산",
+    "대구",
+    "인천",
+    "광주",
+    "대전",
+    "울산",
+    "수원",
+    "춘천",
+    "강릉",
+    "청주",
+    "전주",
+    "포항",
+    "제주",
   ];
 
   @override
@@ -66,26 +79,30 @@ class WeatherController extends GetxController {
       if (date == null) {
         final now = DateTime.now();
         // 현재 시간이 오전 7시 이전이면, 어제 날짜를 기준으로 요청
-        final dateToRequest = (now.hour < 7)
-            ? now.subtract(const Duration(days: 1))
-            : now;
+        final dateToRequest =
+            (now.hour < 7) ? now.subtract(const Duration(days: 1)) : now;
         targetDate = DateFormat('yyyy-MM-dd').format(dateToRequest);
       } else {
         targetDate = date;
       }
 
       if (kDebugMode) {
-        print('[WeatherController] Requesting weather for $cityName on date: $targetDate');
+        print(
+          '[WeatherController] Requesting weather for $cityName on date: $targetDate',
+        );
       }
 
-      final forecastData =
-      await _weatherService.getWeeklyForecastByCityName(cityName, targetDate);
+      final forecastData = await _weatherService.getWeeklyForecastByCityName(
+        cityName,
+        targetDate,
+      );
       weeklyForecast.value = forecastData;
-
     } catch (e) {
       errorMessage.value = e.toString();
       if (kDebugMode) {
-        print('[WeatherController] Error fetching weekly forecast for $cityName: $e');
+        print(
+          '[WeatherController] Error fetching weekly forecast for $cityName: $e',
+        );
       }
     } finally {
       isLoading.value = false;
@@ -93,7 +110,8 @@ class WeatherController extends GetxController {
   }
 
   Future<void> changeCity(String newCityName) async {
-    if (availableCities.contains(newCityName) && selectedCityName.value != newCityName) {
+    if (availableCities.contains(newCityName) &&
+        selectedCityName.value != newCityName) {
       selectedCityName.value = newCityName;
       await _secureStorageService.saveSelectedCity(newCityName);
       // 도시 변경 시에도 수정된 날짜 로직에 따라 날씨 정보 요청

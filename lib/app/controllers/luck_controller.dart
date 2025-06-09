@@ -13,10 +13,10 @@ class LuckController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   LuckController(
-      this._luckService,
-      this._loginController,
-      this._secureStorageService,
-      );
+    this._luckService,
+    this._loginController,
+    this._secureStorageService,
+  );
 
   final Rx<ZodiacLuckData?> zodiacLuck = Rx<ZodiacLuckData?>(null);
   final RxBool isLoading = false.obs;
@@ -48,10 +48,17 @@ class LuckController extends GetxController {
   // 현재 선택된 띠의 UI 표시용 이름
   String get currentSelectedZodiacDisplayName {
     return zodiacNameMap.entries
-        .firstWhere((entry) => entry.value == selectedZodiacApiName.value,
-        orElse: () => MapEntry(availableZodiacsForDisplay.first, _defaultZodiacApiName))
+        .firstWhere(
+          (entry) => entry.value == selectedZodiacApiName.value,
+          orElse:
+              () => MapEntry(
+                availableZodiacsForDisplay.first,
+                _defaultZodiacApiName,
+              ),
+        )
         .key;
   }
+
   // --- End of Missing Code ---
 
   @override
@@ -70,8 +77,10 @@ class LuckController extends GetxController {
   }
 
   Future<void> _loadSavedZodiacAndFetchLuck() async {
-    String? savedZodiacApiName = await _secureStorageService.getSelectedZodiac();
-    if (savedZodiacApiName != null && zodiacNameMap.containsValue(savedZodiacApiName)) {
+    String? savedZodiacApiName =
+        await _secureStorageService.getSelectedZodiac();
+    if (savedZodiacApiName != null &&
+        zodiacNameMap.containsValue(savedZodiacApiName)) {
       selectedZodiacApiName.value = savedZodiacApiName;
     } else {
       selectedZodiacApiName.value = _defaultZodiacApiName;
@@ -89,7 +98,9 @@ class LuckController extends GetxController {
       final luckData = await _luckService.getTodaysLuck(zodiacApiName);
       zodiacLuck.value = luckData;
       if (kDebugMode) {
-        print('[LuckController] Fetched today\'s luck for $zodiacApiName: ${luckData.overallLuck}');
+        print(
+          '[LuckController] Fetched today\'s luck for $zodiacApiName: ${luckData.overallLuck}',
+        );
       }
     } catch (e) {
       errorMessage.value = e.toString();
@@ -109,7 +120,8 @@ class LuckController extends GetxController {
       await _secureStorageService.saveSelectedZodiac(newApiName);
       fetchTodaysLuck(newApiName);
       Get.back();
-    } else if (newApiName != null && selectedZodiacApiName.value == newApiName) {
+    } else if (newApiName != null &&
+        selectedZodiacApiName.value == newApiName) {
       Get.back();
     }
   }

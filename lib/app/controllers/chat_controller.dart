@@ -23,10 +23,10 @@ class ChatController extends GetxController {
     required LoginController loginController,
     required String partnerUid,
     String? partnerNickname,
-  })  : _chatService = chatService,
-        _loginController = loginController,
-        _chatPartnerUid = partnerUid,
-        _chatPartnerNickname = partnerNickname;
+  }) : _chatService = chatService,
+       _loginController = loginController,
+       _chatPartnerUid = partnerUid,
+       _chatPartnerNickname = partnerNickname;
 
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final RxBool isLoading = false.obs;
@@ -41,7 +41,6 @@ class ChatController extends GetxController {
   StompClient? stompClient;
   StompUnsubscribe? _chatSubscription;
   StompUnsubscribe? _readReceiptSubscription;
-
 
   @override
   void onInit() {
@@ -82,7 +81,9 @@ class ChatController extends GetxController {
         url: stompUrl,
         onConnect: _onStompConnected,
         onWebSocketError: (dynamic error) {
-          if (kDebugMode) print('[ChatController] STOMP WebSocket Error: $error');
+          if (kDebugMode) {
+            print('[ChatController] STOMP WebSocket Error: $error');
+          }
           errorMessage.value = '채팅 서버 연결 오류: ${error.toString()}';
         },
         onStompError: (StompFrame frame) {
@@ -111,14 +112,18 @@ class ChatController extends GetxController {
       callback: (StompFrame frame) {
         if (frame.body != null) {
           try {
-            final ChatMessage receivedMessage = ChatMessage.fromJson(json.decode(frame.body!));
+            final ChatMessage receivedMessage = ChatMessage.fromJson(
+              json.decode(frame.body!),
+            );
 
             bool isMyEchoMessage = receivedMessage.senderUid == _currentUserUid;
 
             if (isMyEchoMessage) {
-              final index = messages.lastIndexWhere((msg) =>
-              (msg.id?.startsWith('temp_') ?? false) &&
-                  msg.content == receivedMessage.content);
+              final index = messages.lastIndexWhere(
+                (msg) =>
+                    (msg.id?.startsWith('temp_') ?? false) &&
+                    msg.content == receivedMessage.content,
+              );
               if (index != -1) {
                 messages[index] = receivedMessage;
               }
@@ -129,7 +134,9 @@ class ChatController extends GetxController {
               }
             }
           } catch (e) {
-            if (kDebugMode) print('[ChatController] Error processing chat message: $e');
+            if (kDebugMode) {
+              print('[ChatController] Error processing chat message: $e');
+            }
           }
         }
       },
@@ -141,9 +148,13 @@ class ChatController extends GetxController {
       callback: (StompFrame frame) {
         if (frame.body != null) {
           try {
-            if (kDebugMode) print('[ChatController] Read receipt received: ${frame.body}');
+            if (kDebugMode) {
+              print('[ChatController] Read receipt received: ${frame.body}');
+            }
             final confirmation = json.decode(frame.body!);
-            final List<String> updatedMessageIds = List<String>.from(confirmation['updatedMessageIds'] ?? []);
+            final List<String> updatedMessageIds = List<String>.from(
+              confirmation['updatedMessageIds'] ?? [],
+            );
 
             for (String msgId in updatedMessageIds) {
               final index = messages.indexWhere((m) => m.id == msgId);
@@ -152,7 +163,9 @@ class ChatController extends GetxController {
               }
             }
           } catch (e) {
-            if (kDebugMode) print('[ChatController] Error processing read receipt: $e');
+            if (kDebugMode) {
+              print('[ChatController] Error processing read receipt: $e');
+            }
           }
         }
       },
@@ -170,17 +183,29 @@ class ChatController extends GetxController {
     stompClient?.send(
       destination: '/app/chat.activity.enter',
       body: body,
-      headers: {'Authorization': 'Bearer ${_loginController.user.safeAccessToken}'},
+      headers: {
+        'Authorization': 'Bearer ${_loginController.user.safeAccessToken}',
+      },
     );
-    if (kDebugMode) print('[ChatController] Sent activity.enter event for partner: $_chatPartnerUid');
+    if (kDebugMode) {
+      print(
+        '[ChatController] Sent activity.enter event for partner: $_chatPartnerUid',
+      );
+    }
 
     // 2. "과거 메시지 모두 읽음" 처리 요청
     stompClient?.send(
       destination: '/app/chat.messageRead',
       body: body,
-      headers: {'Authorization': 'Bearer ${_loginController.user.safeAccessToken}'},
+      headers: {
+        'Authorization': 'Bearer ${_loginController.user.safeAccessToken}',
+      },
     );
-    if (kDebugMode) print('[ChatController] Sent messageRead event for partner: $_chatPartnerUid');
+    if (kDebugMode) {
+      print(
+        '[ChatController] Sent messageRead event for partner: $_chatPartnerUid',
+      );
+    }
   }
 
   // 채팅방에서 나갈 때 호출될 메서드
@@ -192,9 +217,15 @@ class ChatController extends GetxController {
     stompClient?.send(
       destination: '/app/chat.activity.leave',
       body: json.encode(payload),
-      headers: {'Authorization': 'Bearer ${_loginController.user.safeAccessToken}'},
+      headers: {
+        'Authorization': 'Bearer ${_loginController.user.safeAccessToken}',
+      },
     );
-    if (kDebugMode) print('[ChatController] Sent activity.leave event for partner: $_chatPartnerUid');
+    if (kDebugMode) {
+      print(
+        '[ChatController] Sent activity.leave event for partner: $_chatPartnerUid',
+      );
+    }
   }
 
   Future<void> fetchInitialMessages() async {
@@ -207,13 +238,14 @@ class ChatController extends GetxController {
     hasReachedMax.value = false;
     try {
       final response = await _chatService.getChatMessages(
-          otherUserUid: _chatPartnerUid, size: 20);
+        otherUserUid: _chatPartnerUid,
+        size: 20,
+      );
 
       final fetchedMessages = response.messages;
       fetchedMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       messages.assignAll(fetchedMessages);
       hasReachedMax.value = !response.hasNextPage;
-
     } catch (e) {
       errorMessage.value = "메시지 로딩 중 오류: ${e.toString()}";
     } finally {
@@ -274,13 +306,16 @@ class ChatController extends GetxController {
     stompClient?.send(
       destination: '/app/chat.sendMessage',
       body: json.encode(messageToSendPayload),
-      headers: {'Authorization': 'Bearer ${_loginController.user.safeAccessToken}'},
+      headers: {
+        'Authorization': 'Bearer ${_loginController.user.safeAccessToken}',
+      },
     );
     messageInputController.clear();
   }
 
   void _scrollListener() {
-    if (scrollController.position.pixels <= scrollController.position.minScrollExtent + 50 &&
+    if (scrollController.position.pixels <=
+            scrollController.position.minScrollExtent + 50 &&
         !isFetchingMore.value &&
         !hasReachedMax.value) {
       fetchMoreMessages();

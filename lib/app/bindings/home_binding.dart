@@ -20,8 +20,10 @@ class HomeBinding extends Bindings {
     // 2. 컨트롤러들을 등록하고, 필요한 서비스와 다른 컨트롤러를 주입합니다.
     Get.lazyPut<HomeController>(() => HomeController(Get.find(), Get.find()));
     Get.lazyPut<WeatherController>(
-            () => WeatherController(Get.find(), Get.find(), Get.find()));
+      () => WeatherController(Get.find(), Get.find(), Get.find()),
+    );
     Get.lazyPut<LuckController>(
-            () => LuckController(Get.find(), Get.find(), Get.find()));
+      () => LuckController(Get.find(), Get.find(), Get.find()),
+    );
   }
 }

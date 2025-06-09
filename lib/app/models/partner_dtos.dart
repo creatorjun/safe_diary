@@ -4,10 +4,7 @@ class PartnerUserInfoDto {
   final String userUid;
   final String? nickname;
 
-  PartnerUserInfoDto({
-    required this.userUid,
-    this.nickname,
-  });
+  PartnerUserInfoDto({required this.userUid, this.nickname});
 
   factory PartnerUserInfoDto.fromJson(Map<String, dynamic> json) {
     return PartnerUserInfoDto(
@@ -17,10 +14,7 @@ class PartnerUserInfoDto {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'userUid': userUid,
-      'nickname': nickname,
-    };
+    return {'userUid': userUid, 'nickname': nickname};
   }
 }
 
@@ -44,14 +38,10 @@ class PartnerInvitationResponseDto {
 class PartnerInvitationAcceptRequestDto {
   final String invitationId;
 
-  PartnerInvitationAcceptRequestDto({
-    required this.invitationId,
-  });
+  PartnerInvitationAcceptRequestDto({required this.invitationId});
 
   Map<String, dynamic> toJson() {
-    return {
-      'invitationId': invitationId,
-    };
+    return {'invitationId': invitationId};
   }
 }
 
@@ -71,8 +61,12 @@ class PartnerRelationResponseDto {
   factory PartnerRelationResponseDto.fromJson(Map<String, dynamic> json) {
     return PartnerRelationResponseDto(
       message: json['message'] as String,
-      currentUser: PartnerUserInfoDto.fromJson(json['currentUser'] as Map<String, dynamic>),
-      partnerUser: PartnerUserInfoDto.fromJson(json['partnerUser'] as Map<String, dynamic>),
+      currentUser: PartnerUserInfoDto.fromJson(
+        json['currentUser'] as Map<String, dynamic>,
+      ),
+      partnerUser: PartnerUserInfoDto.fromJson(
+        json['partnerUser'] as Map<String, dynamic>,
+      ),
       partnerSince: json['partnerSince'] as String,
     );
   }

@@ -13,16 +13,21 @@ import 'login_controller.dart';
 class PartnerController extends GetxController {
   // The LoginController dependency is now injected via the constructor.
   final LoginController _loginController;
+
   PartnerController(this._loginController);
 
   final RxBool _isLoading = false.obs;
+
   bool get isLoading => _isLoading.value;
 
   final RxString _errorMessage = ''.obs;
+
   String get errorMessage => _errorMessage.value;
 
-  final Rx<PartnerInvitationResponseDto?> currentInvitation = Rx<PartnerInvitationResponseDto?>(null);
-  final Rx<PartnerRelationResponseDto?> currentPartnerRelation = Rx<PartnerRelationResponseDto?>(null);
+  final Rx<PartnerInvitationResponseDto?> currentInvitation =
+      Rx<PartnerInvitationResponseDto?>(null);
+  final Rx<PartnerRelationResponseDto?> currentPartnerRelation =
+      Rx<PartnerRelationResponseDto?>(null);
 
   void _setLoading(bool loading) {
     _isLoading.value = loading;
@@ -32,11 +37,17 @@ class PartnerController extends GetxController {
     _errorMessage.value = '';
   }
 
-  void _setError(String detailedLogMessage, {bool showGeneralMessageToUser = true}) {
+  void _setError(
+    String detailedLogMessage, {
+    bool showGeneralMessageToUser = true,
+  }) {
     if (kDebugMode) {
       print("[PartnerController] Detailed Error: $detailedLogMessage");
     }
-    _errorMessage.value = showGeneralMessageToUser ? "파트너 관련 작업 중 오류가 발생했습니다." : detailedLogMessage;
+    _errorMessage.value =
+        showGeneralMessageToUser
+            ? "파트너 관련 작업 중 오류가 발생했습니다."
+            : detailedLogMessage;
   }
 
   @override
@@ -57,15 +68,20 @@ class PartnerController extends GetxController {
       }
     } else {
       if (currentInvitation.value != null) {
-        currentInvitation.value = null; // A partner is connected, so clear any existing invitation code.
+        currentInvitation.value =
+            null; // A partner is connected, so clear any existing invitation code.
       }
     }
     update();
   }
 
   Future<void> createPartnerInvitationCode() async {
-    if (_loginController.user.partnerUid != null && _loginController.user.partnerUid!.isNotEmpty) {
-      _setError("이미 파트너와 연결되어 있어 초대 코드를 생성할 수 없습니다.", showGeneralMessageToUser: false);
+    if (_loginController.user.partnerUid != null &&
+        _loginController.user.partnerUid!.isNotEmpty) {
+      _setError(
+        "이미 파트너와 연결되어 있어 초대 코드를 생성할 수 없습니다.",
+        showGeneralMessageToUser: false,
+      );
       return;
     }
     _setLoading(true);
@@ -98,7 +114,10 @@ class PartnerController extends GetxController {
         Get.snackbar('성공', '파트너 초대 코드가 생성되었습니다.');
       } else {
         final responseBody = json.decode(utf8.decode(response.bodyBytes));
-        _setError(responseBody['message'] ?? '초대 코드 생성 실패.', showGeneralMessageToUser: false);
+        _setError(
+          responseBody['message'] ?? '초대 코드 생성 실패.',
+          showGeneralMessageToUser: false,
+        );
       }
     } catch (e, s) {
       _setError('초대 코드 생성 중 예외 발생: $e\n$s');
@@ -107,8 +126,12 @@ class PartnerController extends GetxController {
   }
 
   Future<void> acceptPartnerInvitation(String invitationId) async {
-    if (_loginController.user.partnerUid != null && _loginController.user.partnerUid!.isNotEmpty) {
-      _setError("이미 파트너와 연결되어 있어 초대를 수락할 수 없습니다.", showGeneralMessageToUser: false);
+    if (_loginController.user.partnerUid != null &&
+        _loginController.user.partnerUid!.isNotEmpty) {
+      _setError(
+        "이미 파트너와 연결되어 있어 초대를 수락할 수 없습니다.",
+        showGeneralMessageToUser: false,
+      );
       return;
     }
     _setLoading(true);
@@ -122,8 +145,11 @@ class PartnerController extends GetxController {
       return;
     }
 
-    final Uri requestUri = Uri.parse('$baseUrl/api/v1/partner/invitation/accept');
-    final requestBody = PartnerInvitationAcceptRequestDto(invitationId: invitationId).toJson();
+    final Uri requestUri = Uri.parse(
+      '$baseUrl/api/v1/partner/invitation/accept',
+    );
+    final requestBody =
+        PartnerInvitationAcceptRequestDto(invitationId: invitationId).toJson();
 
     try {
       final response = await http.post(
@@ -144,10 +170,16 @@ class PartnerController extends GetxController {
           partnerNickname: relation.partnerUser.nickname,
         );
         currentInvitation.value = null;
-        Get.snackbar('성공', '파트너 초대를 수락했습니다! 이제부터 \'${relation.partnerUser.nickname ?? '파트너'}\'님과 연결됩니다.');
+        Get.snackbar(
+          '성공',
+          '파트너 초대를 수락했습니다! 이제부터 \'${relation.partnerUser.nickname ?? '파트너'}\'님과 연결됩니다.',
+        );
       } else {
         final responseBody = json.decode(utf8.decode(response.bodyBytes));
-        _setError(responseBody['message'] ?? '초대 수락에 실패했습니다.', showGeneralMessageToUser: false);
+        _setError(
+          responseBody['message'] ?? '초대 수락에 실패했습니다.',
+          showGeneralMessageToUser: false,
+        );
       }
     } catch (e, s) {
       _setError('파트너 초대 수락 중 예외 발생: $e\n$s');
@@ -171,9 +203,7 @@ class PartnerController extends GetxController {
     try {
       final response = await http.delete(
         requestUri,
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
+        headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 204) {
@@ -183,9 +213,12 @@ class PartnerController extends GetxController {
         Get.snackbar('성공', '파트너 관계가 해제되고 대화 내역이 삭제되었습니다.');
       } else {
         final responseBody = json.decode(utf8.decode(response.bodyBytes));
-        _setError(responseBody['message'] ?? '파트너 관계 해제 실패 (코드: ${response.statusCode})');
+        _setError(
+          responseBody['message'] ??
+              '파트너 관계 해제 실패 (코드: ${response.statusCode})',
+        );
       }
-    } catch (e,s) {
+    } catch (e, s) {
       _setError('파트너 관계 해제 중 예외 발생: $e\n$s');
     } finally {
       _setLoading(false);

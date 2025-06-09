@@ -66,61 +66,62 @@ class HomeScreen extends GetView<HomeController> {
             },
             itemBuilder:
                 (BuildContext context) => <PopupMenuEntry<String>>[
-              PopupMenuItem<String>(
-                value: 'profile',
-                child: Row(
-                  children: [
-                    const Icon(Icons.person_outline, color: Colors.black87),
-                    horizontalSpaceSmall,
-                    const Text('개인정보', style: textStyleSmall),
-                  ],
-                ),
-              ),
-              PopupMenuItem<String>(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    const Icon(Icons.logout, color: Colors.black87),
-                    horizontalSpaceSmall,
-                    const Text('로그아웃', style: textStyleSmall),
-                  ],
-                ),
-              ),
-            ],
+                  PopupMenuItem<String>(
+                    value: 'profile',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.person_outline, color: Colors.black87),
+                        horizontalSpaceSmall,
+                        const Text('개인정보', style: textStyleSmall),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'logout',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.logout, color: Colors.black87),
+                        horizontalSpaceSmall,
+                        const Text('로그아웃', style: textStyleSmall),
+                      ],
+                    ),
+                  ),
+                ],
           ),
         ],
       ),
-      body: Obx( // SafeArea 래핑을 제거했습니다.
-            () => IndexedStack(
+      body: Obx(
+        // SafeArea 래핑을 제거했습니다.
+        () => IndexedStack(
           index: controller.selectedIndex.value,
           children: screens,
         ),
       ),
       bottomNavigationBar: Obx(
-            () => CrystalNavigationBar(
-              currentIndex: controller.selectedIndex.value,
-              onTap: (index) {
-                controller.changeTabIndex(index);
-              },
-              unselectedItemColor: Colors.grey.shade400,
-              backgroundColor: theme.cardColor.withAlpha(15),
-              borderRadius: 24,
-              enableFloatingNavBar: true,
-              items: [
-                CrystalNavigationBarItem(
-                  icon: Icons.calendar_month_outlined,
-                  selectedColor: theme.colorScheme.primary,
-                ),
-                CrystalNavigationBarItem(
-                  icon: Icons.wb_sunny_outlined,
-                  selectedColor: theme.colorScheme.primary,
-                ),
-                CrystalNavigationBarItem(
-                  icon: Icons.explore_outlined,
-                  selectedColor: theme.colorScheme.primary,
-                ),
-              ],
+        () => CrystalNavigationBar(
+          currentIndex: controller.selectedIndex.value,
+          onTap: (index) {
+            controller.changeTabIndex(index);
+          },
+          unselectedItemColor: Colors.grey.shade400,
+          backgroundColor: theme.cardColor.withAlpha(15),
+          borderRadius: 24,
+          enableFloatingNavBar: true,
+          items: [
+            CrystalNavigationBarItem(
+              icon: Icons.calendar_month_outlined,
+              selectedColor: theme.colorScheme.primary,
             ),
+            CrystalNavigationBarItem(
+              icon: Icons.wb_sunny_outlined,
+              selectedColor: theme.colorScheme.primary,
+            ),
+            CrystalNavigationBarItem(
+              icon: Icons.explore_outlined,
+              selectedColor: theme.colorScheme.primary,
+            ),
+          ],
+        ),
       ),
       floatingActionButton: Obx(() {
         if (controller.selectedIndex.value == 0) {

@@ -20,10 +20,7 @@ class ChatScreen extends GetView<ChatController> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          controller.chatPartnerNickname,
-          style: textStyleMedium,
-        ),
+        title: Text(controller.chatPartnerNickname, style: textStyleMedium),
         centerTitle: true,
         actions: [
           IconButton(
@@ -38,7 +35,8 @@ class ChatScreen extends GetView<ChatController> {
       body: Column(
         children: [
           Obx(() {
-            if (controller.errorMessage.value.isNotEmpty && controller.messages.isEmpty) {
+            if (controller.errorMessage.value.isNotEmpty &&
+                controller.messages.isEmpty) {
               return Expanded(
                 child: Center(
                   child: Padding(
@@ -46,11 +44,17 @@ class ChatScreen extends GetView<ChatController> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
+                        const Icon(
+                          Icons.error_outline,
+                          color: Colors.redAccent,
+                          size: 48,
+                        ),
                         verticalSpaceMedium,
                         Text(
                           "메시지를 불러오는 중 오류 발생",
-                          style: textStyleMedium.copyWith(color: Colors.redAccent),
+                          style: textStyleMedium.copyWith(
+                            color: Colors.redAccent,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                         verticalSpaceSmall,
@@ -78,7 +82,9 @@ class ChatScreen extends GetView<ChatController> {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       "아직 메시지가 없습니다.\n첫 메시지를 보내보세요!",
-                      style: textStyleSmall.copyWith(color: Colors.grey.shade600),
+                      style: textStyleSmall.copyWith(
+                        color: Colors.grey.shade600,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -89,15 +95,23 @@ class ChatScreen extends GetView<ChatController> {
                 controller: controller.scrollController,
                 reverse: true,
                 padding: const EdgeInsets.all(8.0),
-                itemCount: controller.messages.length + (controller.isFetchingMore.value ? 1 : 0),
+                itemCount:
+                    controller.messages.length +
+                    (controller.isFetchingMore.value ? 1 : 0),
                 itemBuilder: (context, index) {
-                  if (controller.isFetchingMore.value && index == controller.messages.length) {
+                  if (controller.isFetchingMore.value &&
+                      index == controller.messages.length) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16.0),
-                      child: Center(child: CircularProgressIndicator(strokeWidth: 2.0)),
+                      child: Center(
+                        child: CircularProgressIndicator(strokeWidth: 2.0),
+                      ),
                     );
                   }
-                  final message = controller.messages[controller.messages.length - 1 - index];
+                  final message =
+                      controller.messages[controller.messages.length -
+                          1 -
+                          index];
                   final bool isMe = message.senderUid == currentUserUid;
                   return _buildMessageBubble(context, message, isMe);
                 },
@@ -110,21 +124,32 @@ class ChatScreen extends GetView<ChatController> {
     );
   }
 
-  Widget _buildMessageBubble(BuildContext context, ChatMessage message, bool isMe) {
+  Widget _buildMessageBubble(
+    BuildContext context,
+    ChatMessage message,
+    bool isMe,
+  ) {
     final align = isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final bubbleColor = isMe ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest;
-    final textColor = isMe ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant;
-    final radius = isMe
-        ? const BorderRadius.only(
-      topLeft: Radius.circular(16),
-      bottomLeft: Radius.circular(16),
-      bottomRight: Radius.circular(16),
-    )
-        : const BorderRadius.only(
-      topRight: Radius.circular(16),
-      bottomLeft: Radius.circular(16),
-      bottomRight: Radius.circular(16),
-    );
+    final bubbleColor =
+        isMe
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.surfaceContainerHighest;
+    final textColor =
+        isMe
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSurfaceVariant;
+    final radius =
+        isMe
+            ? const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            )
+            : const BorderRadius.only(
+              topRight: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            );
 
     return Column(
       crossAxisAlignment: align,
@@ -132,17 +157,19 @@ class ChatScreen extends GetView<ChatController> {
         Container(
           margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
-          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.75,
+          ),
           decoration: BoxDecoration(
-              color: bubbleColor,
-              borderRadius: radius,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(95),
-                  blurRadius: 3,
-                  offset: const Offset(0, 1),
-                )
-              ]
+            color: bubbleColor,
+            borderRadius: radius,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(95),
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
           child: Text(
             message.content ?? '',
@@ -150,21 +177,27 @@ class ChatScreen extends GetView<ChatController> {
           ),
         ),
         Padding(
-          padding: isMe
-              ? const EdgeInsets.only(right: 10.0, bottom: 6.0)
-              : const EdgeInsets.only(left: 10.0, bottom: 6.0),
+          padding:
+              isMe
+                  ? const EdgeInsets.only(right: 10.0, bottom: 6.0)
+                  : const EdgeInsets.only(left: 10.0, bottom: 6.0),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // ✅ [최종 수정됨] 내가 보낸 메시지에 대해서만 '읽음'/'안읽음' 상태 표시
-              if (isMe && message.id != null && !(message.id!.startsWith('temp_'))) ...[
+              if (isMe &&
+                  message.id != null &&
+                  !(message.id!.startsWith('temp_'))) ...[
                 Text(
                   message.isRead ? '읽음' : '안 읽음',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: message.isRead ? Colors.blueAccent : Colors.grey.shade500,
+                    color:
+                        message.isRead
+                            ? Colors.blueAccent
+                            : Colors.grey.shade500,
                   ),
                 ),
                 horizontalSpaceSmall,
@@ -172,7 +205,9 @@ class ChatScreen extends GetView<ChatController> {
               Text(
                 DateFormat('HH:mm').format(message.dateTime.toLocal()),
                 style: textStyleSmall.copyWith(
-                    fontSize: 11, color: Colors.grey.shade500),
+                  fontSize: 11,
+                  color: Colors.grey.shade500,
+                ),
               ),
             ],
           ),
@@ -209,9 +244,14 @@ class ChatScreen extends GetView<ChatController> {
                   style: textStyleSmall,
                   decoration: InputDecoration(
                     hintText: "메시지를 입력하세요...",
-                    hintStyle: textStyleSmall.copyWith(color: Colors.grey.shade500),
+                    hintStyle: textStyleSmall.copyWith(
+                      color: Colors.grey.shade500,
+                    ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 12.0,
+                    ),
                   ),
                   textCapitalization: TextCapitalization.sentences,
                   minLines: 1,

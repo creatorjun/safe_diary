@@ -19,25 +19,33 @@ import 'partner_controller.dart';
 class LoginController extends GetxController {
   final AuthService _authService;
   final UserService _userService;
+
   // ignore: unused_field
   final SecureStorageService _secureStorageService;
 
   LoginController(
-      this._authService,
-      this._userService,
-      this._secureStorageService,
-      );
+    this._authService,
+    this._userService,
+    this._secureStorageService,
+  );
 
   PartnerController get _partnerController => Get.find<PartnerController>();
 
   final Rx<User> _user = User(platform: LoginPlatform.none).obs;
+
   User get user => _user.value;
+
   Rx<User> get userState => _user;
 
-  RxBool get isLoggedIn => (_user.value.platform != LoginPlatform.none && _user.value.safeAccessToken != null).obs;
+  RxBool get isLoggedIn =>
+      (_user.value.platform != LoginPlatform.none &&
+              _user.value.safeAccessToken != null)
+          .obs;
   final RxBool _isLoading = false.obs;
+
   bool get isLoading => _isLoading.value;
   final RxString _errorMessage = ''.obs;
+
   String get errorMessage => _errorMessage.value;
 
   @override
@@ -47,9 +55,12 @@ class LoginController extends GetxController {
   }
 
   void _setLoading(bool loading) => _isLoading.value = loading;
+
   void _clearError() => _errorMessage.value = '';
+
   void _setError(String msg, {bool showGeneralMessageToUser = true}) {
-    final message = showGeneralMessageToUser ? "오류가 발생했습니다. 잠시 후 다시 시도해주세요." : msg;
+    final message =
+        showGeneralMessageToUser ? "오류가 발생했습니다. 잠시 후 다시 시도해주세요." : msg;
     if (kDebugMode) print("[LoginController] Error: $msg");
     _errorMessage.value = message;
   }
@@ -58,7 +69,9 @@ class LoginController extends GetxController {
     if (!isLoggedIn.value || fcmToken.isEmpty) return;
     try {
       await _userService.updateFcmToken(fcmToken);
-      if (kDebugMode) print('[LoginController] FCM token sent to server: $fcmToken');
+      if (kDebugMode) {
+        print('[LoginController] FCM token sent to server: $fcmToken');
+      }
     } catch (e) {
       if (kDebugMode) print('[LoginController] FCM 토큰 전송 실패: $e');
     }
@@ -83,8 +96,12 @@ class LoginController extends GetxController {
     NaverLoginSDK.authenticate(
       callback: OAuthLoginCallback(
         onSuccess: () => completer.complete(),
-        onFailure: (status, message) => completer.completeError('네이버 로그인 실패: $message (코드: $status)'),
-        onError: (code, message) => completer.completeError('네이버 로그인 오류: $message (코드: $code)'),
+        onFailure:
+            (status, message) =>
+                completer.completeError('네이버 로그인 실패: $message (코드: $status)'),
+        onError:
+            (code, message) =>
+                completer.completeError('네이버 로그인 오류: $message (코드: $code)'),
       ),
     );
     return completer.future;
@@ -108,8 +125,14 @@ class LoginController extends GetxController {
         onSuccess: (resultCode, message, response) {
           completer.complete(NaverLoginProfile.fromJson(response: response));
         },
-        onFailure: (httpStatus, message) => completer.completeError('네이버 프로필 요청 실패: $message (HTTP $httpStatus)'),
-        onError: (errorCode, message) => completer.completeError('네이버 프로필 요청 오류: $message (코드: $errorCode)'),
+        onFailure:
+            (httpStatus, message) => completer.completeError(
+              '네이버 프로필 요청 실패: $message (HTTP $httpStatus)',
+            ),
+        onError:
+            (errorCode, message) => completer.completeError(
+              '네이버 프로필 요청 오류: $message (코드: $errorCode)',
+            ),
       ),
     );
     return completer.future;
@@ -168,7 +191,9 @@ class LoginController extends GetxController {
 
   Future<void> _processSocialLogin(User socialUser) async {
     try {
-      final authenticatedUser = await _authService.signInWithSocialUser(socialUser);
+      final authenticatedUser = await _authService.signInWithSocialUser(
+        socialUser,
+      );
       if (authenticatedUser != null) {
         _user.value = authenticatedUser;
         await _getAndSendFcmTokenWithRetry();
@@ -205,8 +230,8 @@ class LoginController extends GetxController {
   void updateUserPartnerUid(String? newPartnerUid, {String? partnerNickname}) {
     if (_user.value.partnerUid != newPartnerUid) {
       _user.value = _user.value.copyWith(
-          partnerUid: newPartnerUid,
-          partnerNickname: partnerNickname
+        partnerUid: newPartnerUid,
+        partnerNickname: partnerNickname,
       );
     }
   }
@@ -235,7 +260,11 @@ class LoginController extends GetxController {
         final fcmToken = await FirebaseMessaging.instance.getToken();
         if (fcmToken != null) {
           await sendFcmTokenToServer(fcmToken);
-          if (kDebugMode) print('[LoginController] FCM Token successfully retrieved and sent.');
+          if (kDebugMode) {
+            print(
+              '[LoginController] FCM Token successfully retrieved and sent.',
+            );
+          }
           return; // 성공 시 함수 종료
         }
       } catch (e) {
@@ -251,7 +280,6 @@ class LoginController extends GetxController {
       }
     }
   }
-
 
   Future<void> updateUserNickname(String newNickname) async {
     _setLoading(true);
@@ -280,7 +308,10 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<bool> setAppPasswordOnServer(String? currentPassword, String newPassword) async {
+  Future<bool> setAppPasswordOnServer(
+    String? currentPassword,
+    String newPassword,
+  ) async {
     _setLoading(true);
     _clearError();
     try {
@@ -318,7 +349,8 @@ class LoginController extends GetxController {
     _setLoading(true);
     _clearError();
     try {
-      if (_user.value.partnerUid != null && _user.value.partnerUid!.isNotEmpty) {
+      if (_user.value.partnerUid != null &&
+          _user.value.partnerUid!.isNotEmpty) {
         await _partnerController.unfriendPartnerAndClearChat();
       }
       await _userService.deleteUserAccount();

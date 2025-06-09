@@ -6,10 +6,11 @@ enum MessageType {
   leave;
 
   String toJson() => name;
+
   static MessageType fromJson(String? jsonValue) {
     if (jsonValue == null) return MessageType.chat; // 기본값 또는 오류 처리
     return MessageType.values.firstWhere(
-          (e) => e.name.toLowerCase() == jsonValue.toLowerCase(),
+      (e) => e.name.toLowerCase() == jsonValue.toLowerCase(),
       orElse: () => MessageType.chat, // 매칭되는 값이 없을 경우 기본값
     );
   }
@@ -45,7 +46,10 @@ class ChatMessage {
       senderNickname: json['senderNickname'] as String?,
       receiverUid: json['receiverUid'] as String?,
       timestamp: json['timestamp'] as int,
-      isRead: json['isRead'] as bool? ?? json['read'] as bool? ?? false, // API 명세에 read (writeOnly)도 있어서 isRead 우선
+      isRead:
+          json['isRead'] as bool? ??
+          json['read'] as bool? ??
+          false, // API 명세에 read (writeOnly)도 있어서 isRead 우선
     );
   }
 
@@ -107,7 +111,7 @@ class PaginatedChatMessagesResponse {
   factory PaginatedChatMessagesResponse.fromJson(Map<String, dynamic> json) {
     var messagesList = json['messages'] as List? ?? [];
     List<ChatMessage> messages =
-    messagesList.map((i) => ChatMessage.fromJson(i)).toList();
+        messagesList.map((i) => ChatMessage.fromJson(i)).toList();
 
     return PaginatedChatMessagesResponse(
       messages: messages,

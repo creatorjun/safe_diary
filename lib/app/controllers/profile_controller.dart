@@ -72,7 +72,8 @@ class ProfileController extends GetxController {
     final newPassword = newPasswordController.text;
     final confirmPassword = confirmPasswordController.text;
 
-    bool nicknameChanged = newNickname.isNotEmpty && newNickname != _initialNickname.value;
+    bool nicknameChanged =
+        newNickname.isNotEmpty && newNickname != _initialNickname.value;
     bool passwordChanged = newPassword.isNotEmpty;
 
     if (!nicknameChanged && !passwordChanged) {
@@ -92,7 +93,10 @@ class ProfileController extends GetxController {
       }
     }
 
-    Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
 
     try {
       // 1. 닉네임 변경 처리
@@ -104,8 +108,12 @@ class ProfileController extends GetxController {
       // 2. 비밀번호 변경 처리
       if (passwordChanged) {
         // isAppPasswordSet 값에 따라 현재 비밀번호를 전달할지 결정
-        final currentPwd = loginController.user.isAppPasswordSet ? _verifiedPassword : null;
-        final success = await loginController.setAppPasswordOnServer(currentPwd, newPassword);
+        final currentPwd =
+            loginController.user.isAppPasswordSet ? _verifiedPassword : null;
+        final success = await loginController.setAppPasswordOnServer(
+          currentPwd,
+          newPassword,
+        );
 
         // 비밀번호 변경 성공 시, 인증된 비밀번호를 새 비밀번호로 업데이트
         if (success) {
@@ -120,15 +128,17 @@ class ProfileController extends GetxController {
       newPasswordController.clear();
       confirmPasswordController.clear();
       _checkForChanges();
-
     } catch (e) {
       Get.back(); // 로딩 다이얼로그 닫기
       Get.snackbar('오류', '변경 내용 저장에 실패했습니다: ${e.toString()}');
     }
   }
 
-  void toggleNewPasswordVisibility() => isNewPasswordObscured.value = !isNewPasswordObscured.value;
-  void toggleConfirmPasswordVisibility() => isConfirmPasswordObscured.value = !isConfirmPasswordObscured.value;
+  void toggleNewPasswordVisibility() =>
+      isNewPasswordObscured.value = !isNewPasswordObscured.value;
+
+  void toggleConfirmPasswordVisibility() =>
+      isConfirmPasswordObscured.value = !isConfirmPasswordObscured.value;
 
   void handleAccountDeletionRequest() {
     Get.bottomSheet(
@@ -168,16 +178,19 @@ class ProfileController extends GetxController {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           side: BorderSide(
-                              color: Get.isDarkMode
-                                  ? Colors.grey.shade600
-                                  : Colors.grey.shade400),
+                            color:
+                                Get.isDarkMode
+                                    ? Colors.grey.shade600
+                                    : Colors.grey.shade400,
+                          ),
                         ),
                         child: Text(
                           '취소',
                           style: textStyleMedium.copyWith(
-                            color: Get.isDarkMode
-                                ? Colors.white70
-                                : Colors.black87,
+                            color:
+                                Get.isDarkMode
+                                    ? Colors.white70
+                                    : Colors.black87,
                           ),
                         ),
                       ),
@@ -221,20 +234,22 @@ class ProfileController extends GetxController {
 
   Future<void> disconnectPartner() async {
     Get.dialog(
-        AlertDialog(
-          title: const Text("파트너 연결 끊기"),
-          content: const Text("파트너와의 연결을 끊고 모든 대화 내역을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."),
-          actions: [
-            TextButton(onPressed: () => Get.back(), child: const Text("취소")),
-            TextButton(
-              onPressed: () async {
-                Get.back();
-                await partnerController.unfriendPartnerAndClearChat();
-              },
-              child: const Text("연결 끊기", style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        )
+      AlertDialog(
+        title: const Text("파트너 연결 끊기"),
+        content: const Text(
+          "파트너와의 연결을 끊고 모든 대화 내역을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text("취소")),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await partnerController.unfriendPartnerAndClearChat();
+            },
+            child: const Text("연결 끊기", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 }

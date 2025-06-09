@@ -16,7 +16,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // 백그라운드에서 다른 Firebase 서비스를 사용하려면 초기화가 필요할 수 있습니다.
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (kDebugMode) {
-    print("[NotificationService] Handling a background message: ${message.messageId}");
+    print(
+      "[NotificationService] Handling a background message: ${message.messageId}",
+    );
     // 백그라운드에서 알림 클릭 시의 네비게이션은 여기서 처리하지 않습니다.
     // onMessageOpenedApp 리스너가 처리합니다.
   }
@@ -24,15 +26,17 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class NotificationService extends GetxService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
   // Android 알림 채널 정의
-  final AndroidNotificationChannel _androidChannel = const AndroidNotificationChannel(
-    'high_importance_channel', // 채널 ID
-    '중요 알림', // 채널 이름
-    description: '중요한 알림을 위한 채널입니다.', // 채널 설명
-    importance: Importance.high,
-  );
+  final AndroidNotificationChannel _androidChannel =
+      const AndroidNotificationChannel(
+        'high_importance_channel', // 채널 ID
+        '중요 알림', // 채널 이름
+        description: '중요한 알림을 위한 채널입니다.', // 채널 설명
+        importance: Importance.high,
+      );
 
   /// 서비스 초기화 메서드
   Future<NotificationService> init() async {
@@ -55,35 +59,43 @@ class NotificationService extends GetxService {
     );
 
     if (kDebugMode) {
-      print('[NotificationService] User granted permission: ${settings.authorizationStatus}');
+      print(
+        '[NotificationService] User granted permission: ${settings.authorizationStatus}',
+      );
     }
   }
 
   /// 로컬 알림 설정 (Android 채널 생성 포함)
   Future<void> _setupLocalNotifications() async {
     await _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(_androidChannel);
 
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
-    );
+    const DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
+          requestAlertPermission: false,
+          requestBadgePermission: false,
+          requestSoundPermission: false,
+        );
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
 
     await _localNotifications.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         if (kDebugMode) {
-          print('[NotificationService] Local notification tapped with payload: ${response.payload}');
+          print(
+            '[NotificationService] Local notification tapped with payload: ${response.payload}',
+          );
         }
         if (response.payload != null && response.payload!.isNotEmpty) {
           // 포그라운드 알림 탭 시 네비게이션 처리
@@ -118,7 +130,9 @@ class NotificationService extends GetxService {
     _messaging.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         if (kDebugMode) {
-          print('[NotificationService] Terminated App: Initial message received.');
+          print(
+            '[NotificationService] Terminated App: Initial message received.',
+          );
         }
         _handleMessageNavigation(message.data);
       }
@@ -178,7 +192,8 @@ class NotificationService extends GetxService {
 
       if (senderUid != null) {
         // 이미 해당 채팅방에 있다면 이동하지 않음
-        if (Get.currentRoute == Routes.chat && (Get.arguments as Map)['partnerUid'] == senderUid) {
+        if (Get.currentRoute == Routes.chat &&
+            (Get.arguments as Map)['partnerUid'] == senderUid) {
           return;
         }
         Get.toNamed(
@@ -194,7 +209,6 @@ class NotificationService extends GetxService {
     // else if (type == 'notice') { ... }
   }
 
-
   /// FCM 토큰을 서버로 전송
   void _updateTokenOnServer(String token) {
     if (kDebugMode) {
@@ -206,7 +220,9 @@ class NotificationService extends GetxService {
         loginController.sendFcmTokenToServer(token);
       } else {
         if (kDebugMode) {
-          print('[NotificationService] User not logged in, FCM token will be sent after login.');
+          print(
+            '[NotificationService] User not logged in, FCM token will be sent after login.',
+          );
         }
       }
     }

@@ -8,6 +8,7 @@ import 'api_service.dart';
 
 class LuckService extends GetxService {
   final ApiService _apiService;
+
   LuckService(this._apiService);
 
   /// 오늘의 띠별 운세를 가져옵니다.
@@ -15,8 +16,7 @@ class LuckService extends GetxService {
     try {
       final response = await _apiService.get<ZodiacLuckData>(
         '/api/v1/luck/today/$zodiacName',
-        parser: (data) =>
-            ZodiacLuckData.fromJson(data as Map<String, dynamic>),
+        parser: (data) => ZodiacLuckData.fromJson(data as Map<String, dynamic>),
       );
       return response;
     } on ApiException catch (e) {

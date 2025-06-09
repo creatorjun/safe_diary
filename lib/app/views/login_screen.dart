@@ -9,7 +9,10 @@ import '../theme/app_text_styles.dart';
 class LoginScreen extends GetView<LoginController> {
   const LoginScreen({super.key});
 
-  Widget _buildNaverLoginButton(BuildContext context, LoginController controller) {
+  Widget _buildNaverLoginButton(
+    BuildContext context,
+    LoginController controller,
+  ) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF03C75A),
@@ -22,22 +25,18 @@ class LoginScreen extends GetView<LoginController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image(
-            image: Svg('assets/naver_icon.svg'),
-            width: 24,
-            height: 24,
-          ),
+          Image(image: Svg('assets/naver_icon.svg'), width: 24, height: 24),
           horizontalSpaceSmall,
-          Text(
-            '네이버 로그인',
-            style: textStyleLarge.copyWith(color: Colors.white),
-          ),
+          Text('네이버 로그인', style: textStyleLarge.copyWith(color: Colors.white)),
         ],
       ),
     );
   }
 
-  Widget _buildKakaoLoginButton(BuildContext context, LoginController controller) {
+  Widget _buildKakaoLoginButton(
+    BuildContext context,
+    LoginController controller,
+  ) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFFFEE500),
@@ -50,11 +49,7 @@ class LoginScreen extends GetView<LoginController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image(
-            image: Svg('assets/kakao_icon.svg'),
-            width: 24,
-            height: 24,
-          ),
+          Image(image: Svg('assets/kakao_icon.svg'), width: 24, height: 24),
           horizontalSpaceSmall,
           Text(
             '카카오 로그인',
@@ -65,7 +60,10 @@ class LoginScreen extends GetView<LoginController> {
     );
   }
 
-  Widget _buildUserProfileView(BuildContext context, LoginController controller) {
+  Widget _buildUserProfileView(
+    BuildContext context,
+    LoginController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -103,14 +101,16 @@ class LoginScreen extends GetView<LoginController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() {
-        return Container( // 배경 이미지를 위한 Container 추가
+        return Container(
+          // 배경 이미지를 위한 Container 추가
           decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage("assets/login_back.png"), // 배경 이미지 경로
               fit: BoxFit.cover, // 이미지가 화면을 꽉 채우도록 설정
             ),
           ),
-          child: Center( // 기존 내용을 가운데 정렬하기 위해 Center 위젯 추가
+          child: Center(
+            // 기존 내용을 가운데 정렬하기 위해 Center 위젯 추가
             child: _buildLoginContent(context),
           ),
         );
@@ -118,7 +118,8 @@ class LoginScreen extends GetView<LoginController> {
     );
   }
 
-  Widget _buildLoginContent(BuildContext context) { // 기존 body 내용을 별도 메서드로 추출
+  Widget _buildLoginContent(BuildContext context) {
+    // 기존 body 내용을 별도 메서드로 추출
     if (controller.isLoading) {
       return const CircularProgressIndicator();
     }
@@ -144,7 +145,9 @@ class LoginScreen extends GetView<LoginController> {
                               padding: const EdgeInsets.only(bottom: 16.0),
                               child: Text(
                                 controller.errorMessage,
-                                style: textStyleSmall.copyWith(color: Colors.red),
+                                style: textStyleSmall.copyWith(
+                                  color: Colors.red,
+                                ),
                                 textAlign: TextAlign.center,
                               ),
                             ),

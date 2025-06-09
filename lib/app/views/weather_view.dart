@@ -16,7 +16,8 @@ class WeatherView extends GetView<WeatherController> {
     int rainProbAm = dailyForecast.rainProbAm ?? 0;
     int rainProbPm = dailyForecast.rainProbPm ?? 0;
 
-    if (weatherDescriptionAm.contains("소나기") || weatherDescriptionPm.contains("소나기")) {
+    if (weatherDescriptionAm.contains("소나기") ||
+        weatherDescriptionPm.contains("소나기")) {
       return 'assets/weather/weather7.png';
     }
     if (minTemp <= 5 && (rainProbAm >= 50 || rainProbPm >= 50)) {
@@ -28,9 +29,12 @@ class WeatherView extends GetView<WeatherController> {
     String primaryWeather = weatherDescriptionAm;
     if (weatherDescriptionPm.contains("흐림")) {
       primaryWeather = weatherDescriptionPm;
-    } else if (weatherDescriptionPm.contains("구름") && !primaryWeather.contains("흐림")) {
+    } else if (weatherDescriptionPm.contains("구름") &&
+        !primaryWeather.contains("흐림")) {
       primaryWeather = weatherDescriptionPm;
-    } else if (weatherDescriptionPm.contains("맑음") && !primaryWeather.contains("흐림") && !primaryWeather.contains("구름")) {
+    } else if (weatherDescriptionPm.contains("맑음") &&
+        !primaryWeather.contains("흐림") &&
+        !primaryWeather.contains("구름")) {
       primaryWeather = weatherDescriptionPm;
     }
 
@@ -56,7 +60,8 @@ class WeatherView extends GetView<WeatherController> {
             topRight: Radius.circular(16.0),
           ),
         ),
-        child: SafeArea( // 하단 시스템 영역 침범 방지
+        child: SafeArea(
+          // 하단 시스템 영역 침범 방지
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -68,8 +73,10 @@ class WeatherView extends GetView<WeatherController> {
                 ),
               ),
               const Divider(height: 1),
-              LimitedBox( // ListView의 최대 높이 제한
-                maxHeight: MediaQuery.of(context).size.height * 0.5, // 화면 높이의 50%로 제한
+              LimitedBox(
+                // ListView의 최대 높이 제한
+                maxHeight:
+                    MediaQuery.of(context).size.height * 0.5, // 화면 높이의 50%로 제한
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: controller.availableCities.length,
@@ -80,18 +87,27 @@ class WeatherView extends GetView<WeatherController> {
                       title: Text(
                         city,
                         style: textStyleSmall.copyWith(
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.normal,
                           // color: isSelected ? Theme.of(context).primaryColor : null,
                         ),
                       ),
-                      trailing: isSelected
-                          ? Icon(Icons.check_circle_outline_rounded, color: Theme.of(context).primaryColor, size: 22)
-                          : null,
+                      trailing:
+                          isSelected
+                              ? Icon(
+                                Icons.check_circle_outline_rounded,
+                                color: Theme.of(context).primaryColor,
+                                size: 22,
+                              )
+                              : null,
                       onTap: () {
                         controller.changeCity(city);
                         // Get.back(); // controller.changeCity에서 Get.back() 호출됨
                       },
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 4.0,
+                      ),
                     );
                   },
                 ),
@@ -133,8 +149,15 @@ class WeatherView extends GetView<WeatherController> {
           itemCount: forecastData.forecasts.length,
           itemBuilder: (context, index) {
             final dailyForecast = forecastData.forecasts[index];
-            final String backgroundImagePath = _getBackgroundImagePath(dailyForecast);
-            return _buildDailyForecastPage(context, dailyForecast, controller.selectedCityName.value, backgroundImagePath);
+            final String backgroundImagePath = _getBackgroundImagePath(
+              dailyForecast,
+            );
+            return _buildDailyForecastPage(
+              context,
+              dailyForecast,
+              controller.selectedCityName.value,
+              backgroundImagePath,
+            );
           },
         );
       }),
@@ -148,8 +171,7 @@ class WeatherView extends GetView<WeatherController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline,
-                color: Colors.redAccent, size: 48),
+            const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
             verticalSpaceMedium,
             Text(
               "날씨 정보를 불러오는 데 실패했습니다.",
@@ -167,9 +189,11 @@ class WeatherView extends GetView<WeatherController> {
               icon: const Icon(Icons.refresh),
               label: const Text("다시 시도"),
               onPressed: () {
-                controller.fetchWeeklyForecast(controller.selectedCityName.value);
+                controller.fetchWeeklyForecast(
+                  controller.selectedCityName.value,
+                );
               },
-            )
+            ),
           ],
         ),
       ),
@@ -181,8 +205,7 @@ class WeatherView extends GetView<WeatherController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.cloud_off_outlined,
-              color: Colors.grey, size: 48),
+          const Icon(Icons.cloud_off_outlined, color: Colors.grey, size: 48),
           verticalSpaceMedium,
           const Text("날씨 정보가 없습니다.", style: textStyleMedium),
           verticalSpaceSmall,
@@ -192,14 +215,18 @@ class WeatherView extends GetView<WeatherController> {
             onPressed: () {
               controller.fetchWeeklyForecast(controller.selectedCityName.value);
             },
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildDailyForecastPage(BuildContext context,
-      WeatherForecastResponseDto dailyForecast, String currentCityName, String backgroundImagePath) {
+  Widget _buildDailyForecastPage(
+    BuildContext context,
+    WeatherForecastResponseDto dailyForecast,
+    String currentCityName,
+    String backgroundImagePath,
+  ) {
     DateTime parsedDate;
     String displayDate = "날짜 정보 없음";
     String dayOfWeek = "";
@@ -219,7 +246,11 @@ class WeatherView extends GetView<WeatherController> {
           backgroundImagePath,
           fit: BoxFit.cover,
           alignment: Alignment.center,
-          errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+          errorBuilder: (
+            BuildContext context,
+            Object exception,
+            StackTrace? stackTrace,
+          ) {
             return Container(
               color: Colors.blueGrey,
               alignment: Alignment.center,
@@ -245,24 +276,38 @@ class WeatherView extends GetView<WeatherController> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _showCitySelectionBottomSheet(context); // BottomSheet 호출로 변경
+                        _showCitySelectionBottomSheet(
+                          context,
+                        ); // BottomSheet 호출로 변경
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             currentCityName,
-                            style: textStyleLarge.copyWith(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                            style: textStyleLarge.copyWith(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           horizontalSpaceSmall,
-                          const Icon(Icons.edit_location_alt_outlined, color: Colors.white70, size: 20),
+                          const Icon(
+                            Icons.edit_location_alt_outlined,
+                            color: Colors.white70,
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),
                     verticalSpaceSmall,
                     Text(
                       '$displayDate ($dayOfWeek)',
-                      style: textStyleMedium.copyWith(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                      style: textStyleMedium.copyWith(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -273,28 +318,58 @@ class WeatherView extends GetView<WeatherController> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _buildTempInfo("최저", dailyForecast.minTemp, Colors.lightBlueAccent),
-                          _buildTempInfo("최고", dailyForecast.maxTemp, Colors.orangeAccent),
+                          _buildTempInfo(
+                            "최저",
+                            dailyForecast.minTemp,
+                            Colors.lightBlueAccent,
+                          ),
+                          _buildTempInfo(
+                            "최고",
+                            dailyForecast.maxTemp,
+                            Colors.orangeAccent,
+                          ),
                         ],
                       ),
                       verticalSpaceLarge,
-                      if (dailyForecast.weatherAm != null || dailyForecast.weatherPm != null)
+                      if (dailyForecast.weatherAm != null ||
+                          dailyForecast.weatherPm != null)
                         const Divider(color: Colors.white54),
                       verticalSpaceSmall,
                       _buildWeatherDetailRow("오전 날씨", dailyForecast.weatherAm),
-                      _buildWeatherDetailRow("오전 강수확률", dailyForecast.rainProbAm?.toString(), unit: "%"),
+                      _buildWeatherDetailRow(
+                        "오전 강수확률",
+                        dailyForecast.rainProbAm?.toString(),
+                        unit: "%",
+                      ),
                       verticalSpaceMedium,
                       _buildWeatherDetailRow("오후 날씨", dailyForecast.weatherPm),
-                      _buildWeatherDetailRow("오후 강수확률", dailyForecast.rainProbPm?.toString(), unit: "%"),
+                      _buildWeatherDetailRow(
+                        "오후 강수확률",
+                        dailyForecast.rainProbPm?.toString(),
+                        unit: "%",
+                      ),
                       verticalSpaceLarge,
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.arrow_back_ios, color: Colors.white70, size: 16),
+                          Icon(
+                            Icons.arrow_back_ios,
+                            color: Colors.white70,
+                            size: 16,
+                          ),
                           horizontalSpaceSmall,
-                          Text("스와이프하여 날짜 변경", style: textStyleSmall.copyWith(color: Colors.white70)),
+                          Text(
+                            "스와이프하여 날짜 변경",
+                            style: textStyleSmall.copyWith(
+                              color: Colors.white70,
+                            ),
+                          ),
                           horizontalSpaceSmall,
-                          Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.white70,
+                            size: 16,
+                          ),
                         ],
                       ),
                     ],
@@ -310,7 +385,10 @@ class WeatherView extends GetView<WeatherController> {
           child: IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white, size: 28),
             tooltip: "새로고침",
-            onPressed: () => controller.fetchWeeklyForecast(controller.selectedCityName.value),
+            onPressed:
+                () => controller.fetchWeeklyForecast(
+                  controller.selectedCityName.value,
+                ),
           ),
         ),
       ],
@@ -324,22 +402,36 @@ class WeatherView extends GetView<WeatherController> {
         verticalSpaceSmall,
         Text(
           temp != null ? '$temp°' : '-',
-          style: textStyleLarge.copyWith(fontSize: 48, color: color, fontWeight: FontWeight.bold),
+          style: textStyleLarge.copyWith(
+            fontSize: 48,
+            color: color,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildWeatherDetailRow(String label, String? value, {String unit = ""}) {
+  Widget _buildWeatherDetailRow(
+    String label,
+    String? value, {
+    String unit = "",
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: textStyleMedium.copyWith(color: Colors.white.withAlpha(15))),
+          Text(
+            label,
+            style: textStyleMedium.copyWith(color: Colors.white.withAlpha(15)),
+          ),
           Text(
             value != null ? '$value$unit' : '-',
-            style: textStyleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
+            style: textStyleMedium.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

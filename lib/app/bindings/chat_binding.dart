@@ -21,7 +21,7 @@ class ChatBinding extends Bindings {
 
     // ChatController에 필요한 모든 의존성을 주입합니다.
     Get.lazyPut<ChatController>(
-          () => ChatController(
+      () => ChatController(
         chatService: Get.find(),
         loginController: Get.find(),
         partnerUid: partnerUid,

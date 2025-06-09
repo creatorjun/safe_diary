@@ -8,11 +8,14 @@ import 'api_service.dart';
 
 class WeatherService extends GetxService {
   final ApiService _apiService;
+
   WeatherService(this._apiService);
 
   /// 도시 이름으로 주간 날씨 예보를 가져옵니다.
   Future<WeeklyForecastResponseDto> getWeeklyForecastByCityName(
-      String cityName, [String? date]) async {
+    String cityName, [
+    String? date,
+  ]) async {
     final queryParams = <String, String>{};
     if (date != null && date.isNotEmpty) {
       queryParams['date'] = date;
@@ -22,8 +25,10 @@ class WeatherService extends GetxService {
       final response = await _apiService.get<WeeklyForecastResponseDto>(
         '/api/v1/weather/weekly/by-city-name/$cityName',
         queryParams: queryParams.isNotEmpty ? queryParams : null,
-        parser: (data) =>
-            WeeklyForecastResponseDto.fromJson(data as Map<String, dynamic>),
+        parser:
+            (data) => WeeklyForecastResponseDto.fromJson(
+              data as Map<String, dynamic>,
+            ),
       );
       return response;
     } on ApiException catch (e) {

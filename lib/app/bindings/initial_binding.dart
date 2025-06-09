@@ -29,9 +29,6 @@ class InitialBinding extends Bindings {
       permanent: true,
     );
     // PartnerController는 LoginController에 의존합니다.
-    Get.put(
-      PartnerController(Get.find()),
-      permanent: true,
-    );
+    Get.put(PartnerController(Get.find()), permanent: true);
   }
 }

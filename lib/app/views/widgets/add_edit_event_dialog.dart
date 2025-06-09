@@ -34,15 +34,17 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
   @override
   void initState() {
     super.initState();
-    _titleController =
-        TextEditingController(text: widget.existingEvent?.title ?? '');
+    _titleController = TextEditingController(
+      text: widget.existingEvent?.title ?? '',
+    );
     _startTime = widget.existingEvent?.startTime;
     _endTime = widget.existingEvent?.endTime;
 
     if (widget.existingEvent == null) {
       _startTime = TimeOfDay.now();
-      _endTime =
-          TimeOfDay.fromDateTime(DateTime.now().add(const Duration(hours: 1)));
+      _endTime = TimeOfDay.fromDateTime(
+        DateTime.now().add(const Duration(hours: 1)),
+      );
     }
   }
 
@@ -58,14 +60,15 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
-      builder: (context, child) { // 타임피커 테마 적용 (선택 사항)
+      builder: (context, child) {
+        // 타임피커 테마 적용 (선택 사항)
         return Theme(
           data: Theme.of(context).copyWith(
-            timePickerTheme: TimePickerThemeData(
-            ),
+            timePickerTheme: TimePickerThemeData(),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.primary, // 버튼 텍스트 색상
+                foregroundColor:
+                    Theme.of(context).colorScheme.primary, // 버튼 텍스트 색상
               ),
             ),
           ),
@@ -101,24 +104,33 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
     required IconData icon,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.primary.withAlpha(20)),
+      leading: Icon(
+        icon,
+        color: Theme.of(context).colorScheme.primary.withAlpha(20),
+      ),
       title: Text(label, style: textStyleSmall),
       subtitle: Text(
         currentTime?.format(context) ?? "시간 미지정",
         style: textStyleMedium.copyWith(
-            color: currentTime == null
-                ? Colors.grey.shade600
-                : Theme.of(context).textTheme.bodyLarge?.color,
-            fontWeight: FontWeight.w500),
+          color:
+              currentTime == null
+                  ? Colors.grey.shade600
+                  : Theme.of(context).textTheme.bodyLarge?.color,
+          fontWeight: FontWeight.w500,
+        ),
       ),
-      trailing: currentTime != null
-          ? IconButton(
-        icon: Icon(Icons.clear_rounded,
-            size: 20, color: Colors.grey.shade500),
-        tooltip: '시간 지우기',
-        onPressed: () => _clearTime(isStartTime),
-      )
-          : null,
+      trailing:
+          currentTime != null
+              ? IconButton(
+                icon: Icon(
+                  Icons.clear_rounded,
+                  size: 20,
+                  color: Colors.grey.shade500,
+                ),
+                tooltip: '시간 지우기',
+                onPressed: () => _clearTime(isStartTime),
+              )
+              : null,
       onTap: () => _selectTime(context, isStartTime),
       contentPadding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 0),
       dense: true,
@@ -136,15 +148,20 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
           // Get.snackbar 호출은 이전 버전의 HomeController와 상호작용할 때 문제가 될 수 있으므로
           // 이 부분은 그대로 두거나, 더 나은 UX를 위해 에러 표시 방식을 고민해볼 수 있습니다.
           // 여기서는 Get.snackbar를 그대로 사용합니다 (HomeController 롤백 버전에 맞춰서).
-          Get.snackbar("오류", "종료 시간은 시작 시간보다 늦어야 합니다.",
-              snackPosition: SnackPosition.BOTTOM,
-              margin: const EdgeInsets.all(12),
-              backgroundColor: Colors.red.withAlpha(10),
-              colorText: Colors.white);
+          Get.snackbar(
+            "오류",
+            "종료 시간은 시작 시간보다 늦어야 합니다.",
+            snackPosition: SnackPosition.BOTTOM,
+            margin: const EdgeInsets.all(12),
+            backgroundColor: Colors.red.withAlpha(10),
+            colorText: Colors.white,
+          );
           return;
         }
       }
-      setState(() { _isSubmitting = true; });
+      setState(() {
+        _isSubmitting = true;
+      });
 
       final event = EventItem(
         backendEventId: widget.existingEvent?.backendEventId,
@@ -185,7 +202,10 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
           Expanded(
             child: Text(
               "${DateFormat('MM월 dd일 (E)', 'ko_KR').format(widget.eventDate.toLocal())} $dialogTitleText",
-              style: textStyleMedium.copyWith(fontWeight: FontWeight.bold, color: primaryColor),
+              style: textStyleMedium.copyWith(
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -201,11 +221,16 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
               verticalSpaceSmall,
               TextFormField(
                 controller: _titleController,
-                autofocus: true, // 새 일정 추가 시 자동 포커스
+                autofocus: true,
+                // 새 일정 추가 시 자동 포커스
                 decoration: InputDecoration(
                   labelText: "일정 내용",
                   hintText: "무슨 일정이 있나요?",
-                  prefixIcon: Icon(Icons.notes_rounded, color: Colors.grey.shade600, size: 20),
+                  prefixIcon: Icon(
+                    Icons.notes_rounded,
+                    color: Colors.grey.shade600,
+                    size: 20,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -214,7 +239,10 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
                     borderRadius: BorderRadius.circular(12.0),
                     borderSide: BorderSide(color: primaryColor, width: 1.5),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                 ),
                 style: textStyleMedium,
                 validator: (value) {
@@ -244,26 +272,45 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
       ),
       actions: <Widget>[
         TextButton(
-          child: Text("취소", style: textStyleSmall.copyWith(color: Colors.grey.shade700)),
+          child: Text(
+            "취소",
+            style: textStyleSmall.copyWith(color: Colors.grey.shade700),
+          ),
           onPressed: () {
             Get.back();
           },
         ),
-        FilledButton.icon( // Material 3 스타일 버튼
-          icon: _isSubmitting
-              ? Container(
-              width: 18, height: 18,
-              margin: const EdgeInsets.only(right: 4),
-              child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.onPrimary)
-          )
-              : Icon(isEditing ? Icons.check_circle_outline : Icons.add_circle_outline, size: 18),
-          label: Text(submitButtonText, style: textStyleSmall.copyWith(fontWeight: FontWeight.bold)),
+        FilledButton.icon(
+          // Material 3 스타일 버튼
+          icon:
+              _isSubmitting
+                  ? Container(
+                    width: 18,
+                    height: 18,
+                    margin: const EdgeInsets.only(right: 4),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  )
+                  : Icon(
+                    isEditing
+                        ? Icons.check_circle_outline
+                        : Icons.add_circle_outline,
+                    size: 18,
+                  ),
+          label: Text(
+            submitButtonText,
+            style: textStyleSmall.copyWith(fontWeight: FontWeight.bold),
+          ),
           onPressed: _isSubmitting ? null : _handleSubmit,
           style: FilledButton.styleFrom(
             backgroundColor: primaryColor,
             foregroundColor: Theme.of(context).colorScheme.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
           ),
         ),
       ],

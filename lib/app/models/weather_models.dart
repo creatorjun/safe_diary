@@ -12,7 +12,7 @@ class WeeklyForecastResponseDto {
   factory WeeklyForecastResponseDto.fromJson(Map<String, dynamic> json) {
     var list = json['forecasts'] as List? ?? [];
     List<WeatherForecastResponseDto> forecastsList =
-    list.map((i) => WeatherForecastResponseDto.fromJson(i)).toList();
+        list.map((i) => WeatherForecastResponseDto.fromJson(i)).toList();
 
     return WeeklyForecastResponseDto(
       regionCode: json['regionCode'] as String? ?? '',

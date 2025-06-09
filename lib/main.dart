@@ -30,7 +30,6 @@ class MyHttpOverrides extends HttpOverrides {
 }
 // ------------------------------------
 
-
 void main() async {
   // --- 개발용: SSL 인증서 검증 우회 적용 ---
   // 경고: 프로덕션(릴리즈) 빌드에서는 반드시 이 줄을 제거하거나 비활성화해야 합니다.
@@ -42,9 +41,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize core services and controllers via GetX binding
   InitialBinding().dependencies();
@@ -73,11 +70,14 @@ void main() async {
 
   // Initialize Naver/Kakao SDKs
   final String naverAppName = dotenv.env['AppName'] ?? 'YOUR_APP_NAME_DEFAULT';
-  final String naverClientId = dotenv.env['ClientId'] ?? 'YOUR_NAVER_CLIENT_ID_DEFAULT';
-  final String naverClientSecret = dotenv.env['ClientSecret'] ?? 'YOUR_NAVER_CLIENT_SECRET_DEFAULT';
+  final String naverClientId =
+      dotenv.env['ClientId'] ?? 'YOUR_NAVER_CLIENT_ID_DEFAULT';
+  final String naverClientSecret =
+      dotenv.env['ClientSecret'] ?? 'YOUR_NAVER_CLIENT_SECRET_DEFAULT';
   final String? naverUrlScheme = dotenv.env['UrlScheme'];
 
-  final String kakaoNativeAppKey = dotenv.env['NativeAppKey'] ?? 'YOUR_KAKAO_NATIVE_APP_KEY_DEFAULT';
+  final String kakaoNativeAppKey =
+      dotenv.env['NativeAppKey'] ?? 'YOUR_KAKAO_NATIVE_APP_KEY_DEFAULT';
 
   await NaverLoginSDK.initialize(
     clientId: naverClientId,

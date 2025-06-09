@@ -8,6 +8,7 @@ import 'api_service.dart';
 
 class EventService extends GetxService {
   final ApiService _apiService;
+
   EventService(this._apiService);
 
   /// 사용자의 모든 이벤트 목록을 조회합니다.
@@ -15,9 +16,14 @@ class EventService extends GetxService {
     try {
       final events = await _apiService.get<List<EventItem>>(
         '/api/v1/events',
-        parser: (data) => (data as List<dynamic>)
-            .map((item) => EventItem.fromJson(item as Map<String, dynamic>))
-            .toList(),
+        parser:
+            (data) =>
+                (data as List<dynamic>)
+                    .map(
+                      (item) =>
+                          EventItem.fromJson(item as Map<String, dynamic>),
+                    )
+                    .toList(),
       );
       return events;
     } on ApiException catch (e) {

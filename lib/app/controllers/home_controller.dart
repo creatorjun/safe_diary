@@ -13,7 +13,6 @@ import '../views/widgets/add_edit_event_dialog.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
 
-
 class HomeController extends GetxController {
   // Dependencies are now injected via the constructor.
   final LoginController _loginController;
@@ -35,13 +34,12 @@ class HomeController extends GetxController {
   late final Rx<DateTime?> selectedDay;
 
   final RxMap<DateTime, List<EventItem>> events =
-  RxMap<DateTime, List<EventItem>>(
-    LinkedHashMap<DateTime, List<EventItem>>(
-      equals: isSameDay,
-      hashCode: (key) =>
-      key.year * 1000000 + key.month * 10000 + key.day,
-    ),
-  );
+      RxMap<DateTime, List<EventItem>>(
+        LinkedHashMap<DateTime, List<EventItem>>(
+          equals: isSameDay,
+          hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
+        ),
+      );
 
   List<EventItem> get selectedDayEvents {
     final day = selectedDay.value;
@@ -151,8 +149,7 @@ class HomeController extends GetxController {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor:
-                          Theme.of(Get.context!,).primaryColor,
+                          backgroundColor: Theme.of(Get.context!).primaryColor,
                         ),
                         onPressed: () {
                           Get.back();
@@ -160,9 +157,7 @@ class HomeController extends GetxController {
                         },
                         child: Text(
                           '지금 설정',
-                          style: textStyleSmall.copyWith(
-                            color: Colors.white,
-                          ),
+                          style: textStyleSmall.copyWith(color: Colors.white),
                         ),
                       ),
                     ),
@@ -180,7 +175,8 @@ class HomeController extends GetxController {
 
   void onDaySelected(DateTime newSelectedDay, DateTime newFocusedDay) {
     final normalizedNewSelectedDay = _normalizeDate(newSelectedDay);
-    if (selectedDay.value == null || !isSameDay(selectedDay.value!, normalizedNewSelectedDay)) {
+    if (selectedDay.value == null ||
+        !isSameDay(selectedDay.value!, normalizedNewSelectedDay)) {
       selectedDay.value = normalizedNewSelectedDay;
     }
     focusedDay.value = _normalizeDate(newFocusedDay);
@@ -280,14 +276,20 @@ class HomeController extends GetxController {
     }
     isSubmittingEvent.value = true;
     try {
-      final updatedEventFromServer = await _eventService.updateEvent(eventToUpdate);
+      final updatedEventFromServer = await _eventService.updateEvent(
+        eventToUpdate,
+      );
 
       final originalNormalizedDate = _normalizeDate(eventToUpdate.eventDate);
       if (events[originalNormalizedDate] != null) {
-        events[originalNormalizedDate]!.removeWhere((e) => e.backendEventId == updatedEventFromServer.backendEventId);
+        events[originalNormalizedDate]!.removeWhere(
+          (e) => e.backendEventId == updatedEventFromServer.backendEventId,
+        );
       }
 
-      final updatedNormalizedDate = _normalizeDate(updatedEventFromServer.eventDate);
+      final updatedNormalizedDate = _normalizeDate(
+        updatedEventFromServer.eventDate,
+      );
       final list = events.putIfAbsent(updatedNormalizedDate, () => []);
       list.add(updatedEventFromServer);
 
@@ -330,7 +332,9 @@ class HomeController extends GetxController {
 
       final normalizedEventDate = _normalizeDate(eventToDelete.eventDate);
       if (events[normalizedEventDate] != null) {
-        events[normalizedEventDate]!.removeWhere((e) => e.backendEventId == eventToDelete.backendEventId);
+        events[normalizedEventDate]!.removeWhere(
+          (e) => e.backendEventId == eventToDelete.backendEventId,
+        );
         events.refresh();
       }
     } catch (e) {

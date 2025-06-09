@@ -23,7 +23,10 @@ class AuthService extends GetxService {
     };
 
     try {
-      final responseData = await _apiService.post('/api/v1/auth/social/login', body: requestBody);
+      final responseData = await _apiService.post(
+        '/api/v1/auth/social/login',
+        body: requestBody,
+      );
       return _processAuthResponse(responseData, socialUserInfo: socialUserInfo);
     } catch (e) {
       if (kDebugMode) print('[AuthService] signInWithSocialUser Error: $e');
@@ -42,7 +45,10 @@ class AuthService extends GetxService {
         '/api/v1/auth/refresh',
         body: {'refreshToken': refreshToken},
       );
-      return _processAuthResponse(responseData, existingRefreshToken: refreshToken);
+      return _processAuthResponse(
+        responseData,
+        existingRefreshToken: refreshToken,
+      );
     } catch (e) {
       if (e is ApiException && e.statusCode == 401) {
         await _secureStorageService.clearRefreshToken();
@@ -51,7 +57,11 @@ class AuthService extends GetxService {
     }
   }
 
-  Future<User> _processAuthResponse(Map<String, dynamic> responseData, {User? socialUserInfo, String? existingRefreshToken}) async {
+  Future<User> _processAuthResponse(
+    Map<String, dynamic> responseData, {
+    User? socialUserInfo,
+    String? existingRefreshToken,
+  }) async {
     final newAccessToken = responseData['accessToken'] as String?;
     final newRefreshToken = responseData['refreshToken'] as String?;
     final serverUserId = responseData['uid'] as String?;
@@ -64,7 +74,9 @@ class AuthService extends GetxService {
     if (finalRefreshToken == null) {
       throw ApiException('리프레시 토큰을 찾을 수 없습니다.');
     }
-    await _secureStorageService.saveRefreshToken(refreshToken: finalRefreshToken);
+    await _secureStorageService.saveRefreshToken(
+      refreshToken: finalRefreshToken,
+    );
 
     DateTime? createdAtDate;
     final createdAtString = responseData['createdAt'] as String?;
@@ -76,7 +88,7 @@ class AuthService extends GetxService {
       id: serverUserId,
       nickname: responseData['nickname'] as String? ?? socialUserInfo?.nickname,
       platform: LoginPlatform.values.firstWhere(
-            (e) => e.name == (responseData['loginProvider'] as String?),
+        (e) => e.name == (responseData['loginProvider'] as String?),
         orElse: () => socialUserInfo?.platform ?? LoginPlatform.none,
       ),
       safeAccessToken: newAccessToken,
