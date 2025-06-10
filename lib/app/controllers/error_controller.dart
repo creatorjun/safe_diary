@@ -17,7 +17,7 @@ class ErrorController extends GetxController {
 
     String messageToShow;
 
-    // 미리 정의된 사용자 친화적 메시지가 있으면 그것을 사용
+    // 미리 정의된 사용자 친화적 메시지가 있으면 그것을 사용함
     if (userFriendlyMessage != null) {
       messageToShow = userFriendlyMessage;
     } else {
