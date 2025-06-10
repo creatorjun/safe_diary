@@ -1,8 +1,6 @@
-// lib/app/controllers/weather_controller.dart
-
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart'; // 날짜 포맷팅을 위해 추가
+import 'package:intl/intl.dart';
 import '../models/weather_models.dart';
 import '../services/weather_service.dart';
 import '../services/secure_storage_service.dart';
@@ -14,13 +12,13 @@ class WeatherController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   WeatherController(
-    this._weatherService,
-    this._loginController,
-    this._secureStorageService,
-  );
+      this._weatherService,
+      this._loginController,
+      this._secureStorageService,
+      );
 
   final Rx<WeeklyForecastResponseDto?> weeklyForecast =
-      Rx<WeeklyForecastResponseDto?>(null);
+  Rx<WeeklyForecastResponseDto?>(null);
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
@@ -68,20 +66,14 @@ class WeatherController extends GetxController {
     }
   }
 
-  // 날짜 요청 로직 수정
   Future<void> fetchWeeklyForecast(String cityName, {String? date}) async {
     isLoading.value = true;
     errorMessage.value = '';
     try {
       String targetDate;
 
-      // date 파라미터가 명시적으로 주어지지 않은 경우에만 시간 기반으로 날짜 계산
       if (date == null) {
-        final now = DateTime.now();
-        // 현재 시간이 오전 7시 이전이면, 어제 날짜를 기준으로 요청
-        final dateToRequest =
-            (now.hour < 7) ? now.subtract(const Duration(days: 1)) : now;
-        targetDate = DateFormat('yyyy-MM-dd').format(dateToRequest);
+        targetDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
       } else {
         targetDate = date;
       }
@@ -114,7 +106,6 @@ class WeatherController extends GetxController {
         selectedCityName.value != newCityName) {
       selectedCityName.value = newCityName;
       await _secureStorageService.saveSelectedCity(newCityName);
-      // 도시 변경 시에도 수정된 날짜 로직에 따라 날씨 정보 요청
       fetchWeeklyForecast(newCityName);
       Get.back();
     } else if (selectedCityName.value == newCityName) {

@@ -1,5 +1,3 @@
-// lib/app/views/calendar_view.dart
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -12,18 +10,12 @@ import '../theme/app_spacing.dart';
 class CalendarView extends StatelessWidget {
   const CalendarView({super.key});
 
-  final List<Color> _markerColors = const [
-    Colors.redAccent,
-    Colors.purpleAccent,
-    Colors.greenAccent,
-  ];
-
   Widget _buildEventMarker(
-    BuildContext context,
-    DateTime day,
-    EventItem event,
-    Color color,
-  ) {
+      BuildContext context,
+      DateTime day,
+      EventItem event,
+      Color color,
+      ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 1.5),
       width: 7,
@@ -33,22 +25,22 @@ class CalendarView extends StatelessWidget {
   }
 
   Widget _buildEventsCountMarker(
-    BuildContext context,
-    DateTime day,
-    int count,
-  ) {
+      BuildContext context,
+      DateTime day,
+      int count,
+      ) {
     return Container(
       width: 18,
       height: 18,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Theme.of(context).primaryColor.withAlpha(80),
+        color: Theme.of(context).primaryColor.withAlpha(120),
       ),
       alignment: Alignment.center,
       child: Text(
         '$count',
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onPrimary,
           fontSize: 10,
           fontWeight: FontWeight.bold,
         ),
@@ -59,6 +51,12 @@ class CalendarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HomeController controller = Get.find<HomeController>();
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final List<Color> markerColors = [
+      colorScheme.primary,
+      colorScheme.secondary,
+      colorScheme.tertiary,
+    ];
 
     return Column(
       children: [
@@ -87,18 +85,15 @@ class CalendarView extends StatelessWidget {
               ),
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
-                  color: Colors.orange.shade200,
+                  color: colorScheme.tertiaryContainer,
                   shape: BoxShape.circle,
                 ),
+                todayTextStyle: TextStyle(color: colorScheme.onTertiaryContainer),
                 selectedDecoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
+                  color: colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
-                selectedTextStyle: const TextStyle(color: Colors.white),
-                markerDecoration: const BoxDecoration(
-                  color: Colors.blue,
-                  shape: BoxShape.circle,
-                ),
+                selectedTextStyle: TextStyle(color: colorScheme.onPrimary),
               ),
               calendarBuilders: CalendarBuilders(
                 markerBuilder: (context, day, eventsFromLoader) {
@@ -112,7 +107,7 @@ class CalendarView extends StatelessWidget {
                           context,
                           day,
                           eventsFromLoader[i],
-                          _markerColors[i % _markerColors.length],
+                          markerColors[i % markerColors.length],
                         ),
                       );
                     }
@@ -165,8 +160,13 @@ class CalendarView extends StatelessWidget {
 
             final events = controller.selectedDayEvents;
             if (events.isEmpty) {
-              return const Center(
-                child: Text("선택된 날짜에 일정이 없습니다.", style: textStyleSmall),
+              return Center(
+                child: Text(
+                  "선택된 날짜에 일정이 없습니다.",
+                  style: textStyleSmall.copyWith(
+                    color: Theme.of(context).disabledColor,
+                  ),
+                ),
               );
             }
 
@@ -174,11 +174,9 @@ class CalendarView extends StatelessWidget {
               itemCount: events.length,
               itemBuilder: (context, index) {
                 final event = events[index];
-                // 현재 아이템이 제출 중(로딩 중)인지 판단하는 로직을 단순화하거나 HomeController로 이전 고려
-                // 여기서는 backendEventId가 null인 경우 (새로 추가되어 ID 할당 전)를 로딩으로 간주
                 bool isCurrentlySubmittingThisEvent =
                     controller.isSubmittingEvent.value &&
-                    event.backendEventId == null;
+                        event.backendEventId == null;
 
                 return Card(
                   margin: const EdgeInsets.symmetric(
@@ -191,54 +189,53 @@ class CalendarView extends StatelessWidget {
                       event.displayTime(context),
                       style: textStyleSmall,
                     ),
-                    trailing:
-                        isCurrentlySubmittingThisEvent
-                            ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color: Colors.blueGrey.shade400,
-                                    size: 20,
-                                  ),
-                                  tooltip: '수정',
-                                  onPressed: () {
-                                    if (event.backendEventId != null) {
-                                      controller.showEditEventDialog(event);
-                                    } else {
-                                      Get.snackbar(
-                                        "알림",
-                                        "이벤트가 아직 동기화되지 않았습니다.",
-                                      );
-                                    }
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.delete_outline,
-                                    color: Colors.red.shade300,
-                                    size: 20,
-                                  ),
-                                  tooltip: '삭제',
-                                  onPressed: () {
-                                    if (event.backendEventId != null) {
-                                      controller.confirmDeleteEvent(event);
-                                    } else {
-                                      Get.snackbar(
-                                        "알림",
-                                        "이벤트가 아직 동기화되지 않았습니다.",
-                                      );
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
+                    trailing: isCurrentlySubmittingThisEvent
+                        ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                        : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.edit,
+                            color: colorScheme.secondary,
+                            size: 20,
+                          ),
+                          tooltip: '수정',
+                          onPressed: () {
+                            if (event.backendEventId != null) {
+                              controller.showEditEventDialog(event);
+                            } else {
+                              Get.snackbar(
+                                "알림",
+                                "이벤트가 아직 동기화되지 않았습니다.",
+                              );
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.delete_outline,
+                            color: colorScheme.error,
+                            size: 20,
+                          ),
+                          tooltip: '삭제',
+                          onPressed: () {
+                            if (event.backendEventId != null) {
+                              controller.confirmDeleteEvent(event);
+                            } else {
+                              Get.snackbar(
+                                "알림",
+                                "이벤트가 아직 동기화되지 않았습니다.",
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                     onTap: () {
                       if (event.backendEventId != null) {
                         controller.showEditEventDialog(event);

@@ -14,14 +14,14 @@ class LuckView extends GetView<LuckController> {
       Container(
         padding: const EdgeInsets.only(top: 12.0, bottom: 8.0),
         decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16.0),
             topRight: Radius.circular(16.0),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(90),
+              color: Theme.of(context).shadowColor.withOpacity(0.1),
               blurRadius: 8.0,
               spreadRadius: 2.0,
             ),
@@ -44,37 +44,35 @@ class LuckView extends GetView<LuckController> {
             ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight:
-                    MediaQuery.of(context).size.height * 0.4, // 화면 높이의 40%
+                MediaQuery.of(context).size.height * 0.4, // 화면 높이의 40%
               ),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: controller.availableZodiacsForDisplay.length,
                 itemBuilder: (BuildContext context, int index) {
                   final String zodiacDisplayName =
-                      controller.availableZodiacsForDisplay[index];
+                  controller.availableZodiacsForDisplay[index];
                   bool isSelected =
                       zodiacDisplayName ==
-                      controller.currentSelectedZodiacDisplayName;
+                          controller.currentSelectedZodiacDisplayName;
                   return ListTile(
                     title: Text(
                       zodiacDisplayName,
                       style: textStyleSmall.copyWith(
                         fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.normal,
-                        color:
-                            isSelected
-                                ? Theme.of(context).primaryColor
-                                : Theme.of(context).textTheme.bodyLarge?.color,
+                        isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                    trailing:
-                        isSelected
-                            ? Icon(
-                              Icons.check_circle_outline_rounded,
-                              color: Theme.of(context).primaryColor,
-                              size: 22,
-                            )
-                            : null,
+                    trailing: isSelected
+                        ? Icon(
+                      Icons.check_circle_outline_rounded,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 22,
+                    )
+                        : null,
                     onTap: () {
                       controller.changeZodiacByDisplayName(zodiacDisplayName);
                     },
@@ -120,23 +118,24 @@ class LuckView extends GetView<LuckController> {
   }
 
   Widget _buildErrorView(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
+            Icon(Icons.error_outline, color: colorScheme.error, size: 48),
             verticalSpaceMedium,
             Text(
               "운세 정보를 불러오는 데 실패했습니다.",
-              style: textStyleMedium.copyWith(color: Colors.redAccent),
+              style: textStyleMedium.copyWith(color: colorScheme.error),
               textAlign: TextAlign.center,
             ),
             verticalSpaceSmall,
             Text(
               controller.errorMessage.value,
-              style: textStyleSmall.copyWith(color: Colors.grey),
+              style: textStyleSmall.copyWith(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
             verticalSpaceMedium,
@@ -156,13 +155,14 @@ class LuckView extends GetView<LuckController> {
   }
 
   Widget _buildEmptyView(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.sentiment_neutral_outlined,
-            color: Colors.grey,
+            color: colorScheme.onSurfaceVariant,
             size: 48,
           ),
           verticalSpaceMedium,
@@ -183,6 +183,7 @@ class LuckView extends GetView<LuckController> {
   }
 
   Widget _buildLuckContentView(BuildContext context, ZodiacLuckData luckData) {
+    final colorScheme = Theme.of(context).colorScheme;
     String requestDateFormatted = luckData.requestDate;
     try {
       final date = DateTime.parse(luckData.requestDate);
@@ -192,15 +193,13 @@ class LuckView extends GetView<LuckController> {
     }
 
     return RefreshIndicator(
-      onRefresh:
-          () => controller.fetchTodaysLuck(
-            controller.selectedZodiacApiName.value,
-          ),
+      onRefresh: () => controller.fetchTodaysLuck(
+        controller.selectedZodiacApiName.value,
+      ),
       child: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
             title: InkWell(
-              // GestureDetector 대신 InkWell 사용
               onTap: () => _showZodiacSelectionBottomSheet(context),
               borderRadius: BorderRadius.circular(8.0),
               child: Padding(
@@ -212,7 +211,7 @@ class LuckView extends GetView<LuckController> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Obx(
-                      () => Text(
+                          () => Text(
                         '${controller.currentSelectedZodiacDisplayName} 띠',
                         style: textStyleLarge,
                       ),
@@ -223,7 +222,7 @@ class LuckView extends GetView<LuckController> {
                       size: 20,
                       color: Theme.of(
                         context,
-                      ).textTheme.titleLarge?.color?.withAlpha(30),
+                      ).textTheme.titleLarge?.color?.withOpacity(0.6),
                     ),
                   ],
                 ),
@@ -238,10 +237,9 @@ class LuckView extends GetView<LuckController> {
               IconButton(
                 icon: const Icon(Icons.refresh),
                 tooltip: "새로고침",
-                onPressed:
-                    () => controller.fetchTodaysLuck(
-                      controller.selectedZodiacApiName.value,
-                    ),
+                onPressed: () => controller.fetchTodaysLuck(
+                  controller.selectedZodiacApiName.value,
+                ),
               ),
             ],
           ),
@@ -255,27 +253,31 @@ class LuckView extends GetView<LuckController> {
                     child: Text(
                       requestDateFormatted,
                       style: textStyleSmall.copyWith(
-                        color: Colors.grey.shade600,
+                        color: colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
                   verticalSpaceMedium,
                   _buildLuckCategoryCard(
+                    context,
                     "✨ 총운",
                     luckData.overallLuck,
                     Icons.auto_awesome,
                   ),
                   _buildLuckCategoryCard(
+                    context,
                     "💰 재물운",
                     luckData.financialLuck,
                     Icons.attach_money,
                   ),
                   _buildLuckCategoryCard(
+                    context,
                     "💕 애정운",
                     luckData.loveLuck,
                     Icons.favorite_border,
                   ),
                   _buildLuckCategoryCard(
+                    context,
                     "💪 건강운",
                     luckData.healthLuck,
                     Icons.healing_outlined,
@@ -297,7 +299,7 @@ class LuckView extends GetView<LuckController> {
                               "행운의 요소",
                               style: textStyleMedium.copyWith(
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: colorScheme.primary,
                               ),
                             ),
                             verticalSpaceSmall,
@@ -317,11 +319,12 @@ class LuckView extends GetView<LuckController> {
                     ),
                   ],
                   _buildLuckCategoryCard(
+                    context,
                     "💡 조언",
                     luckData.advice,
                     Icons.lightbulb_outline,
                   ),
-                  SizedBox(height: 108),
+                  const SizedBox(height: 108),
                 ],
               ),
             ),
@@ -331,10 +334,13 @@ class LuckView extends GetView<LuckController> {
     );
   }
 
-  Widget _buildLuckCategoryCard(String title, String? content, IconData icon) {
+  Widget _buildLuckCategoryCard(
+      BuildContext context, String title, String? content, IconData icon) {
     if (content == null || content.isEmpty) {
       return const SizedBox.shrink();
     }
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       elevation: 1.5,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -349,14 +355,14 @@ class LuckView extends GetView<LuckController> {
                 Icon(
                   icon,
                   size: 20.0,
-                  color: Theme.of(Get.context!).colorScheme.primary,
+                  color: colorScheme.primary,
                 ),
                 horizontalSpaceSmall,
                 Text(
                   title,
                   style: textStyleMedium.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(Get.context!).colorScheme.primary,
+                    color: colorScheme.primary,
                   ),
                 ),
               ],
@@ -364,7 +370,7 @@ class LuckView extends GetView<LuckController> {
             verticalSpaceSmall,
             Text(
               content,
-              style: textStyleSmall.copyWith(height: 1.5, color: Colors.black),
+              style: textStyleSmall.copyWith(height: 1.5),
               textAlign: TextAlign.justify,
             ),
           ],

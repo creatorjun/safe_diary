@@ -1,11 +1,8 @@
-// lib/app/views/profile_screen.dart
-// 테스트
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
 import '../controllers/profile_controller.dart';
 import '../models/user.dart' show LoginPlatform;
 import '../routes/app_pages.dart';
@@ -13,12 +10,8 @@ import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
 
 class ProfileScreen extends GetView<ProfileController> {
-  ProfileScreen({super.key});
+  const ProfileScreen({super.key});
 
-  final TextEditingController _invitationCodeInputController =
-  TextEditingController();
-
-  // 비밀번호 필드 위젯 (재사용을 위해 분리)
   Widget _buildPasswordField({
     required TextEditingController controller,
     required String labelText,
@@ -59,7 +52,6 @@ class ProfileScreen extends GetView<ProfileController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // --- 닉네임 및 비밀번호 변경 섹션 (통합) ---
               Text(
                 '프로필 변경',
                 style: textStyleLarge.copyWith(fontWeight: FontWeight.bold),
@@ -75,7 +67,6 @@ class ProfileScreen extends GetView<ProfileController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 닉네임 변경
                       TextField(
                         controller: controller.nicknameController,
                         style: textStyleMedium,
@@ -88,7 +79,6 @@ class ProfileScreen extends GetView<ProfileController> {
                         ),
                       ),
                       verticalSpaceLarge,
-                      // 비밀번호 변경
                       Text(
                         controller.loginController.user.isAppPasswordSet
                             ? '앱 비밀번호 변경'
@@ -98,14 +88,12 @@ class ProfileScreen extends GetView<ProfileController> {
                         ),
                       ),
                       verticalSpaceSmall,
-                      // '현재 비밀번호' 입력란 제거됨
                       _buildPasswordField(
                         controller: controller.newPasswordController,
                         labelText: '새 비밀번호',
                         hintText: '새 비밀번호 (4자 이상)',
                         isObscured: controller.isNewPasswordObscured,
-                        toggleVisibility:
-                        controller.toggleNewPasswordVisibility,
+                        toggleVisibility: controller.toggleNewPasswordVisibility,
                       ),
                       verticalSpaceMedium,
                       _buildPasswordField(
@@ -121,7 +109,6 @@ class ProfileScreen extends GetView<ProfileController> {
                 ),
               ),
               verticalSpaceMedium,
-              // 통합 저장 버튼
               Obx(
                     () => FilledButton.icon(
                   icon: const Icon(Icons.save_outlined, size: 18),
@@ -132,20 +119,14 @@ class ProfileScreen extends GetView<ProfileController> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    // hasChanges가 true일 때만 버튼 활성화
                     disabledBackgroundColor: Colors.grey.shade300,
                   ),
-                  onPressed:
-                  controller.hasChanges.value
+                  onPressed: controller.hasChanges.value
                       ? controller.saveChanges
                       : null,
                 ),
               ),
-
-              // --- 버튼 추가 시작 ---
-              // Obx로 감싸 isAppPasswordSet 값의 변화에 따라 UI를 다시 그리도록 함
               Obx(() {
-                // isAppPasswordSet이 true일 때만 해제 버튼을 보여줌
                 if (controller.loginController.user.isAppPasswordSet) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -171,29 +152,21 @@ class ProfileScreen extends GetView<ProfileController> {
                     ),
                   );
                 } else {
-                  // 비밀번호가 설정되지 않았으면 아무것도 보여주지 않음
                   return const SizedBox.shrink();
                 }
               }),
-              // --- 버튼 추가 끝 ---
-
               verticalSpaceLarge,
               const Divider(),
               verticalSpaceLarge,
-
-              // --- 파트너 연결 섹션 ---
               Text(
                 '파트너 연결',
                 style: textStyleLarge.copyWith(fontWeight: FontWeight.bold),
               ),
               verticalSpaceMedium,
               _buildPartnerSection(context),
-
               verticalSpaceLarge,
               const Divider(),
               verticalSpaceMedium,
-
-              // --- 로그인 정보 및 회원 탈퇴 섹션 ---
               Text(
                 '계정 정보',
                 style: textStyleLarge.copyWith(fontWeight: FontWeight.bold),
@@ -202,7 +175,6 @@ class ProfileScreen extends GetView<ProfileController> {
               _buildAccountInfoSection(),
               verticalSpaceMedium,
               _buildAccountDeletionSection(),
-
               verticalSpaceLarge,
             ],
           ),
@@ -211,7 +183,6 @@ class ProfileScreen extends GetView<ProfileController> {
     );
   }
 
-  // 파트너 섹션 위젯
   Widget _buildPartnerSection(BuildContext context) {
     return Obx(() {
       if (controller.partnerController.isLoading) {
@@ -223,7 +194,6 @@ class ProfileScreen extends GetView<ProfileController> {
           controller.partnerController.currentPartnerRelation.value;
       final invitation = controller.partnerController.currentInvitation.value;
 
-      // 1. 파트너와 이미 연결된 경우
       if (user.partnerUid != null && user.partnerUid!.isNotEmpty) {
         String partnerNickname = user.partnerNickname ?? '파트너';
         String formattedPartnerSince = '날짜 정보 없음';
@@ -286,8 +256,7 @@ class ProfileScreen extends GetView<ProfileController> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  onPressed:
-                      () => Get.toNamed(
+                  onPressed: () => Get.toNamed(
                     Routes.chat,
                     arguments: {
                       'partnerUid': user.partnerUid,
@@ -319,9 +288,7 @@ class ProfileScreen extends GetView<ProfileController> {
             ),
           ),
         );
-      }
-      // 2. 생성된 초대 코드가 있는 경우
-      else if (invitation != null) {
+      } else if (invitation != null) {
         String formattedExpiresAt = '알 수 없음';
         try {
           formattedExpiresAt = DateFormat(
@@ -391,9 +358,7 @@ class ProfileScreen extends GetView<ProfileController> {
             ),
           ),
         );
-      }
-      // 3. 파트너도 없고, 생성된 초대 코드도 없는 경우
-      else {
+      } else {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -413,7 +378,7 @@ class ProfileScreen extends GetView<ProfileController> {
             ),
             verticalSpaceMedium,
             TextField(
-              controller: _invitationCodeInputController,
+              controller: controller.invitationCodeInputController,
               style: textStyleMedium,
               decoration: InputDecoration(
                 hintText: '받은 초대 코드 입력',
@@ -424,10 +389,11 @@ class ProfileScreen extends GetView<ProfileController> {
                   icon: const Icon(Icons.send_rounded),
                   tooltip: '초대 수락',
                   onPressed: () {
-                    final code = _invitationCodeInputController.text.trim();
+                    final code =
+                    controller.invitationCodeInputController.text.trim();
                     if (code.isNotEmpty) {
                       controller.acceptInvitation(code);
-                      _invitationCodeInputController.clear();
+                      controller.invitationCodeInputController.clear();
                     } else {
                       Get.snackbar('오류', '초대 코드를 입력해주세요.');
                     }
@@ -441,7 +407,6 @@ class ProfileScreen extends GetView<ProfileController> {
     });
   }
 
-  // 계정 정보 섹션 위젯
   Widget _buildAccountInfoSection() {
     final user = controller.loginController.user;
     final formattedCreatedAt = user.formattedCreatedAt;
@@ -457,8 +422,7 @@ class ProfileScreen extends GetView<ProfileController> {
                 SizedBox(
                   width: 22,
                   height: 22,
-                  child:
-                  user.platform == LoginPlatform.naver
+                  child: user.platform == LoginPlatform.naver
                       ? Image(
                     image: Svg(
                       'assets/naver_icon.svg',
@@ -500,7 +464,6 @@ class ProfileScreen extends GetView<ProfileController> {
     );
   }
 
-  // 회원 탈퇴 섹션 위젯
   Widget _buildAccountDeletionSection() {
     return Card(
       elevation: 1.0,

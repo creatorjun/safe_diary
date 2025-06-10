@@ -1,6 +1,3 @@
-// lib/main.dart
-
-import 'dart:io'; // HttpOverrides를 위해 추가
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
@@ -15,30 +12,24 @@ import 'app/routes/app_pages.dart';
 import 'app/config/app_config.dart';
 import 'app/controllers/login_controller.dart';
 import 'app/services/notification_service.dart';
+import 'app/theme/app_theme.dart';
 import 'firebase_options.dart';
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Initialize core services and controllers via GetX binding
   InitialBinding().dependencies();
 
-  // Initialize Notification Service (FCM 권한 요청, 핸들러 설정 등)
   await Get.find<NotificationService>().init();
 
-  // Load .env file
   await AppConfig.loadEnv();
 
-  // Initialize date formatting
   await initializeDateFormatting();
 
   final LoginController loginController = Get.find<LoginController>();
 
-  // Attempt auto-login
   bool autoLoginSuccess = false;
   try {
     autoLoginSuccess = await loginController.tryAutoLoginWithRefreshToken();
@@ -49,7 +40,6 @@ void main() async {
     autoLoginSuccess = false;
   }
 
-  // Initialize Naver/Kakao SDKs
   final String naverAppName = dotenv.env['AppName'] ?? 'YOUR_APP_NAME_DEFAULT';
   final String naverClientId =
       dotenv.env['ClientId'] ?? 'YOUR_NAVER_CLIENT_ID_DEFAULT';
@@ -82,6 +72,9 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Safe Diary',
       debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       initialRoute: initialRoute,
       getPages: AppPages.routes,
     );
