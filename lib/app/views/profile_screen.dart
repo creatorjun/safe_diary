@@ -3,14 +3,59 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
 import '../controllers/profile_controller.dart';
 import '../models/user.dart' show LoginPlatform;
 import '../routes/app_pages.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
 
-class ProfileScreen extends GetView<ProfileController> {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final ProfileController controller = Get.find<ProfileController>();
+
+  late final TextEditingController _nicknameController;
+  late final TextEditingController _newPasswordController;
+  late final TextEditingController _confirmPasswordController;
+  late final TextEditingController _invitationCodeInputController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nicknameController =
+        TextEditingController(text: controller.initialNickname.value);
+    _newPasswordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
+    _invitationCodeInputController = TextEditingController();
+
+    _nicknameController.addListener(_onChanged);
+    _newPasswordController.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    _nicknameController.removeListener(_onChanged);
+    _newPasswordController.removeListener(_onChanged);
+
+    _nicknameController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    _invitationCodeInputController.dispose();
+    super.dispose();
+  }
+
+  void _onChanged() {
+    controller.checkForChanges(
+      _nicknameController.text,
+      _newPasswordController.text,
+    );
+  }
 
   Widget _buildPasswordField({
     required TextEditingController controller,
@@ -68,7 +113,7 @@ class ProfileScreen extends GetView<ProfileController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextField(
-                        controller: controller.nicknameController,
+                        controller: _nicknameController,
                         style: textStyleMedium,
                         decoration: InputDecoration(
                           labelText: '닉네임',
@@ -89,7 +134,7 @@ class ProfileScreen extends GetView<ProfileController> {
                       ),
                       verticalSpaceSmall,
                       _buildPasswordField(
-                        controller: controller.newPasswordController,
+                        controller: _newPasswordController,
                         labelText: '새 비밀번호',
                         hintText: '새 비밀번호 (4자 이상)',
                         isObscured: controller.isNewPasswordObscured,
@@ -97,7 +142,7 @@ class ProfileScreen extends GetView<ProfileController> {
                       ),
                       verticalSpaceMedium,
                       _buildPasswordField(
-                        controller: controller.confirmPasswordController,
+                        controller: _confirmPasswordController,
                         labelText: '새 비밀번호 확인',
                         hintText: '새 비밀번호 다시 입력',
                         isObscured: controller.isConfirmPasswordObscured,
@@ -122,7 +167,17 @@ class ProfileScreen extends GetView<ProfileController> {
                     disabledBackgroundColor: Colors.grey.shade300,
                   ),
                   onPressed: controller.hasChanges.value
-                      ? controller.saveChanges
+                      ? () {
+                    controller.saveChanges(
+                      newNickname: _nicknameController.text,
+                      newPassword: _newPasswordController.text,
+                      confirmPassword: _confirmPasswordController.text,
+                    ).then((_) {
+                      // 성공적으로 저장 후 비밀번호 필드 초기화
+                      _newPasswordController.clear();
+                      _confirmPasswordController.clear();
+                    });
+                  }
                       : null,
                 ),
               ),
@@ -378,7 +433,7 @@ class ProfileScreen extends GetView<ProfileController> {
             ),
             verticalSpaceMedium,
             TextField(
-              controller: controller.invitationCodeInputController,
+              controller: _invitationCodeInputController,
               style: textStyleMedium,
               decoration: InputDecoration(
                 hintText: '받은 초대 코드 입력',
@@ -389,11 +444,10 @@ class ProfileScreen extends GetView<ProfileController> {
                   icon: const Icon(Icons.send_rounded),
                   tooltip: '초대 수락',
                   onPressed: () {
-                    final code =
-                    controller.invitationCodeInputController.text.trim();
+                    final code = _invitationCodeInputController.text.trim();
                     if (code.isNotEmpty) {
                       controller.acceptInvitation(code);
-                      controller.invitationCodeInputController.clear();
+                      _invitationCodeInputController.clear();
                     } else {
                       Get.snackbar('오류', '초대 코드를 입력해주세요.');
                     }

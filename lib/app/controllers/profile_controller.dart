@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart'; // WidgetsBinding을 사용하기 위해 import
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:safe_diary/app/theme/app_spacing.dart';
 import 'package:safe_diary/app/theme/app_text_styles.dart';
@@ -16,69 +16,39 @@ class ProfileController extends GetxController {
 
   String? _verifiedPassword;
 
-  late TextEditingController nicknameController;
-  final RxString _initialNickname = ''.obs;
-
-  late TextEditingController newPasswordController;
-  late TextEditingController confirmPasswordController;
-  late TextEditingController invitationCodeInputController;
-
+  final RxString initialNickname = ''.obs;
+  final RxBool hasChanges = false.obs;
   final RxBool isNewPasswordObscured = true.obs;
   final RxBool isConfirmPasswordObscured = true.obs;
-
-  final RxBool hasChanges = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     _verifiedPassword = Get.arguments?['verifiedPassword'];
-
-    _initialNickname.value = loginController.user.nickname ?? '';
-    nicknameController = TextEditingController(text: _initialNickname.value);
-
-    newPasswordController = TextEditingController();
-    confirmPasswordController = TextEditingController();
-    invitationCodeInputController = TextEditingController();
-
-    nicknameController.addListener(_checkForChanges);
-    newPasswordController.addListener(_checkForChanges);
-    confirmPasswordController.addListener(_checkForChanges);
+    initialNickname.value = loginController.user.nickname ?? '';
   }
 
-  @override
-  void onClose() {
-    nicknameController.removeListener(_checkForChanges);
-    newPasswordController.removeListener(_checkForChanges);
-    confirmPasswordController.removeListener(_checkForChanges);
-
-    nicknameController.dispose();
-    newPasswordController.dispose();
-    confirmPasswordController.dispose();
-    invitationCodeInputController.dispose();
-    super.onClose();
-  }
-
-  void _checkForChanges() {
-    final isNicknameChanged = nicknameController.text != _initialNickname.value;
-    final isPasswordEntered = newPasswordController.text.isNotEmpty;
+  void checkForChanges(String currentNickname, String newPassword) {
+    final isNicknameChanged = currentNickname != initialNickname.value;
+    final isPasswordEntered = newPassword.isNotEmpty;
     hasChanges.value = isNicknameChanged || isPasswordEntered;
   }
 
-  Future<void> saveChanges() async {
-    final newNickname = nicknameController.text.trim();
-    final newPassword = newPasswordController.text;
-    final confirmPassword = confirmPasswordController.text;
+  Future<void> saveChanges({
+    required String newNickname,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final isNicknameChanged =
+        newNickname.isNotEmpty && newNickname != initialNickname.value;
+    final isPasswordChanged = newPassword.isNotEmpty;
 
-    bool nicknameChanged =
-        newNickname.isNotEmpty && newNickname != _initialNickname.value;
-    bool passwordChanged = newPassword.isNotEmpty;
-
-    if (!nicknameChanged && !passwordChanged) {
+    if (!isNicknameChanged && !isPasswordChanged) {
       Get.snackbar('알림', '변경된 내용이 없습니다.');
       return;
     }
 
-    if (passwordChanged) {
+    if (isPasswordChanged) {
       if (newPassword.length < 4) {
         Get.snackbar('오류', '새 비밀번호는 4자 이상이어야 합니다.');
         return;
@@ -95,17 +65,17 @@ class ProfileController extends GetxController {
     );
 
     try {
-      if (nicknameChanged) {
+      if (isNicknameChanged) {
         await loginController.updateUserNickname(newNickname);
-        _initialNickname.value = newNickname;
+        initialNickname.value = newNickname;
       }
 
-      if (passwordChanged) {
+      if (isPasswordChanged) {
         final currentPwd =
         loginController.user.isAppPasswordSet ? _verifiedPassword : null;
-        final success = await loginController.setAppPasswordOnServer(
-          currentPwd,
-          newPassword,
+        final bool success = await loginController.setOrUpdateAppPassword(
+          currentAppPassword: currentPwd,
+          newAppPassword: newPassword,
         );
 
         if (success) {
@@ -115,10 +85,7 @@ class ProfileController extends GetxController {
 
       Get.back();
       Get.snackbar('성공', '변경 내용이 성공적으로 저장되었습니다.');
-
-      newPasswordController.clear();
-      confirmPasswordController.clear();
-      _checkForChanges();
+      hasChanges.value = false;
     } catch (e) {
       Get.back();
       Get.snackbar('오류', '변경 내용 저장에 실패했습니다: ${e.toString()}');
@@ -166,12 +133,11 @@ class ProfileController extends GetxController {
                 return;
               }
 
-              final success = await loginController.removeAppPasswordOnServer(
+              final bool success = await loginController.removeAppPassword(
                 currentPassword,
               );
 
               if (success) {
-                // 현재 프레임이 모두 렌더링 된 후, 다음 프레임에서 내비게이션 실행
                 SchedulerBinding.instance.addPostFrameCallback((_) {
                   Get.offNamedUntil(Routes.home, (route) => route.isFirst);
                   Get.toNamed(Routes.profileAuth);

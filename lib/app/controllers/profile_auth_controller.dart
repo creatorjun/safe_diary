@@ -13,10 +13,10 @@ class ProfileAuthController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   ProfileAuthController(
-    this._loginController,
-    this._partnerController,
-    this._secureStorageService,
-  );
+      this._loginController,
+      this._partnerController,
+      this._secureStorageService,
+      );
 
   late TextEditingController passwordController;
 
@@ -37,7 +37,6 @@ class ProfileAuthController extends GetxController {
   }
 
   void _checkPasswordStatusAndProceed() async {
-    // 앱 비밀번호가 설정되어 있지 않으면 인증 없이 바로 프로필 화면으로 이동합니다.
     if (!_loginController.user.isAppPasswordSet) {
       await _secureStorageService.clearFailedAttemptCount();
       Get.offNamed(Routes.profile);
@@ -55,7 +54,7 @@ class ProfileAuthController extends GetxController {
       return;
     }
 
-    final bool isVerified = await _loginController.verifyAppPasswordWithServer(
+    final bool isVerified = await _loginController.verifyAppPassword(
       enteredPassword,
     );
 
@@ -64,7 +63,6 @@ class ProfileAuthController extends GetxController {
       final enteredPasswordCopy = passwordController.text;
       passwordController.clear();
       isLoading.value = false;
-      // 인증 성공 시, 입력했던 비밀번호를 arguments로 전달하며 프로필 화면으로 이동합니다.
       Get.offNamed(
         Routes.profile,
         arguments: {'verifiedPassword': enteredPasswordCopy},
