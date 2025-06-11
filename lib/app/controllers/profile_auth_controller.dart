@@ -72,11 +72,7 @@ class ProfileAuthController extends GetxController {
       currentAttempts++;
       await _secureStorageService.saveFailedAttemptCount(currentAttempts);
 
-      if (_loginController.errorMessage.isNotEmpty) {
-        errorMessage.value = _loginController.errorMessage;
-      } else {
-        errorMessage.value = '비밀번호가 일치하지 않습니다.';
-      }
+      errorMessage.value = '비밀번호가 일치하지 않습니다.';
       passwordController.clear();
 
       if (currentAttempts >= maxFailedAttempts) {

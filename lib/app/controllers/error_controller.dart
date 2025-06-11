@@ -27,7 +27,7 @@ class ErrorController extends GetxController {
           messageToShow = "네트워크에 연결할 수 없습니다. 인터넷 상태를 확인해주세요.";
           break;
         case ApiException:
-        // ApiService에서 보낸 메시지를 그대로 사용하거나, 더 일반적인 메시지로 교체 가능
+          // ApiService에서 보낸 메시지를 그대로 사용하거나, 더 일반적인 메시지로 교체 가능
           messageToShow = (e as ApiException).message;
           break;
         default:

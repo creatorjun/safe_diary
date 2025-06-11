@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../models/weather_models.dart';
 import '../services/weather_service.dart';
 import '../services/secure_storage_service.dart';
+import 'error_controller.dart';
 import 'login_controller.dart';
 
 class WeatherController extends GetxController {
@@ -12,15 +12,16 @@ class WeatherController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   WeatherController(
-      this._weatherService,
-      this._loginController,
-      this._secureStorageService,
-      );
+    this._weatherService,
+    this._loginController,
+    this._secureStorageService,
+  );
+
+  ErrorController get _errorController => Get.find<ErrorController>();
 
   final Rx<WeeklyForecastResponseDto?> weeklyForecast =
-  Rx<WeeklyForecastResponseDto?>(null);
+      Rx<WeeklyForecastResponseDto?>(null);
   final RxBool isLoading = false.obs;
-  final RxString errorMessage = ''.obs;
 
   static const String _defaultCityName = "서울";
   final RxString selectedCityName = _defaultCityName.obs;
@@ -52,7 +53,6 @@ class WeatherController extends GetxController {
         fetchWeeklyForecast(selectedCityName.value);
       } else {
         weeklyForecast.value = null;
-        errorMessage.value = '';
       }
     });
   }
@@ -68,7 +68,6 @@ class WeatherController extends GetxController {
 
   Future<void> fetchWeeklyForecast(String cityName, {String? date}) async {
     isLoading.value = true;
-    errorMessage.value = '';
     try {
       String targetDate;
 
@@ -78,24 +77,17 @@ class WeatherController extends GetxController {
         targetDate = date;
       }
 
-      if (kDebugMode) {
-        print(
-          '[WeatherController] Requesting weather for $cityName on date: $targetDate',
-        );
-      }
-
       final forecastData = await _weatherService.getWeeklyForecastByCityName(
         cityName,
         targetDate,
       );
       weeklyForecast.value = forecastData;
     } catch (e) {
-      errorMessage.value = e.toString();
-      if (kDebugMode) {
-        print(
-          '[WeatherController] Error fetching weekly forecast for $cityName: $e',
-        );
-      }
+      weeklyForecast.value = null;
+      _errorController.handleError(
+        e,
+        userFriendlyMessage: '날씨 정보를 불러오는 데 실패했습니다.',
+      );
     } finally {
       isLoading.value = false;
     }

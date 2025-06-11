@@ -5,6 +5,7 @@ import 'package:safe_diary/app/theme/app_spacing.dart';
 import 'package:safe_diary/app/theme/app_text_styles.dart';
 
 import '../routes/app_pages.dart';
+import 'error_controller.dart';
 import 'login_controller.dart';
 import 'partner_controller.dart';
 
@@ -13,6 +14,8 @@ class ProfileController extends GetxController {
   final PartnerController partnerController;
 
   ProfileController(this.loginController, this.partnerController);
+
+  ErrorController get _errorController => Get.find<ErrorController>();
 
   String? _verifiedPassword;
 
@@ -88,7 +91,7 @@ class ProfileController extends GetxController {
       hasChanges.value = false;
     } catch (e) {
       Get.back();
-      Get.snackbar('오류', '변경 내용 저장에 실패했습니다: ${e.toString()}');
+      _errorController.handleError(e, userFriendlyMessage: '변경 내용 저장에 실패했습니다.');
     }
   }
 
@@ -239,7 +242,11 @@ class ProfileController extends GetxController {
   }
 
   Future<void> acceptInvitation(String code) async {
-    await partnerController.acceptPartnerInvitation(code);
+    if (code.isNotEmpty) {
+      await partnerController.acceptPartnerInvitation(code);
+    } else {
+      Get.snackbar('오류', '초대 코드를 입력해주세요.');
+    }
   }
 
   Future<void> disconnectPartner() async {

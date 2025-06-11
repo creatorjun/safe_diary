@@ -11,6 +11,7 @@ import '../models/chat_models.dart';
 import '../services/chat_service.dart';
 import 'login_controller.dart';
 import '../config/app_config.dart';
+import 'error_controller.dart';
 
 class ChatController extends GetxController {
   final ChatService _chatService;
@@ -23,16 +24,18 @@ class ChatController extends GetxController {
     required LoginController loginController,
     required String partnerUid,
     String? partnerNickname,
-  }) : _chatService = chatService,
-       _loginController = loginController,
-       _chatPartnerUid = partnerUid,
-       _chatPartnerNickname = partnerNickname;
+  })  : _chatService = chatService,
+        _loginController = loginController,
+        _chatPartnerUid = partnerUid,
+        _chatPartnerNickname = partnerNickname;
+
+  ErrorController get _errorController => Get.find<ErrorController>();
 
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isFetchingMore = false.obs;
   final RxBool hasReachedMax = false.obs;
-  final RxString errorMessage = ''.obs;
+  final RxBool hasInitialLoadError = false.obs;
   final ScrollController scrollController = ScrollController();
   final TextEditingController messageInputController = TextEditingController();
 
@@ -51,7 +54,8 @@ class ChatController extends GetxController {
 
   void _initializeChat() {
     if (_loginController.user.id == null || _chatPartnerUid.isEmpty) {
-      errorMessage.value = "채팅 상대방 정보가 유효하지 않습니다.";
+      hasInitialLoadError.value = true;
+      _errorController.handleError("채팅 상대방 정보가 유효하지 않습니다.");
       isLoading.value = false;
       return;
     }
@@ -64,7 +68,7 @@ class ChatController extends GetxController {
   void _connectToStomp() {
     final String? baseApiUrl = AppConfig.apiUrl;
     if (baseApiUrl == null) {
-      errorMessage.value = "STOMP 연결을 위한 API URL을 찾을 수 없습니다.";
+      _errorController.handleError("STOMP 연결을 위한 API URL을 찾을 수 없습니다.");
       return;
     }
     String stompUrl;
@@ -76,7 +80,7 @@ class ChatController extends GetxController {
 
     final String? token = _loginController.user.safeAccessToken;
     if (token == null) {
-      errorMessage.value = "STOMP 연결을 위한 인증 토큰이 없습니다.";
+      _errorController.handleError("STOMP 연결을 위한 인증 토큰이 없습니다.");
       return;
     }
 
@@ -85,14 +89,12 @@ class ChatController extends GetxController {
         url: stompUrl,
         onConnect: _onStompConnected,
         onWebSocketError: (dynamic error) {
-          if (kDebugMode) {
-            print('[ChatController] STOMP WebSocket Error: $error');
-          }
-          errorMessage.value = '채팅 서버 연결 오류: ${error.toString()}';
+          _errorController.handleError(error,
+              userFriendlyMessage: '채팅 서버에 연결할 수 없습니다.');
         },
         onStompError: (StompFrame frame) {
-          if (kDebugMode) print('[ChatController] STOMP Error: ${frame.body}');
-          errorMessage.value = '채팅 프로토콜 오류: ${frame.body}';
+          _errorController.handleError(frame.body ?? 'STOMP 프로토콜 오류',
+              userFriendlyMessage: '채팅 서버 연결에 문제가 발생했습니다.');
         },
         onDisconnect: (StompFrame frame) {
           if (kDebugMode) print('[ChatController] STOMP Disconnected.');
@@ -107,10 +109,8 @@ class ChatController extends GetxController {
   void _onStompConnected(StompFrame frame) {
     if (kDebugMode) print('[ChatController] STOMP Connected.');
 
-    // 채팅방 진입 시 필요한 이벤트들을 전송합니다.
     _onEnterChatRoom();
 
-    // 새로운 메시지 수신을 위한 구독
     _chatSubscription = stompClient?.subscribe(
       destination: '/user/queue/private',
       callback: (StompFrame frame) {
@@ -124,8 +124,8 @@ class ChatController extends GetxController {
 
             if (isMyEchoMessage) {
               final index = messages.lastIndexWhere(
-                (msg) =>
-                    (msg.id?.startsWith('temp_') ?? false) &&
+                    (msg) =>
+                (msg.id?.startsWith('temp_') ?? false) &&
                     msg.content == receivedMessage.content,
               );
               if (index != -1) {
@@ -133,20 +133,17 @@ class ChatController extends GetxController {
               }
             } else {
               if (!messages.any((m) => m.id == receivedMessage.id)) {
-                // 서버가 보내준 isRead 상태를 그대로 UI에 반영합니다.
                 messages.add(receivedMessage);
               }
             }
           } catch (e) {
-            if (kDebugMode) {
-              print('[ChatController] Error processing chat message: $e');
-            }
+            _errorController.handleError(e,
+                userFriendlyMessage: '새 메시지를 처리하는 중 문제가 발생했습니다.');
           }
         }
       },
     );
 
-    // 상대방의 '읽음' 상태를 실시간으로 수신하기 위한 새로운 구독
     _readReceiptSubscription = stompClient?.subscribe(
       destination: '/user/queue/readReceipts',
       callback: (StompFrame frame) {
@@ -176,14 +173,12 @@ class ChatController extends GetxController {
     );
   }
 
-  // 채팅방 진입 시 2개의 이벤트를 모두 보내도록 수정
   void _onEnterChatRoom() {
     if (stompClient == null || !stompClient!.connected) return;
 
     final payload = {'partnerUid': _chatPartnerUid};
     final body = json.encode(payload);
 
-    // 1. "나 지금 채팅방 보고 있음" 상태 전송
     stompClient?.send(
       destination: '/app/chat.activity.enter',
       body: body,
@@ -197,7 +192,6 @@ class ChatController extends GetxController {
       );
     }
 
-    // 2. "과거 메시지 모두 읽음" 처리 요청
     stompClient?.send(
       destination: '/app/chat.messageRead',
       body: body,
@@ -212,7 +206,6 @@ class ChatController extends GetxController {
     }
   }
 
-  // 채팅방에서 나갈 때 호출될 메서드
   void _onLeaveChatRoom() {
     if (stompClient == null || !stompClient!.connected) return;
 
@@ -234,12 +227,12 @@ class ChatController extends GetxController {
 
   Future<void> fetchInitialMessages() async {
     if (_chatPartnerUid.isEmpty) {
-      errorMessage.value = "상대방 정보가 없어 메시지를 조회할 수 없습니다.";
+      hasInitialLoadError.value = true;
+      _errorController.handleError("상대방 정보가 없어 메시지를 조회할 수 없습니다.");
       return;
     }
     isLoading.value = true;
-    errorMessage.value = '';
-    hasReachedMax.value = false;
+    hasInitialLoadError.value = false;
     try {
       final response = await _chatService.getChatMessages(
         otherUserUid: _chatPartnerUid,
@@ -251,7 +244,8 @@ class ChatController extends GetxController {
       messages.assignAll(fetchedMessages);
       hasReachedMax.value = !response.hasNextPage;
     } catch (e) {
-      errorMessage.value = "메시지 로딩 중 오류: ${e.toString()}";
+      hasInitialLoadError.value = true;
+      _errorController.handleError(e, userFriendlyMessage: "메시지를 불러오는 데 실패했습니다.");
     } finally {
       isLoading.value = false;
     }
@@ -275,7 +269,8 @@ class ChatController extends GetxController {
       }
       hasReachedMax.value = !response.hasNextPage;
     } catch (e) {
-      if (kDebugMode) print('[ChatController] Fetch more messages error: $e');
+      _errorController.handleError(e,
+          userFriendlyMessage: "이전 메시지를 불러오는 데 실패했습니다.");
     } finally {
       isFetchingMore.value = false;
     }
@@ -285,7 +280,7 @@ class ChatController extends GetxController {
     final String content = messageInputController.text.trim();
     if (content.isEmpty) return;
     if (stompClient == null || !stompClient!.connected) {
-      Get.snackbar("전송 실패", "채팅 서버에 연결되어 있지 않습니다.");
+      _errorController.handleError("채팅 서버에 연결되어 있지 않습니다.");
       return;
     }
 
@@ -319,7 +314,7 @@ class ChatController extends GetxController {
 
   void _scrollListener() {
     if (scrollController.position.pixels <=
-            scrollController.position.minScrollExtent + 50 &&
+        scrollController.position.minScrollExtent + 50 &&
         !isFetchingMore.value &&
         !hasReachedMax.value) {
       fetchMoreMessages();
@@ -328,10 +323,7 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    // 화면에서 벗어날 때 '나감' 이벤트를 서버에 전송합니다.
     _onLeaveChatRoom();
-
-    // 모든 구독 해제 및 연결 종료
     _chatSubscription?.call();
     _readReceiptSubscription?.call();
     stompClient?.deactivate();

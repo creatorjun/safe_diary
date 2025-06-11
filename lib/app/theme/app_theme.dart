@@ -19,9 +19,7 @@ class AppTheme {
     scaffoldBackgroundColor: const Color(0xFFF7F2F9),
     cardTheme: CardThemeData(
       elevation: 1.5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
     ),
   );
 
@@ -39,9 +37,7 @@ class AppTheme {
     scaffoldBackgroundColor: const Color(0xFF141218),
     cardTheme: CardThemeData(
       elevation: 1.5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
     ),
   );
 }

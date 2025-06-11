@@ -13,7 +13,7 @@ enum LoginPlatform {
   static LoginPlatform fromJson(String jsonValue) {
     // toUpperCase()를 사용하여 대소문자 구분 없이 비교하도록 수정
     return LoginPlatform.values.firstWhere(
-          (e) => e.name.toUpperCase() == jsonValue.toUpperCase(),
+      (e) => e.name.toUpperCase() == jsonValue.toUpperCase(),
       orElse: () => LoginPlatform.none,
     );
   }
@@ -111,13 +111,15 @@ class User {
     }
 
     return User(
-      id: json['uid'] as String?, // 'uid'를 'id'로 매핑
+      id: json['uid'] as String?,
+      // 'uid'를 'id'로 매핑
       nickname: json['nickname'] as String?,
       platform: LoginPlatform.fromJson(
         // 'loginProvider'를 'platform'으로 매핑
         json['loginProvider'] as String? ?? LoginPlatform.none.name,
       ),
-      isAppPasswordSet: json['appPasswordSet'] as bool? ?? false, // 'appPasswordSet'을 'isAppPasswordSet'으로 매핑
+      isAppPasswordSet: json['appPasswordSet'] as bool? ?? false,
+      // 'appPasswordSet'을 'isAppPasswordSet'으로 매핑
       partnerUid: json['partnerUid'] as String?,
       partnerNickname: json['partnerNickname'] as String?,
       socialAccessToken: json['socialAccessToken'] as String?,

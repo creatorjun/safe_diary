@@ -54,14 +54,13 @@ class WeatherView extends GetView<WeatherController> {
     Get.bottomSheet(
       Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).canvasColor, // 현재 테마의 배경색 사용
+          color: Theme.of(context).canvasColor,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16.0),
             topRight: Radius.circular(16.0),
           ),
         ),
         child: SafeArea(
-          // 하단 시스템 영역 침범 방지
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -74,9 +73,8 @@ class WeatherView extends GetView<WeatherController> {
               ),
               const Divider(height: 1),
               LimitedBox(
-                // ListView의 최대 높이 제한
                 maxHeight:
-                    MediaQuery.of(context).size.height * 0.5, // 화면 높이의 50%로 제한
+                MediaQuery.of(context).size.height * 0.5,
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: controller.availableCities.length,
@@ -88,21 +86,18 @@ class WeatherView extends GetView<WeatherController> {
                         city,
                         style: textStyleSmall.copyWith(
                           fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.normal,
-                          // color: isSelected ? Theme.of(context).primaryColor : null,
+                          isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
                       ),
-                      trailing:
-                          isSelected
-                              ? Icon(
-                                Icons.check_circle_outline_rounded,
-                                color: Theme.of(context).primaryColor,
-                                size: 22,
-                              )
-                              : null,
+                      trailing: isSelected
+                          ? Icon(
+                        Icons.check_circle_outline_rounded,
+                        color: Theme.of(context).primaryColor,
+                        size: 22,
+                      )
+                          : null,
                       onTap: () {
                         controller.changeCity(city);
-                        // Get.back(); // controller.changeCity에서 Get.back() 호출됨
                       },
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 24.0,
@@ -112,14 +107,11 @@ class WeatherView extends GetView<WeatherController> {
                   },
                 ),
               ),
-              // 취소 버튼 대신 외부 탭으로 닫기 유도 또는 상단 X 버튼 추가 가능
-              // 여기서는 기본 BottomSheet 동작(외부 탭 시 닫힘)을 활용
             ],
           ),
         ),
       ),
-      isScrollControlled: true, // true로 설정해야 내용이 많을 때 전체 화면 스크롤 가능
-      // backgroundColor: Colors.transparent, // Container에서 배경색을 관리하므로 투명하게
+      isScrollControlled: true,
     );
   }
 
@@ -134,7 +126,7 @@ class WeatherView extends GetView<WeatherController> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (controller.errorMessage.value.isNotEmpty &&
+        if (!controller.isLoading.value &&
             controller.weeklyForecast.value == null) {
           return _buildErrorView(context);
         }
@@ -178,12 +170,6 @@ class WeatherView extends GetView<WeatherController> {
               style: textStyleMedium.copyWith(color: Colors.redAccent),
               textAlign: TextAlign.center,
             ),
-            verticalSpaceSmall,
-            Text(
-              controller.errorMessage.value,
-              style: textStyleSmall.copyWith(color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
             verticalSpaceMedium,
             ElevatedButton.icon(
               icon: const Icon(Icons.refresh),
@@ -222,11 +208,11 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildDailyForecastPage(
-    BuildContext context,
-    WeatherForecastResponseDto dailyForecast,
-    String currentCityName,
-    String backgroundImagePath,
-  ) {
+      BuildContext context,
+      WeatherForecastResponseDto dailyForecast,
+      String currentCityName,
+      String backgroundImagePath,
+      ) {
     DateTime parsedDate;
     String displayDate = "날짜 정보 없음";
     String dayOfWeek = "";
@@ -247,10 +233,10 @@ class WeatherView extends GetView<WeatherController> {
           fit: BoxFit.cover,
           alignment: Alignment.center,
           errorBuilder: (
-            BuildContext context,
-            Object exception,
-            StackTrace? stackTrace,
-          ) {
+              BuildContext context,
+              Object exception,
+              StackTrace? stackTrace,
+              ) {
             return Container(
               color: Colors.blueGrey,
               alignment: Alignment.center,
@@ -276,9 +262,7 @@ class WeatherView extends GetView<WeatherController> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _showCitySelectionBottomSheet(
-                          context,
-                        ); // BottomSheet 호출로 변경
+                        _showCitySelectionBottomSheet(context);
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -352,7 +336,7 @@ class WeatherView extends GetView<WeatherController> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.arrow_back_ios,
                             color: Colors.white70,
                             size: 16,
@@ -365,7 +349,7 @@ class WeatherView extends GetView<WeatherController> {
                             ),
                           ),
                           horizontalSpaceSmall,
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_ios,
                             color: Colors.white70,
                             size: 16,
@@ -385,10 +369,8 @@ class WeatherView extends GetView<WeatherController> {
           child: IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white, size: 28),
             tooltip: "새로고침",
-            onPressed:
-                () => controller.fetchWeeklyForecast(
-                  controller.selectedCityName.value,
-                ),
+            onPressed: () =>
+                controller.fetchWeeklyForecast(controller.selectedCityName.value),
           ),
         ),
       ],
@@ -413,10 +395,10 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildWeatherDetailRow(
-    String label,
-    String? value, {
-    String unit = "",
-  }) {
+      String label,
+      String? value, {
+        String unit = "",
+      }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(

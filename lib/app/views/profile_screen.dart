@@ -138,7 +138,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         labelText: '새 비밀번호',
                         hintText: '새 비밀번호 (4자 이상)',
                         isObscured: controller.isNewPasswordObscured,
-                        toggleVisibility: controller.toggleNewPasswordVisibility,
+                        toggleVisibility:
+                        controller.toggleNewPasswordVisibility,
                       ),
                       verticalSpaceMedium,
                       _buildPasswordField(
@@ -168,12 +169,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   onPressed: controller.hasChanges.value
                       ? () {
-                    controller.saveChanges(
+                    controller
+                        .saveChanges(
                       newNickname: _nicknameController.text,
                       newPassword: _newPasswordController.text,
                       confirmPassword: _confirmPasswordController.text,
-                    ).then((_) {
-                      // 성공적으로 저장 후 비밀번호 필드 초기화
+                    )
+                        .then((_) {
                       _newPasswordController.clear();
                       _confirmPasswordController.clear();
                     });
@@ -281,10 +283,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 verticalSpaceSmall,
-                Text(
-                  'UID: ${user.partnerUid}',
-                  style: textStyleSmall.copyWith(color: Colors.grey.shade600),
-                ),
                 if (formattedPartnerSince != '날짜 정보 없음')
                   Text(
                     '연결 시작일: $formattedPartnerSince',
@@ -445,12 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   tooltip: '초대 수락',
                   onPressed: () {
                     final code = _invitationCodeInputController.text.trim();
-                    if (code.isNotEmpty) {
-                      controller.acceptInvitation(code);
-                      _invitationCodeInputController.clear();
-                    } else {
-                      Get.snackbar('오류', '초대 코드를 입력해주세요.');
-                    }
+                    controller.acceptInvitation(code);
                   },
                 ),
               ),

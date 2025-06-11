@@ -12,21 +12,23 @@ import '../services/api_service.dart';
 import '../services/auth_service.dart';
 import '../services/secure_storage_service.dart';
 import '../services/user_service.dart';
+import 'error_controller.dart';
 import 'partner_controller.dart';
 
 class LoginController extends GetxController {
   final AuthService _authService;
   final UserService _userService;
-
   final SecureStorageService _secureStorageService;
 
   LoginController(
-      this._authService,
-      this._userService,
-      this._secureStorageService,
-      );
+    this._authService,
+    this._userService,
+    this._secureStorageService,
+  );
 
   PartnerController get _partnerController => Get.find<PartnerController>();
+
+  ErrorController get _errorController => Get.find<ErrorController>();
 
   final Rx<User> _user = User(platform: LoginPlatform.none).obs;
 
@@ -36,14 +38,11 @@ class LoginController extends GetxController {
 
   RxBool get isLoggedIn =>
       (_user.value.platform != LoginPlatform.none &&
-          _user.value.safeAccessToken != null)
+              _user.value.safeAccessToken != null)
           .obs;
   final RxBool _isLoading = false.obs;
 
   bool get isLoading => _isLoading.value;
-  final RxString _errorMessage = ''.obs;
-
-  String get errorMessage => _errorMessage.value;
 
   @override
   void onInit() {
@@ -53,12 +52,8 @@ class LoginController extends GetxController {
 
   void _setLoading(bool loading) => _isLoading.value = loading;
 
-  void _clearError() => _errorMessage.value = '';
-
-  void _setError(String debugMsg, {String? userFriendlyMsg}) {
-    if (kDebugMode) print("[LoginController] Error: $debugMsg");
-    _errorMessage.value =
-        userFriendlyMsg ?? "오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+  void _handleError(Object e, {String? userFriendlyMsg}) {
+    _errorController.handleError(e, userFriendlyMessage: userFriendlyMsg);
   }
 
   Future<void> sendFcmTokenToServer(String fcmToken) async {
@@ -75,13 +70,15 @@ class LoginController extends GetxController {
 
   Future<void> loginWithNaver() async {
     _setLoading(true);
-    _clearError();
     try {
       await _authenticateNaver();
       final socialUser = await _getNaverSocialUser();
       await _processSocialLogin(socialUser);
     } catch (e) {
-      _setError(e.toString(), userFriendlyMsg: "네이버 로그인에 실패했습니다. 네트워크 상태를 확인 후 다시 시도해주세요.");
+      _handleError(
+        e,
+        userFriendlyMsg: "네이버 로그인에 실패했습니다. 네트워크 상태를 확인 후 다시 시도해주세요.",
+      );
     } finally {
       _setLoading(false);
     }
@@ -92,10 +89,14 @@ class LoginController extends GetxController {
     NaverLoginSDK.authenticate(
       callback: OAuthLoginCallback(
         onSuccess: () => completer.complete(),
-        onFailure: (status, message) => completer.completeError(
-            'Naver Login Failed: $message (Status: $status)'),
-        onError: (code, message) =>
-            completer.completeError('Naver Login Error: $message (Code: $code)'),
+        onFailure:
+            (status, message) => completer.completeError(
+              'Naver Login Failed: $message (Status: $status)',
+            ),
+        onError:
+            (code, message) => completer.completeError(
+              'Naver Login Error: $message (Code: $code)',
+            ),
       ),
     );
     return completer.future;
@@ -119,10 +120,14 @@ class LoginController extends GetxController {
         onSuccess: (resultCode, message, response) {
           completer.complete(NaverLoginProfile.fromJson(response: response));
         },
-        onFailure: (httpStatus, message) => completer
-            .completeError('Naver Profile Fail: $message (HTTP: $httpStatus)'),
-        onError: (errorCode, message) => completer
-            .completeError('Naver Profile Error: $message (Code: $errorCode)'),
+        onFailure:
+            (httpStatus, message) => completer.completeError(
+              'Naver Profile Fail: $message (HTTP: $httpStatus)',
+            ),
+        onError:
+            (errorCode, message) => completer.completeError(
+              'Naver Profile Error: $message (Code: $errorCode)',
+            ),
       ),
     );
     return completer.future;
@@ -130,15 +135,14 @@ class LoginController extends GetxController {
 
   Future<void> loginWithKakao() async {
     _setLoading(true);
-    _clearError();
     try {
       final socialUser = await _getKakaoSocialUser();
       await _processSocialLogin(socialUser);
     } catch (e) {
       if (e is PlatformException && e.code == 'CANCELED') {
-        _clearError();
+        // 사용자가 로그인을 취소한 경우는 오류로 처리하지 않음
       } else {
-        _setError(e.toString(), userFriendlyMsg: "카카오 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        _handleError(e, userFriendlyMsg: "카카오 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.");
       }
     } finally {
       _setLoading(false);
@@ -185,22 +189,22 @@ class LoginController extends GetxController {
 
   Future<void> _processSocialLogin(User socialUser) async {
     try {
-      final authenticatedUser =
-      await _authService.signInWithSocialUser(socialUser);
+      final authenticatedUser = await _authService.signInWithSocialUser(
+        socialUser,
+      );
       if (authenticatedUser != null) {
         _user.value = authenticatedUser;
         await _getAndSendFcmTokenWithRetry();
         Get.offAllNamed(Routes.home);
       }
     } catch (e) {
-      _setError(e.toString(), userFriendlyMsg: "서버에 연결할 수 없습니다. 관리자에게 문의해주세요.");
+      _handleError(e, userFriendlyMsg: "서버에 연결할 수 없습니다. 관리자에게 문의해주세요.");
       rethrow;
     }
   }
 
   Future<void> logout() async {
     _setLoading(true);
-    _clearError();
     try {
       if (_user.value.platform == LoginPlatform.naver) {
         await NaverLoginSDK.release();
@@ -215,7 +219,7 @@ class LoginController extends GetxController {
       Get.offAllNamed(Routes.login);
       Get.snackbar('로그아웃', '성공적으로 로그아웃되었습니다.');
     } catch (e) {
-      _setError(e.toString(), userFriendlyMsg: "로그아웃 중 오류가 발생했습니다.");
+      _handleError(e, userFriendlyMsg: "로그아웃 중 오류가 발생했습니다.");
     } finally {
       _setLoading(false);
     }
@@ -232,7 +236,6 @@ class LoginController extends GetxController {
 
   Future<bool> tryAutoLoginWithRefreshToken() async {
     _setLoading(true);
-    _clearError();
     try {
       final authenticatedUser = await _authService.attemptAutoLogin();
       if (authenticatedUser != null) {
@@ -269,14 +272,16 @@ class LoginController extends GetxController {
 
   Future<User> updateUserNickname(String newNickname) async {
     try {
-      final updatedUserFromServer =
-      await _userService.updateNickname(newNickname);
+      final updatedUserFromServer = await _userService.updateNickname(
+        newNickname,
+      );
       _user.value = updatedUserFromServer.copyWith(
         safeAccessToken: _user.value.safeAccessToken,
         safeRefreshToken: _user.value.safeRefreshToken,
       );
       return _user.value;
     } catch (e) {
+      _handleError(e, userFriendlyMsg: '닉네임 변경에 실패했습니다.');
       rethrow;
     }
   }
@@ -285,6 +290,7 @@ class LoginController extends GetxController {
     try {
       return await _userService.verifyAppPassword(appPassword);
     } catch (e) {
+      _handleError(e, userFriendlyMsg: '비밀번호 확인 중 오류가 발생했습니다.');
       return false;
     }
   }
@@ -301,6 +307,7 @@ class LoginController extends GetxController {
       _user.value = _user.value.copyWith(isAppPasswordSet: true);
       return true;
     } catch (e) {
+      _handleError(e, userFriendlyMsg: '비밀번호 설정에 실패했습니다.');
       rethrow;
     }
   }
@@ -311,13 +318,13 @@ class LoginController extends GetxController {
       _user.value = _user.value.copyWith(isAppPasswordSet: false);
       return true;
     } catch (e) {
+      _handleError(e, userFriendlyMsg: '비밀번호 해제에 실패했습니다.');
       rethrow;
     }
   }
 
   Future<void> processAccountDeletion() async {
     _setLoading(true);
-    _clearError();
     try {
       if (_user.value.partnerUid != null &&
           _user.value.partnerUid!.isNotEmpty) {
@@ -338,7 +345,7 @@ class LoginController extends GetxController {
       Get.offAllNamed(Routes.login);
       Get.snackbar('회원 탈퇴 완료', '회원 탈퇴가 성공적으로 처리되었습니다.');
     } catch (e) {
-      _setError(e.toString(), userFriendlyMsg: "회원 탈퇴 중 오류가 발생했습니다.");
+      _handleError(e, userFriendlyMsg: "회원 탈퇴 중 오류가 발생했습니다.");
     } finally {
       _setLoading(false);
     }

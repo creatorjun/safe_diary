@@ -52,9 +52,8 @@ class LuckView extends GetView<LuckController> {
                 itemBuilder: (BuildContext context, int index) {
                   final String zodiacDisplayName =
                   controller.availableZodiacsForDisplay[index];
-                  bool isSelected =
-                      zodiacDisplayName ==
-                          controller.currentSelectedZodiacDisplayName;
+                  bool isSelected = zodiacDisplayName ==
+                      controller.currentSelectedZodiacDisplayName;
                   return ListTile(
                     title: Text(
                       zodiacDisplayName,
@@ -102,7 +101,7 @@ class LuckView extends GetView<LuckController> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (controller.errorMessage.value.isNotEmpty &&
+        if (!controller.isLoading.value &&
             controller.zodiacLuck.value == null) {
           return _buildErrorView(context);
         }
@@ -130,12 +129,6 @@ class LuckView extends GetView<LuckController> {
             Text(
               "운세 정보를 불러오는 데 실패했습니다.",
               style: textStyleMedium.copyWith(color: colorScheme.error),
-              textAlign: TextAlign.center,
-            ),
-            verticalSpaceSmall,
-            Text(
-              controller.errorMessage.value,
-              style: textStyleSmall.copyWith(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
             verticalSpaceMedium,

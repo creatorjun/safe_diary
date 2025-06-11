@@ -25,7 +25,11 @@ class LoginScreen extends GetView<LoginController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image(image: Svg('assets/naver_icon.svg'), width: 24, height: 24),
+          const Image(
+            image: Svg('assets/naver_icon.svg'),
+            width: 24,
+            height: 24,
+          ),
           horizontalSpaceSmall,
           Text('네이버 로그인', style: textStyleLarge.copyWith(color: Colors.white)),
         ],
@@ -49,7 +53,11 @@ class LoginScreen extends GetView<LoginController> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image(image: Svg('assets/kakao_icon.svg'), width: 24, height: 24),
+          const Image(
+            image: Svg('assets/kakao_icon.svg'),
+            width: 24,
+            height: 24,
+          ),
           horizontalSpaceSmall,
           Text(
             '카카오 로그인',
@@ -102,24 +110,19 @@ class LoginScreen extends GetView<LoginController> {
     return Scaffold(
       body: Obx(() {
         return Container(
-          // 배경 이미지를 위한 Container 추가
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/login_back.png"), // 배경 이미지 경로
-              fit: BoxFit.cover, // 이미지가 화면을 꽉 채우도록 설정
+              image: AssetImage("assets/login_back.png"),
+              fit: BoxFit.cover,
             ),
           ),
-          child: Center(
-            // 기존 내용을 가운데 정렬하기 위해 Center 위젯 추가
-            child: _buildLoginContent(context),
-          ),
+          child: Center(child: _buildLoginContent(context)),
         );
       }),
     );
   }
 
   Widget _buildLoginContent(BuildContext context) {
-    // 기존 body 내용을 별도 메서드로 추출
     if (controller.isLoading) {
       return const CircularProgressIndicator();
     }
@@ -140,17 +143,6 @@ class LoginScreen extends GetView<LoginController> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (controller.errorMessage.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 16.0),
-                              child: Text(
-                                controller.errorMessage,
-                                style: textStyleSmall.copyWith(
-                                  color: Colors.red,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
                           if (!controller.isLoggedIn.value) ...[
                             _buildNaverLoginButton(context, controller),
                             verticalSpaceMedium,

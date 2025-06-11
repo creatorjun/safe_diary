@@ -1,6 +1,7 @@
 // lib/app/bindings/initial_binding.dart
 
 import 'package:get/get.dart';
+import 'package:safe_diary/app/controllers/error_controller.dart';
 import 'package:safe_diary/app/controllers/login_controller.dart';
 import 'package:safe_diary/app/controllers/partner_controller.dart';
 import 'package:safe_diary/app/services/api_service.dart';
@@ -17,6 +18,7 @@ class InitialBinding extends Bindings {
     Get.put(ApiService(), permanent: true);
     Get.put(SecureStorageService(), permanent: true);
     Get.put(NotificationService(), permanent: true);
+    Get.put(ErrorController(), permanent: true);
 
     // 2. 다른 서비스에 의존하는 서비스들을 등록하고, Get.find()로 의존성을 주입합니다.
     Get.put(AuthService(Get.find(), Get.find()), permanent: true);

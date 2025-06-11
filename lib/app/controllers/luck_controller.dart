@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../models/luck_models.dart';
 import '../services/luck_service.dart';
 import '../services/secure_storage_service.dart';
+import 'error_controller.dart';
 import 'login_controller.dart';
 
 class LuckController extends GetxController {
@@ -13,20 +14,19 @@ class LuckController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   LuckController(
-    this._luckService,
-    this._loginController,
-    this._secureStorageService,
-  );
+      this._luckService,
+      this._loginController,
+      this._secureStorageService,
+      );
+
+  ErrorController get _errorController => Get.find<ErrorController>();
 
   final Rx<ZodiacLuckData?> zodiacLuck = Rx<ZodiacLuckData?>(null);
   final RxBool isLoading = false.obs;
-  final RxString errorMessage = ''.obs;
 
   static const String _defaultZodiacApiName = "쥐띠";
   final RxString selectedZodiacApiName = _defaultZodiacApiName.obs;
 
-  // --- Start of Missing Code ---
-  // UI 표시용 띠 이름과 API 요청용 띠 이름 매핑
   final Map<String, String> zodiacNameMap = {
     "자(쥐)": "쥐띠",
     "축(소)": "소띠",
@@ -42,24 +42,19 @@ class LuckController extends GetxController {
     "해(돼지)": "돼지띠",
   };
 
-  // UI 선택용 띠 목록 (Map의 key들)
   List<String> get availableZodiacsForDisplay => zodiacNameMap.keys.toList();
 
-  // 현재 선택된 띠의 UI 표시용 이름
   String get currentSelectedZodiacDisplayName {
     return zodiacNameMap.entries
         .firstWhere(
           (entry) => entry.value == selectedZodiacApiName.value,
-          orElse:
-              () => MapEntry(
-                availableZodiacsForDisplay.first,
-                _defaultZodiacApiName,
-              ),
-        )
+      orElse: () => MapEntry(
+        availableZodiacsForDisplay.first,
+        _defaultZodiacApiName,
+      ),
+    )
         .key;
   }
-
-  // --- End of Missing Code ---
 
   @override
   void onInit() {
@@ -71,14 +66,13 @@ class LuckController extends GetxController {
         fetchTodaysLuck(selectedZodiacApiName.value);
       } else {
         zodiacLuck.value = null;
-        errorMessage.value = '';
       }
     });
   }
 
   Future<void> _loadSavedZodiacAndFetchLuck() async {
     String? savedZodiacApiName =
-        await _secureStorageService.getSelectedZodiac();
+    await _secureStorageService.getSelectedZodiac();
     if (savedZodiacApiName != null &&
         zodiacNameMap.containsValue(savedZodiacApiName)) {
       selectedZodiacApiName.value = savedZodiacApiName;
@@ -93,20 +87,13 @@ class LuckController extends GetxController {
 
   Future<void> fetchTodaysLuck(String zodiacApiName) async {
     isLoading.value = true;
-    errorMessage.value = '';
     try {
       final luckData = await _luckService.getTodaysLuck(zodiacApiName);
       zodiacLuck.value = luckData;
-      if (kDebugMode) {
-        print(
-          '[LuckController] Fetched today\'s luck for $zodiacApiName: ${luckData.overallLuck}',
-        );
-      }
     } catch (e) {
-      errorMessage.value = e.toString();
-      if (kDebugMode) {
-        print('[LuckController] Error fetching luck for $zodiacApiName: $e');
-      }
+      zodiacLuck.value = null;
+      _errorController.handleError(e,
+          userFriendlyMessage: '운세 정보를 불러오는 데 실패했습니다.');
     } finally {
       isLoading.value = false;
     }

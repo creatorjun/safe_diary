@@ -12,13 +12,15 @@ import '../services/event_service.dart';
 import '../views/widgets/add_edit_event_dialog.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
+import 'error_controller.dart';
 
 class HomeController extends GetxController {
-  // Dependencies are now injected via the constructor.
   final LoginController _loginController;
   final EventService _eventService;
 
   HomeController(this._loginController, this._eventService);
+
+  ErrorController get _errorController => Get.find<ErrorController>();
 
   final RxInt selectedIndex = 0.obs;
   final List<String> tabTitles = ['일정', '날씨', '운세'];
@@ -66,7 +68,6 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // No longer need to Get.find() here.
     final now = DateTime.now();
     final normalizedNow = _normalizeDate(now);
     focusedDay = normalizedNow.obs;
@@ -219,7 +220,10 @@ class HomeController extends GetxController {
       events.addAll(newEventsMap);
       events.refresh();
     } catch (e) {
-      // Get.snackbar('오류', '이벤트 목록을 불러오는 데 실패했습니다: ${e.toString()}');
+      _errorController.handleError(
+        e,
+        userFriendlyMessage: '이벤트 목록을 불러오는 데 실패했습니다.',
+      );
     } finally {
       isLoadingEvents.value = false;
     }
@@ -251,7 +255,7 @@ class HomeController extends GetxController {
       list.add(createdEvent);
       events.refresh();
     } catch (e) {
-      // Get.snackbar("오류", "일정 추가 실패: ${e.toString()}");
+      _errorController.handleError(e, userFriendlyMessage: '일정 추가에 실패했습니다.');
     } finally {
       isSubmittingEvent.value = false;
     }
@@ -295,7 +299,7 @@ class HomeController extends GetxController {
 
       events.refresh();
     } catch (e) {
-      // Get.snackbar("오류", "일정 수정 실패: ${e.toString()}");
+      _errorController.handleError(e, userFriendlyMessage: '일정 수정에 실패했습니다.');
     } finally {
       isSubmittingEvent.value = false;
     }
@@ -338,7 +342,7 @@ class HomeController extends GetxController {
         events.refresh();
       }
     } catch (e) {
-      // Get.snackbar("오류", "일정 삭제 실패: ${e.toString()}");
+      _errorController.handleError(e, userFriendlyMessage: '일정 삭제에 실패했습니다.');
     } finally {
       isSubmittingEvent.value = false;
     }

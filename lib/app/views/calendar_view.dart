@@ -11,11 +11,11 @@ class CalendarView extends StatelessWidget {
   const CalendarView({super.key});
 
   Widget _buildEventMarker(
-      BuildContext context,
-      DateTime day,
-      EventItem event,
-      Color color,
-      ) {
+    BuildContext context,
+    DateTime day,
+    EventItem event,
+    Color color,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 1.5),
       width: 7,
@@ -25,10 +25,10 @@ class CalendarView extends StatelessWidget {
   }
 
   Widget _buildEventsCountMarker(
-      BuildContext context,
-      DateTime day,
-      int count,
-      ) {
+    BuildContext context,
+    DateTime day,
+    int count,
+  ) {
     return Container(
       width: 18,
       height: 18,
@@ -88,7 +88,9 @@ class CalendarView extends StatelessWidget {
                   color: colorScheme.tertiaryContainer,
                   shape: BoxShape.circle,
                 ),
-                todayTextStyle: TextStyle(color: colorScheme.onTertiaryContainer),
+                todayTextStyle: TextStyle(
+                  color: colorScheme.onTertiaryContainer,
+                ),
                 selectedDecoration: BoxDecoration(
                   color: colorScheme.primary,
                   shape: BoxShape.circle,
@@ -176,7 +178,7 @@ class CalendarView extends StatelessWidget {
                 final event = events[index];
                 bool isCurrentlySubmittingThisEvent =
                     controller.isSubmittingEvent.value &&
-                        event.backendEventId == null;
+                    event.backendEventId == null;
 
                 return Card(
                   margin: const EdgeInsets.symmetric(
@@ -189,53 +191,54 @@ class CalendarView extends StatelessWidget {
                       event.displayTime(context),
                       style: textStyleSmall,
                     ),
-                    trailing: isCurrentlySubmittingThisEvent
-                        ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                        : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                            color: colorScheme.secondary,
-                            size: 20,
-                          ),
-                          tooltip: '수정',
-                          onPressed: () {
-                            if (event.backendEventId != null) {
-                              controller.showEditEventDialog(event);
-                            } else {
-                              Get.snackbar(
-                                "알림",
-                                "이벤트가 아직 동기화되지 않았습니다.",
-                              );
-                            }
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.delete_outline,
-                            color: colorScheme.error,
-                            size: 20,
-                          ),
-                          tooltip: '삭제',
-                          onPressed: () {
-                            if (event.backendEventId != null) {
-                              controller.confirmDeleteEvent(event);
-                            } else {
-                              Get.snackbar(
-                                "알림",
-                                "이벤트가 아직 동기화되지 않았습니다.",
-                              );
-                            }
-                          },
-                        ),
-                      ],
-                    ),
+                    trailing:
+                        isCurrentlySubmittingThisEvent
+                            ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: colorScheme.secondary,
+                                    size: 20,
+                                  ),
+                                  tooltip: '수정',
+                                  onPressed: () {
+                                    if (event.backendEventId != null) {
+                                      controller.showEditEventDialog(event);
+                                    } else {
+                                      Get.snackbar(
+                                        "알림",
+                                        "이벤트가 아직 동기화되지 않았습니다.",
+                                      );
+                                    }
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.delete_outline,
+                                    color: colorScheme.error,
+                                    size: 20,
+                                  ),
+                                  tooltip: '삭제',
+                                  onPressed: () {
+                                    if (event.backendEventId != null) {
+                                      controller.confirmDeleteEvent(event);
+                                    } else {
+                                      Get.snackbar(
+                                        "알림",
+                                        "이벤트가 아직 동기화되지 않았습니다.",
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                     onTap: () {
                       if (event.backendEventId != null) {
                         controller.showEditEventDialog(event);
