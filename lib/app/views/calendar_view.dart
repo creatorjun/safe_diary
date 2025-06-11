@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+
 import '../controllers/home_controller.dart';
 import '../models/event_item.dart';
-import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
 
 class CalendarView extends StatelessWidget {
   const CalendarView({super.key});

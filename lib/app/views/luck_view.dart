@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+
 import '../controllers/luck_controller.dart';
 import '../models/luck_models.dart';
-import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
 
 class LuckView extends GetView<LuckController> {
   const LuckView({super.key});
@@ -44,34 +45,37 @@ class LuckView extends GetView<LuckController> {
             ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight:
-                MediaQuery.of(context).size.height * 0.4, // 화면 높이의 40%
+                    MediaQuery.of(context).size.height * 0.4, // 화면 높이의 40%
               ),
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: controller.availableZodiacsForDisplay.length,
                 itemBuilder: (BuildContext context, int index) {
                   final String zodiacDisplayName =
-                  controller.availableZodiacsForDisplay[index];
-                  bool isSelected = zodiacDisplayName ==
+                      controller.availableZodiacsForDisplay[index];
+                  bool isSelected =
+                      zodiacDisplayName ==
                       controller.currentSelectedZodiacDisplayName;
                   return ListTile(
                     title: Text(
                       zodiacDisplayName,
                       style: textStyleSmall.copyWith(
                         fontWeight:
-                        isSelected ? FontWeight.w600 : FontWeight.normal,
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.onSurface,
+                            isSelected ? FontWeight.w600 : FontWeight.normal,
+                        color:
+                            isSelected
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                    trailing: isSelected
-                        ? Icon(
-                      Icons.check_circle_outline_rounded,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 22,
-                    )
-                        : null,
+                    trailing:
+                        isSelected
+                            ? Icon(
+                              Icons.check_circle_outline_rounded,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 22,
+                            )
+                            : null,
                     onTap: () {
                       controller.changeZodiacByDisplayName(zodiacDisplayName);
                     },
@@ -97,16 +101,17 @@ class LuckView extends GetView<LuckController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() {
-        if (controller.isLoading.value && controller.zodiacLuck.value == null) {
+        if (controller.isLoading.value &&
+            controller.selectedZodiacLuck.value == null) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (!controller.isLoading.value &&
-            controller.zodiacLuck.value == null) {
+            controller.selectedZodiacLuck.value == null) {
           return _buildErrorView(context);
         }
 
-        final luckData = controller.zodiacLuck.value;
+        final luckData = controller.selectedZodiacLuck.value;
         if (luckData == null) {
           return _buildEmptyView(context);
         }
@@ -135,11 +140,7 @@ class LuckView extends GetView<LuckController> {
             ElevatedButton.icon(
               icon: const Icon(Icons.refresh),
               label: const Text("다시 시도"),
-              onPressed: () {
-                controller.fetchTodaysLuck(
-                  controller.selectedZodiacApiName.value,
-                );
-              },
+              onPressed: controller.fetchTodaysLuck, // 파라미터 없이 호출
             ),
           ],
         ),
@@ -164,11 +165,7 @@ class LuckView extends GetView<LuckController> {
           ElevatedButton.icon(
             icon: const Icon(Icons.refresh),
             label: const Text("새로고침"),
-            onPressed: () {
-              controller.fetchTodaysLuck(
-                controller.selectedZodiacApiName.value,
-              );
-            },
+            onPressed: controller.fetchTodaysLuck, // 파라미터 없이 호출
           ),
         ],
       ),
@@ -186,9 +183,7 @@ class LuckView extends GetView<LuckController> {
     }
 
     return RefreshIndicator(
-      onRefresh: () => controller.fetchTodaysLuck(
-        controller.selectedZodiacApiName.value,
-      ),
+      onRefresh: controller.fetchTodaysLuck, // 파라미터 없이 호출
       child: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
@@ -204,7 +199,7 @@ class LuckView extends GetView<LuckController> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Obx(
-                          () => Text(
+                      () => Text(
                         '${controller.currentSelectedZodiacDisplayName} 띠',
                         style: textStyleLarge,
                       ),
@@ -230,9 +225,7 @@ class LuckView extends GetView<LuckController> {
               IconButton(
                 icon: const Icon(Icons.refresh),
                 tooltip: "새로고침",
-                onPressed: () => controller.fetchTodaysLuck(
-                  controller.selectedZodiacApiName.value,
-                ),
+                onPressed: controller.fetchTodaysLuck, // 파라미터 없이 호출
               ),
             ],
           ),
@@ -328,7 +321,11 @@ class LuckView extends GetView<LuckController> {
   }
 
   Widget _buildLuckCategoryCard(
-      BuildContext context, String title, String? content, IconData icon) {
+    BuildContext context,
+    String title,
+    String? content,
+    IconData icon,
+  ) {
     if (content == null || content.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -345,11 +342,7 @@ class LuckView extends GetView<LuckController> {
           children: [
             Row(
               children: [
-                Icon(
-                  icon,
-                  size: 20.0,
-                  color: colorScheme.primary,
-                ),
+                Icon(icon, size: 20.0, color: colorScheme.primary),
                 horizontalSpaceSmall,
                 Text(
                   title,

@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import '../controllers/chat_controller.dart';
 import '../controllers/login_controller.dart';
 import '../models/chat_models.dart';
-import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
 
 class ChatScreen extends GetView<ChatController> {
   const ChatScreen({super.key});
@@ -63,7 +63,8 @@ class ChatScreen extends GetView<ChatController> {
                 controller: controller.scrollController,
                 reverse: true,
                 padding: const EdgeInsets.all(8.0),
-                itemCount: controller.messages.length +
+                itemCount:
+                    controller.messages.length +
                     (controller.isFetchingMore.value ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (controller.isFetchingMore.value &&
@@ -75,8 +76,10 @@ class ChatScreen extends GetView<ChatController> {
                       ),
                     );
                   }
-                  final message = controller
-                      .messages[controller.messages.length - 1 - index];
+                  final message =
+                      controller.messages[controller.messages.length -
+                          1 -
+                          index];
                   final bool isMe = message.senderUid == currentUserUid;
                   return _buildMessageBubble(context, message, isMe);
                 },
@@ -96,17 +99,11 @@ class ChatScreen extends GetView<ChatController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              color: Colors.redAccent,
-              size: 48,
-            ),
+            const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
             verticalSpaceMedium,
             Text(
               "메시지를 불러오는 중 오류 발생",
-              style: textStyleMedium.copyWith(
-                color: Colors.redAccent,
-              ),
+              style: textStyleMedium.copyWith(color: Colors.redAccent),
               textAlign: TextAlign.center,
             ),
           ],
@@ -116,36 +113,38 @@ class ChatScreen extends GetView<ChatController> {
   }
 
   Widget _buildMessageBubble(
-      BuildContext context,
-      ChatMessage message,
-      bool isMe,
-      ) {
+    BuildContext context,
+    ChatMessage message,
+    bool isMe,
+  ) {
     final align = isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final bubbleColor = isMe
-        ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.surfaceContainerHighest;
-    final textColor = isMe
-        ? Theme.of(context).colorScheme.onPrimary
-        : Theme.of(context).colorScheme.onSurfaceVariant;
-    final radius = isMe
-        ? const BorderRadius.only(
-      topLeft: Radius.circular(16),
-      bottomLeft: Radius.circular(16),
-      bottomRight: Radius.circular(16),
-    )
-        : const BorderRadius.only(
-      topRight: Radius.circular(16),
-      bottomLeft: Radius.circular(16),
-      bottomRight: Radius.circular(16),
-    );
+    final bubbleColor =
+        isMe
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.surfaceContainerHighest;
+    final textColor =
+        isMe
+            ? Theme.of(context).colorScheme.onPrimary
+            : Theme.of(context).colorScheme.onSurfaceVariant;
+    final radius =
+        isMe
+            ? const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            )
+            : const BorderRadius.only(
+              topRight: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            );
 
     return Column(
       crossAxisAlignment: align,
       children: [
         Container(
           margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-          padding:
-          const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
@@ -166,9 +165,10 @@ class ChatScreen extends GetView<ChatController> {
           ),
         ),
         Padding(
-          padding: isMe
-              ? const EdgeInsets.only(right: 10.0, bottom: 6.0)
-              : const EdgeInsets.only(left: 10.0, bottom: 6.0),
+          padding:
+              isMe
+                  ? const EdgeInsets.only(right: 10.0, bottom: 6.0)
+                  : const EdgeInsets.only(left: 10.0, bottom: 6.0),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -182,7 +182,9 @@ class ChatScreen extends GetView<ChatController> {
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                     color:
-                    message.isRead ? Colors.blueAccent : Colors.grey.shade500,
+                        message.isRead
+                            ? Colors.blueAccent
+                            : Colors.grey.shade500,
                   ),
                 ),
                 horizontalSpaceSmall,

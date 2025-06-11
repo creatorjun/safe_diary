@@ -75,7 +75,7 @@ class ProfileController extends GetxController {
 
       if (isPasswordChanged) {
         final currentPwd =
-        loginController.user.isAppPasswordSet ? _verifiedPassword : null;
+            loginController.user.isAppPasswordSet ? _verifiedPassword : null;
         final bool success = await loginController.setOrUpdateAppPassword(
           currentAppPassword: currentPwd,
           newAppPassword: newPassword,
@@ -97,7 +97,7 @@ class ProfileController extends GetxController {
 
   void promptForPasswordAndRemove() {
     final TextEditingController dialogPasswordController =
-    TextEditingController();
+        TextEditingController();
 
     Get.dialog(
       AlertDialog(
@@ -119,15 +119,12 @@ class ProfileController extends GetxController {
           ],
         ),
         actions: [
-          TextButton(
-            child: const Text('취소'),
-            onPressed: () => Get.back(),
-          ),
+          TextButton(child: const Text('취소'), onPressed: () => Get.back()),
           FilledButton(
             child: const Text('해제'),
             onPressed: () async {
               final String currentPassword =
-              dialogPasswordController.text.trim();
+                  dialogPasswordController.text.trim();
 
               Get.back();
 
@@ -197,17 +194,19 @@ class ProfileController extends GetxController {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           side: BorderSide(
-                            color: Get.isDarkMode
-                                ? Colors.grey.shade600
-                                : Colors.grey.shade400,
+                            color:
+                                Get.isDarkMode
+                                    ? Colors.grey.shade600
+                                    : Colors.grey.shade400,
                           ),
                         ),
                         child: Text(
                           '취소',
                           style: textStyleMedium.copyWith(
-                            color: Get.isDarkMode
-                                ? Colors.white70
-                                : Colors.black87,
+                            color:
+                                Get.isDarkMode
+                                    ? Colors.white70
+                                    : Colors.black87,
                           ),
                         ),
                       ),

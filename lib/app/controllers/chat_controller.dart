@@ -2,16 +2,17 @@
 
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
+import '../config/app_config.dart';
 import '../models/chat_models.dart';
 import '../services/chat_service.dart';
-import 'login_controller.dart';
-import '../config/app_config.dart';
 import 'error_controller.dart';
+import 'login_controller.dart';
 
 class ChatController extends GetxController {
   final ChatService _chatService;
@@ -24,10 +25,10 @@ class ChatController extends GetxController {
     required LoginController loginController,
     required String partnerUid,
     String? partnerNickname,
-  })  : _chatService = chatService,
-        _loginController = loginController,
-        _chatPartnerUid = partnerUid,
-        _chatPartnerNickname = partnerNickname;
+  }) : _chatService = chatService,
+       _loginController = loginController,
+       _chatPartnerUid = partnerUid,
+       _chatPartnerNickname = partnerNickname;
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -89,12 +90,16 @@ class ChatController extends GetxController {
         url: stompUrl,
         onConnect: _onStompConnected,
         onWebSocketError: (dynamic error) {
-          _errorController.handleError(error,
-              userFriendlyMessage: '채팅 서버에 연결할 수 없습니다.');
+          _errorController.handleError(
+            error,
+            userFriendlyMessage: '채팅 서버에 연결할 수 없습니다.',
+          );
         },
         onStompError: (StompFrame frame) {
-          _errorController.handleError(frame.body ?? 'STOMP 프로토콜 오류',
-              userFriendlyMessage: '채팅 서버 연결에 문제가 발생했습니다.');
+          _errorController.handleError(
+            frame.body ?? 'STOMP 프로토콜 오류',
+            userFriendlyMessage: '채팅 서버 연결에 문제가 발생했습니다.',
+          );
         },
         onDisconnect: (StompFrame frame) {
           if (kDebugMode) print('[ChatController] STOMP Disconnected.');
@@ -124,8 +129,8 @@ class ChatController extends GetxController {
 
             if (isMyEchoMessage) {
               final index = messages.lastIndexWhere(
-                    (msg) =>
-                (msg.id?.startsWith('temp_') ?? false) &&
+                (msg) =>
+                    (msg.id?.startsWith('temp_') ?? false) &&
                     msg.content == receivedMessage.content,
               );
               if (index != -1) {
@@ -137,8 +142,10 @@ class ChatController extends GetxController {
               }
             }
           } catch (e) {
-            _errorController.handleError(e,
-                userFriendlyMessage: '새 메시지를 처리하는 중 문제가 발생했습니다.');
+            _errorController.handleError(
+              e,
+              userFriendlyMessage: '새 메시지를 처리하는 중 문제가 발생했습니다.',
+            );
           }
         }
       },
@@ -245,7 +252,10 @@ class ChatController extends GetxController {
       hasReachedMax.value = !response.hasNextPage;
     } catch (e) {
       hasInitialLoadError.value = true;
-      _errorController.handleError(e, userFriendlyMessage: "메시지를 불러오는 데 실패했습니다.");
+      _errorController.handleError(
+        e,
+        userFriendlyMessage: "메시지를 불러오는 데 실패했습니다.",
+      );
     } finally {
       isLoading.value = false;
     }
@@ -269,8 +279,10 @@ class ChatController extends GetxController {
       }
       hasReachedMax.value = !response.hasNextPage;
     } catch (e) {
-      _errorController.handleError(e,
-          userFriendlyMessage: "이전 메시지를 불러오는 데 실패했습니다.");
+      _errorController.handleError(
+        e,
+        userFriendlyMessage: "이전 메시지를 불러오는 데 실패했습니다.",
+      );
     } finally {
       isFetchingMore.value = false;
     }
@@ -314,7 +326,7 @@ class ChatController extends GetxController {
 
   void _scrollListener() {
     if (scrollController.position.pixels <=
-        scrollController.position.minScrollExtent + 50 &&
+            scrollController.position.minScrollExtent + 50 &&
         !isFetchingMore.value &&
         !hasReachedMax.value) {
       fetchMoreMessages();

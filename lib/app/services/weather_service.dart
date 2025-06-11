@@ -11,29 +11,27 @@ class WeatherService extends GetxService {
 
   WeatherService(this._apiService);
 
-  /// 도시 이름으로 주간 날씨 예보를 가져옵니다.
-  Future<WeeklyForecastResponseDto> getWeeklyForecastByCityName(
-    String cityName, [
-    String? date,
-  ]) async {
-    final queryParams = <String, String>{};
-    if (date != null && date.isNotEmpty) {
-      queryParams['date'] = date;
-    }
+  /// 위도와 경도를 기준으로 종합적인 날씨 정보를 가져옵니다.
+  Future<WeatherResponseDto> getWeather({
+    required double lat,
+    required double lon,
+  }) async {
+    final queryParams = <String, String>{
+      'lat': lat.toString(),
+      'lon': lon.toString(),
+    };
 
     try {
-      final response = await _apiService.get<WeeklyForecastResponseDto>(
-        '/api/v1/weather/weekly/by-city-name/$cityName',
-        queryParams: queryParams.isNotEmpty ? queryParams : null,
+      final response = await _apiService.get<WeatherResponseDto>(
+        '/api/v1/weather', // 변경된 엔드포인트
+        queryParams: queryParams,
         parser:
-            (data) => WeeklyForecastResponseDto.fromJson(
-              data as Map<String, dynamic>,
-            ),
+            (data) => WeatherResponseDto.fromJson(data as Map<String, dynamic>),
       );
       return response;
     } on ApiException catch (e) {
       if (kDebugMode) {
-        print('[WeatherService] getWeeklyForecastByCityName Error: $e');
+        print('[WeatherService] getWeather Error: $e');
       }
       rethrow;
     }

@@ -1,7 +1,8 @@
 // lib/app/views/login_screen.dart
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
+import 'package:get/get.dart';
+
 import '../controllers/login_controller.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';

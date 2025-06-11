@@ -1,7 +1,7 @@
 // lib/app/controllers/partner_controller.dart
 
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,12 +19,13 @@ class PartnerController extends GetxController {
   ErrorController get _errorController => Get.find<ErrorController>();
 
   final RxBool _isLoading = false.obs;
+
   bool get isLoading => _isLoading.value;
 
   final Rx<PartnerInvitationResponseDto?> currentInvitation =
-  Rx<PartnerInvitationResponseDto?>(null);
+      Rx<PartnerInvitationResponseDto?>(null);
   final Rx<PartnerRelationResponseDto?> currentPartnerRelation =
-  Rx<PartnerRelationResponseDto?>(null);
+      Rx<PartnerRelationResponseDto?>(null);
 
   void _setLoading(bool loading) {
     _isLoading.value = loading;
@@ -125,7 +126,7 @@ class PartnerController extends GetxController {
       '$baseUrl/api/v1/partner/invitation/accept',
     );
     final requestBody =
-    PartnerInvitationAcceptRequestDto(invitationId: invitationId).toJson();
+        PartnerInvitationAcceptRequestDto(invitationId: invitationId).toJson();
 
     try {
       final response = await http.post(
@@ -169,8 +170,10 @@ class PartnerController extends GetxController {
     final String? token = _loginController.user.safeAccessToken;
 
     if (baseUrl == null || token == null) {
-      _handleError('API URL 또는 사용자 토큰이 유효하지 않습니다.',
-          userFriendlyMessage: '파트너 연결 해제에 실패했습니다.');
+      _handleError(
+        'API URL 또는 사용자 토큰이 유효하지 않습니다.',
+        userFriendlyMessage: '파트너 연결 해제에 실패했습니다.',
+      );
       _setLoading(false);
       return;
     }

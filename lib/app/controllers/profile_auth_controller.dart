@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../controllers/login_controller.dart';
 import '../controllers/partner_controller.dart';
 import '../routes/app_pages.dart';
@@ -13,10 +14,10 @@ class ProfileAuthController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   ProfileAuthController(
-      this._loginController,
-      this._partnerController,
-      this._secureStorageService,
-      );
+    this._loginController,
+    this._partnerController,
+    this._secureStorageService,
+  );
 
   late TextEditingController passwordController;
 

@@ -1,13 +1,15 @@
 // lib/app/services/notification_service.dart
 
 import 'dart:async';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+
 import '../../firebase_options.dart';
 import '../controllers/login_controller.dart';
-import 'package:firebase_core/firebase_core.dart';
 import '../routes/app_pages.dart'; // 라우트 사용을 위해 추가
 
 // Background handler는 반드시 최상위 함수여야 합니다.

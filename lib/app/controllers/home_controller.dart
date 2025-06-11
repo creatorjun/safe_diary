@@ -1,17 +1,18 @@
 // lib/app/controllers/home_controller.dart
 
 import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../models/event_item.dart';
 import '../controllers/login_controller.dart';
+import '../models/event_item.dart';
 import '../routes/app_pages.dart';
 import '../services/event_service.dart';
-import '../views/widgets/add_edit_event_dialog.dart';
-import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
+import '../views/widgets/add_edit_event_dialog.dart';
 import 'error_controller.dart';
 
 class HomeController extends GetxController {

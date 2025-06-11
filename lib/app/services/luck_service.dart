@@ -11,12 +11,19 @@ class LuckService extends GetxService {
 
   LuckService(this._apiService);
 
-  /// 오늘의 띠별 운세를 가져옵니다.
-  Future<ZodiacLuckData> getTodaysLuck(String zodiacName) async {
+  /// 오늘의 모든 띠별 운세를 리스트로 가져옵니다.
+  Future<List<ZodiacLuckData>> getTodaysLuck() async {
     try {
-      final response = await _apiService.get<ZodiacLuckData>(
-        '/api/v1/luck/today/$zodiacName',
-        parser: (data) => ZodiacLuckData.fromJson(data as Map<String, dynamic>),
+      final response = await _apiService.get<List<ZodiacLuckData>>(
+        '/api/v1/luck', // 변경된 엔드포인트
+        parser:
+            (data) =>
+                (data as List<dynamic>)
+                    .map(
+                      (item) =>
+                          ZodiacLuckData.fromJson(item as Map<String, dynamic>),
+                    )
+                    .toList(),
       );
       return response;
     } on ApiException catch (e) {

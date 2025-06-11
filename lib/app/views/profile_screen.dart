@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import '../controllers/profile_controller.dart';
 import '../models/user.dart' show LoginPlatform;
 import '../routes/app_pages.dart';
-import '../theme/app_text_styles.dart';
 import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -28,8 +28,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _nicknameController =
-        TextEditingController(text: controller.initialNickname.value);
+    _nicknameController = TextEditingController(
+      text: controller.initialNickname.value,
+    );
     _newPasswordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
     _invitationCodeInputController = TextEditingController();
@@ -65,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback toggleVisibility,
   }) {
     return Obx(
-          () => TextField(
+      () => TextField(
         controller: controller,
         obscureText: isObscured.value,
         style: textStyleMedium,
@@ -139,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         hintText: '새 비밀번호 (4자 이상)',
                         isObscured: controller.isNewPasswordObscured,
                         toggleVisibility:
-                        controller.toggleNewPasswordVisibility,
+                            controller.toggleNewPasswordVisibility,
                       ),
                       verticalSpaceMedium,
                       _buildPasswordField(
@@ -148,7 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         hintText: '새 비밀번호 다시 입력',
                         isObscured: controller.isConfirmPasswordObscured,
                         toggleVisibility:
-                        controller.toggleConfirmPasswordVisibility,
+                            controller.toggleConfirmPasswordVisibility,
                       ),
                     ],
                   ),
@@ -156,7 +157,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               verticalSpaceMedium,
               Obx(
-                    () => FilledButton.icon(
+                () => FilledButton.icon(
                   icon: const Icon(Icons.save_outlined, size: 18),
                   label: const Text('변경 내용 저장'),
                   style: FilledButton.styleFrom(
@@ -167,20 +168,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     disabledBackgroundColor: Colors.grey.shade300,
                   ),
-                  onPressed: controller.hasChanges.value
-                      ? () {
-                    controller
-                        .saveChanges(
-                      newNickname: _nicknameController.text,
-                      newPassword: _newPasswordController.text,
-                      confirmPassword: _confirmPasswordController.text,
-                    )
-                        .then((_) {
-                      _newPasswordController.clear();
-                      _confirmPasswordController.clear();
-                    });
-                  }
-                      : null,
+                  onPressed:
+                      controller.hasChanges.value
+                          ? () {
+                            controller
+                                .saveChanges(
+                                  newNickname: _nicknameController.text,
+                                  newPassword: _newPasswordController.text,
+                                  confirmPassword:
+                                      _confirmPasswordController.text,
+                                )
+                                .then((_) {
+                                  _newPasswordController.clear();
+                                  _confirmPasswordController.clear();
+                                });
+                          }
+                          : null,
                 ),
               ),
               Obx(() {
@@ -309,13 +312,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  onPressed: () => Get.toNamed(
-                    Routes.chat,
-                    arguments: {
-                      'partnerUid': user.partnerUid,
-                      'partnerNickname': partnerNickname,
-                    },
-                  ),
+                  onPressed:
+                      () => Get.toNamed(
+                        Routes.chat,
+                        arguments: {
+                          'partnerUid': user.partnerUid,
+                          'partnerNickname': partnerNickname,
+                        },
+                      ),
                 ),
                 verticalSpaceSmall,
                 OutlinedButton.icon(
@@ -469,20 +473,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(
                   width: 22,
                   height: 22,
-                  child: user.platform == LoginPlatform.naver
-                      ? Image(
-                    image: Svg(
-                      'assets/naver_icon.svg',
-                      color: Colors.green.shade600,
-                    ),
-                  )
-                      : user.platform == LoginPlatform.kakao
-                      ? const Image(image: Svg('assets/kakao_icon.svg'))
-                      : Icon(
-                    Icons.device_unknown_outlined,
-                    color: Colors.grey.shade700,
-                    size: 22,
-                  ),
+                  child:
+                      user.platform == LoginPlatform.naver
+                          ? Image(
+                            image: Svg(
+                              'assets/naver_icon.svg',
+                              color: Colors.green.shade600,
+                            ),
+                          )
+                          : user.platform == LoginPlatform.kakao
+                          ? const Image(image: Svg('assets/kakao_icon.svg'))
+                          : Icon(
+                            Icons.device_unknown_outlined,
+                            color: Colors.grey.shade700,
+                            size: 22,
+                          ),
                 ),
                 horizontalSpaceSmall,
                 Text(

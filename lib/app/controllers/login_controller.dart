@@ -1,10 +1,11 @@
 import 'dart:async';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart' as kakao;
 import 'package:naver_login_sdk/naver_login_sdk.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../models/user.dart';
 import '../routes/app_pages.dart';

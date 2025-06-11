@@ -1,16 +1,17 @@
 // lib/app/views/home_screen.dart
 
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:crystal_navigation_bar/crystal_navigation_bar.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import '../controllers/home_controller.dart';
 import '../controllers/login_controller.dart';
 import '../routes/app_pages.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
 import './calendar_view.dart';
-import './weather_view.dart';
 import './luck_view.dart';
+import './weather_view.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});

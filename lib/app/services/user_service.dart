@@ -1,7 +1,9 @@
 // lib/app/services/user_service.dart
 
 import 'dart:async';
+
 import 'package:get/get.dart';
+
 import '../models/user.dart';
 import 'api_service.dart';
 
