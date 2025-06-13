@@ -10,7 +10,7 @@ import '../routes/app_pages.dart';
 import '../services/event_service.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
-import '../views/widgets/add_edit_event_dialog.dart';
+import '../views/widgets/add_edit_event_sheet.dart';
 import 'error_controller.dart';
 
 class HomeController extends GetxController {
@@ -224,7 +224,7 @@ class HomeController extends GetxController {
       return;
     }
     Get.bottomSheet(
-      AddEditEventDialog(
+      AddEditEventSheet(
         eventDate: selectedDay.value!,
         onSubmit: (event) {
           _createEventOnServer(event);
@@ -257,7 +257,7 @@ class HomeController extends GetxController {
 
   void showEditEventDialog(EventItem existingEvent) {
     Get.bottomSheet(
-      AddEditEventDialog(
+      AddEditEventSheet(
         eventDate: existingEvent.eventDate,
         existingEvent: existingEvent,
         onSubmit: (event) {

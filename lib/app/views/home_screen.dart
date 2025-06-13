@@ -26,108 +26,118 @@ class HomeScreen extends GetView<HomeController> {
       const LuckView(),
     ];
 
-    return Scaffold(
-      extendBody: true,
-      appBar: AppBar(
-        title: Obx(() {
-          final displayTitle =
-              '${loginController.user.nickname ?? '사용자'}님 - ${controller.currentTitle}';
-          return Text(
-            displayTitle,
-            style: textStyleLarge,
-            overflow: TextOverflow.ellipsis,
-          );
-        }),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
-          ),
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            tooltip: '더보기',
-            onSelected: (String value) {
-              if (value == 'profile') {
-                Get.toNamed(Routes.profileAuth);
-              } else if (value == 'logout') {
-                loginController.logout();
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'profile',
-                child: Row(
-                  children: [
-                    Icon(Icons.person_outline),
-                    horizontalSpaceSmall,
-                    Text('개인정보', style: textStyleSmall),
-                  ],
-                ),
-              ),
-              const PopupMenuItem<String>(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout),
-                    horizontalSpaceSmall,
-                    Text('로그아웃', style: textStyleSmall),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      body: Obx(
-            () => IndexedStack(
-          index: controller.selectedIndex.value,
-          children: screens,
+    final String backgroundImage = Get.isDarkMode
+        ? "assets/home_dark_back.png"
+        : "assets/home_light_back.png";
+
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(backgroundImage),
+          fit: BoxFit.cover,
         ),
       ),
-      bottomNavigationBar: Obx(
-            () => CrystalNavigationBar(
-          currentIndex: controller.selectedIndex.value,
-          onTap: (index) {
-            controller.changeTabIndex(index);
-          },
-          unselectedItemColor: colorScheme.onSurfaceVariant.withAlpha(150),
-          backgroundColor: theme.cardColor.withAlpha(200),
-          borderRadius: 24,
-          enableFloatingNavBar: true,
-          items: [
-            CrystalNavigationBarItem(
-              icon: Icons.calendar_month_outlined,
-              selectedColor: colorScheme.primary,
-            ),
-            CrystalNavigationBarItem(
-              icon: Icons.wb_sunny_outlined,
-              selectedColor: colorScheme.primary,
-            ),
-            CrystalNavigationBarItem(
-              icon: Icons.explore_outlined,
-              selectedColor: colorScheme.primary,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        extendBody: true,
+        appBar: AppBar(
+          title: Obx(() {
+            final displayTitle =
+                '${loginController.user.nickname ?? '사용자'}님 - ${controller.currentTitle}';
+            return Text(
+              displayTitle,
+              style: textStyleLarge,
+              overflow: TextOverflow.ellipsis,
+            );
+          }),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          actions: [
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              tooltip: '더보기',
+              onSelected: (String value) {
+                if (value == 'profile') {
+                  Get.toNamed(Routes.profileAuth);
+                } else if (value == 'logout') {
+                  loginController.logout();
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'profile',
+                  child: Row(
+                    children: [
+                      Icon(Icons.person_outline),
+                      horizontalSpaceSmall,
+                      Text('개인정보', style: textStyleSmall),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'logout',
+                  child: Row(
+                    children: [
+                      Icon(Icons.logout),
+                      horizontalSpaceSmall,
+                      Text('로그아웃', style: textStyleSmall),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-      ),
-      floatingActionButton: Obx(() {
-        if (controller.selectedIndex.value == 0) {
-          return FloatingActionButton.small(
-            onPressed: () {
-              controller.showAddEventDialog();
+        body: Obx(
+              () => IndexedStack(
+            index: controller.selectedIndex.value,
+            children: screens,
+          ),
+        ),
+        bottomNavigationBar: Obx(
+              () => CrystalNavigationBar(
+            currentIndex: controller.selectedIndex.value,
+            onTap: (index) {
+              controller.changeTabIndex(index);
             },
-            tooltip: '일정 추가',
-            backgroundColor: colorScheme.secondary,
-            foregroundColor: colorScheme.onSecondary,
-            child: const Icon(Icons.add),
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      }),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            unselectedItemColor: colorScheme.onSurfaceVariant.withAlpha(150),
+            backgroundColor: theme.cardColor.withAlpha(200),
+            borderRadius: 24,
+            enableFloatingNavBar: true,
+            items: [
+              CrystalNavigationBarItem(
+                icon: Icons.calendar_month_outlined,
+                selectedColor: colorScheme.primary,
+              ),
+              CrystalNavigationBarItem(
+                icon: Icons.wb_sunny_outlined,
+                selectedColor: colorScheme.primary,
+              ),
+              CrystalNavigationBarItem(
+                icon: Icons.explore_outlined,
+                selectedColor: colorScheme.primary,
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: Obx(() {
+          if (controller.selectedIndex.value == 0) {
+            return FloatingActionButton.small(
+              onPressed: () {
+                controller.showAddEventDialog();
+              },
+              tooltip: '일정 추가',
+              backgroundColor: colorScheme.secondary,
+              foregroundColor: colorScheme.onSecondary,
+              child: const Icon(Icons.add),
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        }),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      ),
     );
   }
 }

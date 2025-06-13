@@ -10,9 +10,9 @@ class LoginScreen extends GetView<LoginController> {
   const LoginScreen({super.key});
 
   Widget _buildNaverLoginButton(
-    BuildContext context,
-    LoginController controller,
-  ) {
+      BuildContext context,
+      LoginController controller,
+      ) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF03C75A),
@@ -38,9 +38,9 @@ class LoginScreen extends GetView<LoginController> {
   }
 
   Widget _buildKakaoLoginButton(
-    BuildContext context,
-    LoginController controller,
-  ) {
+      BuildContext context,
+      LoginController controller,
+      ) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFFFEE500),
@@ -69,9 +69,11 @@ class LoginScreen extends GetView<LoginController> {
   }
 
   Widget _buildUserProfileView(
-    BuildContext context,
-    LoginController controller,
-  ) {
+      BuildContext context,
+      LoginController controller,
+      ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -92,14 +94,12 @@ class LoginScreen extends GetView<LoginController> {
             controller.logout();
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey,
+            backgroundColor: colorScheme.secondaryContainer,
+            foregroundColor: colorScheme.onSecondaryContainer,
             padding: const EdgeInsets.symmetric(vertical: 12),
             minimumSize: const Size(double.infinity, 50),
           ),
-          child: Text(
-            '로그아웃',
-            style: textStyleMedium.copyWith(color: Colors.white),
-          ),
+          child: const Text('로그아웃', style: textStyleMedium),
         ),
       ],
     );
@@ -108,7 +108,7 @@ class LoginScreen extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     final String backgroundImage =
-        Get.isDarkMode ? "assets/dark_back.png" : "assets/light_back.png";
+    Get.isDarkMode ? "assets/dark_back.png" : "assets/light_back.png";
 
     return Scaffold(
       body: Obx(() {

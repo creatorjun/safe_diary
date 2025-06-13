@@ -72,8 +72,8 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Safe Diary',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
       initialRoute: initialRoute,
       getPages: AppPages.routes,

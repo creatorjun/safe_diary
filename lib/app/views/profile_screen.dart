@@ -166,8 +166,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     minimumSize: const Size(double.infinity, 50),
                     backgroundColor: colorScheme.primary,
                     foregroundColor: colorScheme.onPrimary,
-                    disabledBackgroundColor: colorScheme.onSurface.withAlpha(30),
-                    disabledForegroundColor: colorScheme.onSurface.withAlpha(100),
+                    disabledBackgroundColor:
+                    colorScheme.onSurface.withAlpha(30),
+                    disabledForegroundColor:
+                    colorScheme.onSurface.withAlpha(100),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
@@ -178,8 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .saveChanges(
                       newNickname: _nicknameController.text,
                       newPassword: _newPasswordController.text,
-                      confirmPassword:
-                      _confirmPasswordController.text,
+                      confirmPassword: _confirmPasswordController.text,
                     )
                         .then((_) {
                       _newPasswordController.clear();
@@ -206,7 +207,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
-                        side: BorderSide(color: colorScheme.error.withAlpha(80)),
+                        side:
+                        BorderSide(color: colorScheme.error.withAlpha(80)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
@@ -294,7 +296,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (formattedPartnerSince != '날짜 정보 없음')
                   Text(
                     '연결 시작일: $formattedPartnerSince',
-                    style: textStyleSmall.copyWith(color: colorScheme.onSurfaceVariant),
+                    style: textStyleSmall.copyWith(
+                        color: colorScheme.onSurfaceVariant),
                   ),
                 verticalSpaceMedium,
                 ElevatedButton.icon(
@@ -402,7 +405,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 verticalSpaceSmall,
                 Text(
                   '만료 시간: $formattedExpiresAt',
-                  style: textStyleSmall.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: textStyleSmall.copyWith(
+                      color: colorScheme.onSurfaceVariant),
                 ),
                 verticalSpaceMedium,
                 OutlinedButton(
@@ -481,12 +485,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 22,
                   height: 22,
                   child: user.platform == LoginPlatform.naver
-                      ? Image(
-                    image: Svg(
-                      'assets/naver_icon.svg',
-                      color: Colors.green.shade600,
-                    ),
-                  )
+                      ? const Image(image: Svg('assets/naver_icon.svg'))
                       : user.platform == LoginPlatform.kakao
                       ? const Image(image: Svg('assets/kakao_icon.svg'))
                       : Icon(
@@ -512,7 +511,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 alignment: Alignment.bottomRight,
                 child: Text(
                   '가입일: $formattedCreatedAt',
-                  style: textStyleSmall.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: textStyleSmall.copyWith(
+                      color: colorScheme.onSurfaceVariant),
                 ),
               ),
             ],

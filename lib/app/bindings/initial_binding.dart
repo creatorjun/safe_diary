@@ -30,7 +30,7 @@ class InitialBinding extends Bindings {
       LoginController(Get.find(), Get.find(), Get.find()),
       permanent: true,
     );
-    // PartnerController는 LoginController에 의존합니다.
-    Get.put(PartnerController(Get.find()), permanent: true);
+    // PartnerController는 LoginController와 ApiService에 의존합니다.
+    Get.put(PartnerController(Get.find(), Get.find()), permanent: true);
   }
 }
