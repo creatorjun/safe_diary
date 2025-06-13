@@ -121,7 +121,8 @@ class LuckView extends GetView<LuckController> {
             ElevatedButton.icon(
               icon: const Icon(Icons.refresh),
               label: const Text("다시 시도"),
-              onPressed: controller.fetchTodaysLuck,
+              onPressed: () =>
+                  controller.fetchTodaysLuck(controller.selectedZodiacApiName.value),
             ),
           ],
         ),
@@ -146,7 +147,8 @@ class LuckView extends GetView<LuckController> {
           ElevatedButton.icon(
             icon: const Icon(Icons.refresh),
             label: const Text("새로고침"),
-            onPressed: controller.fetchTodaysLuck,
+            onPressed: () =>
+                controller.fetchTodaysLuck(controller.selectedZodiacApiName.value),
           ),
         ],
       ),
@@ -164,7 +166,8 @@ class LuckView extends GetView<LuckController> {
     }
 
     return RefreshIndicator(
-      onRefresh: controller.fetchTodaysLuck,
+      onRefresh: () =>
+          controller.fetchTodaysLuck(controller.selectedZodiacApiName.value),
       child: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
@@ -206,7 +209,8 @@ class LuckView extends GetView<LuckController> {
               IconButton(
                 icon: const Icon(Icons.refresh),
                 tooltip: "새로고침",
-                onPressed: controller.fetchTodaysLuck,
+                onPressed: () =>
+                    controller.fetchTodaysLuck(controller.selectedZodiacApiName.value),
               ),
             ],
           ),

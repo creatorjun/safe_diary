@@ -1,14 +1,13 @@
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'dart:ui';
 
 import '../controllers/weather_controller.dart';
 import '../models/weather_models.dart';
-import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
+import '../theme/app_spacing.dart';
 
 class WeatherView extends GetView<WeatherController> {
   const WeatherView({super.key});
@@ -93,15 +92,14 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   void _showCitySelectionBottomSheet(BuildContext context) {
-    int selectedIndex = controller.availableCities.indexOf(
-      controller.selectedCityName.value,
-    );
+    int selectedIndex =
+    controller.availableCities.indexOf(controller.selectedCityName.value);
     if (selectedIndex == -1) {
       selectedIndex = 0;
     }
 
     final FixedExtentScrollController scrollController =
-        FixedExtentScrollController(initialItem: selectedIndex);
+    FixedExtentScrollController(initialItem: selectedIndex);
 
     Get.bottomSheet(
       Container(
@@ -130,19 +128,16 @@ class WeatherView extends GetView<WeatherController> {
                 onSelectedItemChanged: (index) {
                   selectedIndex = index;
                 },
-                children:
-                    controller.availableCities
-                        .map(
-                          (city) => Center(
-                            child: Text(
-                              city,
-                              style: textStyleMedium.copyWith(
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
+                children: controller.availableCities
+                    .map((city) => Center(
+                  child: Text(
+                    city,
+                    style: textStyleMedium.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ))
+                    .toList(),
               ),
             ),
             Padding(
@@ -152,8 +147,7 @@ class WeatherView extends GetView<WeatherController> {
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
-                  final selectedCity =
-                      controller.availableCities[selectedIndex];
+                  final selectedCity = controller.availableCities[selectedIndex];
                   controller.changeCity(selectedCity);
                 },
                 child: const Text("선택"),
@@ -166,21 +160,18 @@ class WeatherView extends GetView<WeatherController> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: const SizedBox.shrink(),
-        flexibleSpace: FlexibleSpaceBar(
-          title: GestureDetector(
+  Widget _buildHeaderControls(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Spacer(),
+          GestureDetector(
             onTap: () => _showCitySelectionBottomSheet(context),
             child: Obx(
-              () => Row(
+                  () => Row(
                 mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     controller.selectedCityName.value,
@@ -188,10 +179,9 @@ class WeatherView extends GetView<WeatherController> {
                       color: Colors.white,
                       shadows: [
                         const Shadow(
-                          blurRadius: 4.0,
-                          color: Colors.black54,
-                          offset: Offset(1, 1),
-                        ),
+                            blurRadius: 4.0,
+                            color: Colors.black54,
+                            offset: Offset(1, 1))
                       ],
                     ),
                   ),
@@ -205,70 +195,79 @@ class WeatherView extends GetView<WeatherController> {
               ),
             ),
           ),
-          centerTitle: true,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white, size: 28),
-            tooltip: "새로고침",
-            onPressed:
-                () =>
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                icon: const Icon(Icons.refresh, color: Colors.white, size: 28),
+                tooltip: "새로고침",
+                onPressed: () =>
                     controller.fetchWeather(controller.selectedCityName.value),
+              ),
+            ),
           ),
         ],
       ),
-      body: Obx(() {
-        if (controller.isLoading.value &&
-            controller.weatherData.value == null) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (controller.weatherData.value == null) {
-          return _buildErrorView(context);
-        }
-
-        final weather = controller.weatherData.value!;
-        final String backgroundImagePath = _getBackgroundImagePath(
-          weather.currentWeather?.conditionCode,
-        );
-
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            Image.asset(backgroundImagePath, fit: BoxFit.cover),
-            Container(color: Colors.black.withAlpha(75)),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 60),
-                      if (weather.currentWeather != null)
-                        _buildCurrentWeather(context, weather.currentWeather!),
-                      if (weather.hourlyForecast != null)
-                        _buildHourlyForecast(context, weather.hourlyForecast!),
-                      if (weather.dailyForecast.isNotEmpty)
-                        _buildDailyForecastSection(
-                          context,
-                          weather.dailyForecast,
-                        ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      }),
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      if (controller.isLoading.value && controller.weatherData.value == null) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      if (controller.weatherData.value == null) {
+        return _buildErrorView(context);
+      }
+
+      final weather = controller.weatherData.value!;
+      final String backgroundImagePath =
+      _getBackgroundImagePath(weather.currentWeather?.conditionCode);
+
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            backgroundImagePath,
+            fit: BoxFit.cover,
+          ),
+          Container(color: Colors.black.withAlpha(75)),
+          SafeArea(
+            child: Column(
+              children: [
+                _buildHeaderControls(context),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          verticalSpaceSmall,
+                          if (weather.currentWeather != null)
+                            _buildCurrentWeather(context, weather.currentWeather!),
+                          if (weather.hourlyForecast != null)
+                            _buildHourlyForecast(context, weather.hourlyForecast!),
+                          if (weather.dailyForecast.isNotEmpty)
+                            _buildDailyForecastSection(
+                                context, weather.dailyForecast),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
   Widget _buildCurrentWeather(
-    BuildContext context,
-    CurrentWeatherResponseDto current,
-  ) {
+      BuildContext context, CurrentWeatherResponseDto current) {
     return Column(
       children: [
         verticalSpaceLarge,
@@ -284,10 +283,7 @@ class WeatherView extends GetView<WeatherController> {
             color: Colors.white,
             shadows: [
               Shadow(
-                blurRadius: 6.0,
-                color: Colors.black54,
-                offset: Offset(2, 2),
-              ),
+                  blurRadius: 6.0, color: Colors.black54, offset: Offset(2, 2))
             ],
           ),
         ),
@@ -296,32 +292,30 @@ class WeatherView extends GetView<WeatherController> {
           style: textStyleSmall.copyWith(color: Colors.white70),
         ),
         verticalSpaceMedium,
-        _buildWeatherDetailRow(context, [
-          DetailItem(
-            icon: Icons.water_drop_outlined,
-            label: "습도",
-            value: "${(current.humidity * 100).toInt()}%",
-          ),
-          DetailItem(
-            icon: Icons.air,
-            label: "풍속",
-            value: "${current.windSpeed.toStringAsFixed(1)} km/h",
-          ),
-          DetailItem(
-            icon: Icons.wb_sunny,
-            label: "자외선",
-            value: "${current.uvIndex}",
-          ),
-        ]),
+        _buildWeatherDetailRow(
+          context,
+          [
+            DetailItem(
+                icon: Icons.water_drop_outlined,
+                label: "습도",
+                value: "${(current.humidity * 100).toInt()}%"),
+            DetailItem(
+                icon: Icons.air,
+                label: "풍속",
+                value: "${current.windSpeed.toStringAsFixed(1)} km/h"),
+            DetailItem(
+                icon: Icons.wb_sunny,
+                label: "자외선",
+                value: "${current.uvIndex}"),
+          ],
+        ),
         verticalSpaceMedium,
       ],
     );
   }
 
   Widget _buildHourlyForecast(
-    BuildContext context,
-    HourlyForecastResponseDto hourly,
-  ) {
+      BuildContext context, HourlyForecastResponseDto hourly) {
     if (hourly.summary == null || hourly.summary!.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -340,11 +334,8 @@ class WeatherView extends GetView<WeatherController> {
             children: [
               Row(
                 children: [
-                  const Icon(
-                    Icons.hourglass_bottom,
-                    color: Colors.white70,
-                    size: 18,
-                  ),
+                  const Icon(Icons.hourglass_bottom,
+                      color: Colors.white70, size: 18),
                   horizontalSpaceSmall,
                   Text(
                     "시간별 예보 요약",
@@ -356,9 +347,7 @@ class WeatherView extends GetView<WeatherController> {
               Text(
                 hourly.summary!,
                 style: textStyleSmall.copyWith(
-                  color: Colors.white.withAlpha(10),
-                  height: 1.5,
-                ),
+                    color: Colors.white.withAlpha(10), height: 1.5),
               ),
             ],
           ),
@@ -368,9 +357,7 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildDailyForecastSection(
-    BuildContext context,
-    List<DailyWeatherForecastResponseDto> daily,
-  ) {
+      BuildContext context, List<DailyWeatherForecastResponseDto> daily) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -380,9 +367,7 @@ class WeatherView extends GetView<WeatherController> {
           child: Text(
             '일일 예보',
             style: textStyleMedium.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+                color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ),
         SizedBox(
@@ -400,9 +385,7 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildDailyForecastCard(
-    BuildContext context,
-    DailyWeatherForecastResponseDto day,
-  ) {
+      BuildContext context, DailyWeatherForecastResponseDto day) {
     DateTime date;
     String displayDate = "정보 없음";
     try {
@@ -422,10 +405,8 @@ class WeatherView extends GetView<WeatherController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              displayDate,
-              style: textStyleMedium.copyWith(color: Colors.white),
-            ),
+            Text(displayDate,
+                style: textStyleMedium.copyWith(color: Colors.white)),
             verticalSpaceSmall,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -439,17 +420,11 @@ class WeatherView extends GetView<WeatherController> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _weatherCondition(
-                  '오전',
-                  day.weatherAm,
-                  _getWeatherIcon(day.weatherAm ?? ''),
-                ),
+                    '오전', day.weatherAm, _getWeatherIcon(day.weatherAm ?? '')),
                 _weatherCondition(
-                  '오후',
-                  day.weatherPm,
-                  _getWeatherIcon(day.weatherPm ?? ''),
-                ),
+                    '오후', day.weatherPm, _getWeatherIcon(day.weatherPm ?? '')),
               ],
-            ),
+            )
           ],
         ),
       ),
@@ -482,7 +457,8 @@ class WeatherView extends GetView<WeatherController> {
     );
   }
 
-  Widget _buildWeatherDetailRow(BuildContext context, List<DetailItem> items) {
+  Widget _buildWeatherDetailRow(
+      BuildContext context, List<DetailItem> items) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12.0),
       child: BackdropFilter(
@@ -495,23 +471,18 @@ class WeatherView extends GetView<WeatherController> {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children:
-                items.map((item) {
-                  return Column(
-                    children: [
-                      Icon(item.icon, color: Colors.white70, size: 24),
-                      verticalSpaceSmall,
-                      Text(
-                        item.value,
-                        style: textStyleMedium.copyWith(color: Colors.white),
-                      ),
-                      Text(
-                        item.label,
-                        style: textStyleSmall.copyWith(color: Colors.white70),
-                      ),
-                    ],
-                  );
-                }).toList(),
+            children: items.map((item) {
+              return Column(
+                children: [
+                  Icon(item.icon, color: Colors.white70, size: 24),
+                  verticalSpaceSmall,
+                  Text(item.value,
+                      style: textStyleMedium.copyWith(color: Colors.white)),
+                  Text(item.label,
+                      style: textStyleSmall.copyWith(color: Colors.white70)),
+                ],
+              );
+            }).toList(),
           ),
         ),
       ),
@@ -525,11 +496,8 @@ class WeatherView extends GetView<WeatherController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.cloud_off_outlined,
-              color: Colors.white70,
-              size: 48,
-            ),
+            const Icon(Icons.cloud_off_outlined,
+                color: Colors.white70, size: 48),
             verticalSpaceMedium,
             Text(
               "날씨 정보를 불러오는 데 실패했습니다.",

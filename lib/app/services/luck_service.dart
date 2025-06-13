@@ -1,5 +1,3 @@
-// lib/app/services/luck_service.dart
-
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
@@ -11,19 +9,15 @@ class LuckService extends GetxService {
 
   LuckService(this._apiService);
 
-  /// 오늘의 모든 띠별 운세를 리스트로 가져옵니다.
-  Future<List<ZodiacLuckData>> getTodaysLuck() async {
+  Future<ZodiacLuckData> getTodaysLuck(String zodiacName) async {
+    if (zodiacName.isEmpty) {
+      throw ArgumentError('zodiacName cannot be empty');
+    }
+
     try {
-      final response = await _apiService.get<List<ZodiacLuckData>>(
-        '/api/v1/luck', // 변경된 엔드포인트
-        parser:
-            (data) =>
-                (data as List<dynamic>)
-                    .map(
-                      (item) =>
-                          ZodiacLuckData.fromJson(item as Map<String, dynamic>),
-                    )
-                    .toList(),
+      final response = await _apiService.get<ZodiacLuckData>(
+        '/api/v1/luck/$zodiacName',
+        parser: (data) => ZodiacLuckData.fromJson(data as Map<String, dynamic>),
       );
       return response;
     } on ApiException catch (e) {
