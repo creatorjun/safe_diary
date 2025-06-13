@@ -1,3 +1,4 @@
+// lib/app/views/weather_view.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -45,7 +46,6 @@ class WeatherView extends GetView<WeatherController> {
     return 'assets/weather/weather_clear.png';
   }
 
-  // 오전/오후 날씨 중 더 궂은 날씨를 반환하는 함수
   String _getMoreSevereWeather(String? weatherAm, String? weatherPm) {
     const weatherSeverity = {
       'heavyrain': 10,
@@ -129,7 +129,8 @@ class WeatherView extends GetView<WeatherController> {
                   minimumSize: const Size(double.infinity, 50),
                 ),
                 onPressed: () {
-                  final selectedCity = controller.availableCities[selectedIndex];
+                  final selectedCity =
+                  controller.availableCities[selectedIndex];
                   controller.changeCity(selectedCity);
                 },
                 child: const Text("선택"),
@@ -156,11 +157,9 @@ class WeatherView extends GetView<WeatherController> {
       final weather = controller.weatherData.value!;
       final allDailyForecasts = weather.dailyForecast;
 
-      // --- 로직 수정 ---
       final now = DateTime.now();
       DailyWeatherForecastResponseDto? todayForecast;
 
-      // 1. 오늘 날짜와 일치하는 예보를 찾음
       try {
         todayForecast = allDailyForecasts.firstWhere((f) {
           final forecastDate = DateTime.parse(f.date);
@@ -169,28 +168,25 @@ class WeatherView extends GetView<WeatherController> {
               forecastDate.day == now.day;
         });
       } catch (e) {
-        // 2. 일치하는 오늘 예보가 없으면, 리스트의 첫번째 항목을 오늘 예보로 간주 (폴백)
         todayForecast =
         allDailyForecasts.isNotEmpty ? allDailyForecasts.first : null;
       }
 
-      // 3. 오늘 예보로 사용된 항목을 제외한 나머지를 미래 예보로 설정
       final futureForecasts = allDailyForecasts
           .where((f) => f.date != todayForecast?.date)
           .toList();
-      // --- 로직 수정 끝 ---
 
       return SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             children: [
-              verticalSpaceMedium,
+              verticalSpaceSmall,
+              _buildCitySelectorHeader(context),
               if (weather.currentWeather != null && todayForecast != null)
                 _buildModernCurrentWeather(
                     context, weather.currentWeather!, todayForecast),
               verticalSpaceLarge,
-              // 스크롤 영역
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () => controller
@@ -200,12 +196,11 @@ class WeatherView extends GetView<WeatherController> {
                     child: Column(
                       children: [
                         if (weather.hourlyForecast != null)
-                          _buildHourlyForecast(context, weather.hourlyForecast!),
-                        // Column에 위젯 리스트를 직접 생성
+                          _buildHourlyForecast(
+                              context, weather.hourlyForecast!),
                         ...futureForecasts
                             .map((forecast) =>
                             _buildDailyForecastCard(context, forecast))
-                            .toList(),
                       ],
                     ),
                   ),
@@ -216,6 +211,36 @@ class WeatherView extends GetView<WeatherController> {
         ),
       );
     });
+  }
+
+  Widget _buildCitySelectorHeader(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: InkWell(
+        onTap: () => _showCitySelectionBottomSheet(context),
+        borderRadius: BorderRadius.circular(8.0),
+        child: Padding(
+          padding:
+          const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                controller.selectedCityName.value,
+                style:
+                textStyleLarge.copyWith(color: colorScheme.onSurface),
+              ),
+              horizontalSpaceSmall,
+              Icon(
+                Icons.location_on_outlined,
+                size: 20,
+                color: colorScheme.onSurface.withAlpha(179),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildModernCurrentWeather(
@@ -233,9 +258,8 @@ class WeatherView extends GetView<WeatherController> {
       opacity: 0.80,
       child: Container(
         width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          image: const DecorationImage(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
             image: AssetImage('assets/weather/card_back.png'),
             fit: BoxFit.fill,
           ),
@@ -275,12 +299,12 @@ class WeatherView extends GetView<WeatherController> {
                         fontWeight: FontWeight.w500,
                       ),
                       children: <TextSpan>[
-                        const TextSpan(text: 'H:'),
+                        const TextSpan(text: '최고 : '),
                         TextSpan(
                           text: '$highTemp°',
                           style: const TextStyle(color: Colors.redAccent),
                         ),
-                        const TextSpan(text: '  L:'),
+                        const TextSpan(text: '  최저 : '),
                         TextSpan(
                           text: '$lowTemp°',
                           style: const TextStyle(color: Colors.blueAccent),
@@ -289,26 +313,23 @@ class WeatherView extends GetView<WeatherController> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: () => _showCitySelectionBottomSheet(context),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          controller.selectedCityName.value,
-                          style: textStyleLarge.copyWith(
-                              color: colorScheme.onPrimary,
-                              fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.thermostat_outlined,
+                        color: colorScheme.onPrimary.withAlpha(204),
+                        size: 20,
+                      ),
+                      horizontalSpaceSmall,
+                      Text(
+                        '체감 온도 : ${current.apparentTemperature.toStringAsFixed(0)}°',
+                        style: textStyleMedium.copyWith(
+                          color: colorScheme.onPrimary,
+                          fontWeight: FontWeight.w500,
                         ),
-                        horizontalSpaceSmall,
-                        Icon(
-                          Icons.edit_location_alt_outlined,
-                          color: colorScheme.onPrimary.withAlpha(204),
-                          size: 20,
-                        )
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   Divider(color: colorScheme.onPrimary.withAlpha(77)),
@@ -378,9 +399,8 @@ class WeatherView extends GetView<WeatherController> {
       return const SizedBox.shrink();
     }
     return Card(
-      color: Colors.black.withAlpha(51),
-      elevation: 0,
-      margin: const EdgeInsets.only(top: 16, bottom: 16),
+      color: colorScheme.secondary.withAlpha(51),
+      elevation: 16,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -432,71 +452,66 @@ class WeatherView extends GetView<WeatherController> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Opacity(
-        opacity: 0.85,
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            image: const DecorationImage(
-              image: AssetImage('assets/weather/card_back.png'),
-              fit: BoxFit.fill,
-            ),
-          ),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Positioned(
-                top: -20,
-                right: -15,
-                child: SizedBox(
-                  width: 140,
-                  height: 140,
-                  child: Image.asset(illustrationPath, fit: BoxFit.contain),
+        opacity: 0.80,
+        child: Card(
+          child: SizedBox(
+            width: double.infinity,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  top: -20,
+                  right: -15,
+                  child: SizedBox(
+                    width: 140,
+                    height: 140,
+                    child: Image.asset(illustrationPath, fit: BoxFit.contain),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      displayDate,
-                      style: textStyleMedium.copyWith(
-                        color: colorScheme.onPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    verticalSpaceSmall,
-                    RichText(
-                      text: TextSpan(
-                        style: textStyleLarge.copyWith(
-                          color: colorScheme.onPrimary.withAlpha(204),
-                          fontWeight: FontWeight.w500,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayDate,
+                        style: textStyleMedium.copyWith(
+                          color: colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
                         ),
-                        children: <TextSpan>[
-                          const TextSpan(text: 'H:'),
-                          TextSpan(
-                            text: '$highTemp°',
-                            style: const TextStyle(color: Colors.redAccent),
-                          ),
-                          const TextSpan(text: '  L:'),
-                          TextSpan(
-                            text: '$lowTemp°',
-                            style: const TextStyle(color: Colors.blueAccent),
-                          ),
-                        ],
                       ),
-                    ),
-                    verticalSpaceMedium,
-                    Text(
-                      _getWeatherDescription(severeWeather),
-                      style: textStyleMedium.copyWith(
-                          color: colorScheme.onPrimary),
-                    ),
-                  ],
+                      verticalSpaceSmall,
+                      RichText(
+                        text: TextSpan(
+                          style: textStyleLarge.copyWith(
+                            color: colorScheme.onPrimary.withAlpha(204),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          children: <TextSpan>[
+                            const TextSpan(text: 'H : '),
+                            TextSpan(
+                              text: '$highTemp°',
+                              style: const TextStyle(color: Colors.redAccent),
+                            ),
+                            const TextSpan(text: '  L : '),
+                            TextSpan(
+                              text: '$lowTemp°',
+                              style: const TextStyle(color: Colors.blueAccent),
+                            ),
+                          ],
+                        ),
+                      ),
+                      verticalSpaceMedium,
+                      Text(
+                        _getWeatherDescription(severeWeather),
+                        style: textStyleMedium.copyWith(
+                            color: colorScheme.onPrimary),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
