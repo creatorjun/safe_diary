@@ -1,4 +1,3 @@
-// lib/app/views/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:get/get.dart';
@@ -11,9 +10,9 @@ class LoginScreen extends GetView<LoginController> {
   const LoginScreen({super.key});
 
   Widget _buildNaverLoginButton(
-    BuildContext context,
-    LoginController controller,
-  ) {
+      BuildContext context,
+      LoginController controller,
+      ) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF03C75A),
@@ -39,9 +38,9 @@ class LoginScreen extends GetView<LoginController> {
   }
 
   Widget _buildKakaoLoginButton(
-    BuildContext context,
-    LoginController controller,
-  ) {
+      BuildContext context,
+      LoginController controller,
+      ) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFFFEE500),
@@ -70,9 +69,9 @@ class LoginScreen extends GetView<LoginController> {
   }
 
   Widget _buildUserProfileView(
-    BuildContext context,
-    LoginController controller,
-  ) {
+      BuildContext context,
+      LoginController controller,
+      ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -108,12 +107,15 @@ class LoginScreen extends GetView<LoginController> {
 
   @override
   Widget build(BuildContext context) {
+    final String backgroundImage =
+    Get.isDarkMode ? "assets/dark_back.png" : "assets/light_back.png";
+
     return Scaffold(
       body: Obx(() {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("assets/login_back.png"),
+              image: AssetImage(backgroundImage),
               fit: BoxFit.cover,
             ),
           ),
@@ -128,6 +130,8 @@ class LoginScreen extends GetView<LoginController> {
       return const CircularProgressIndicator();
     }
 
+    final colorScheme = Theme.of(context).colorScheme;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return SingleChildScrollView(
@@ -137,23 +141,45 @@ class LoginScreen extends GetView<LoginController> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 72.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(height: constraints.maxHeight * 0.8),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (!controller.isLoggedIn.value) ...[
-                            _buildNaverLoginButton(context, controller),
-                            verticalSpaceMedium,
-                            _buildKakaoLoginButton(context, controller),
-                          ] else ...[
-                            _buildUserProfileView(context, controller),
-                          ],
-                        ],
+                    SizedBox(height: constraints.maxHeight * 0.15),
+                    SizedBox(
+                      height: 120,
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: Text(
+                          'Safe Diary',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                blurRadius: 10.0,
+                                color: colorScheme.shadow.withAlpha(50),
+                                offset: const Offset(2, 2),
+                              )
+                            ],
+                          ),
+                        ),
                       ),
                     ),
+                    const Spacer(),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (!controller.isLoggedIn.value) ...[
+                          _buildNaverLoginButton(context, controller),
+                          verticalSpaceMedium,
+                          _buildKakaoLoginButton(context, controller),
+                        ] else ...[
+                          _buildUserProfileView(context, controller),
+                        ],
+                      ],
+                    ),
+                    SizedBox(height: constraints.maxHeight * 0.10),
                   ],
                 ),
               ),

@@ -1,5 +1,3 @@
-// lib/app/controllers/home_controller.dart
-
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
@@ -37,27 +35,21 @@ class HomeController extends GetxController {
   late final Rx<DateTime?> selectedDay;
 
   final RxMap<DateTime, List<EventItem>> events =
-      RxMap<DateTime, List<EventItem>>(
-        LinkedHashMap<DateTime, List<EventItem>>(
-          equals: isSameDay,
-          hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
-        ),
-      );
+  RxMap<DateTime, List<EventItem>>(
+    LinkedHashMap<DateTime, List<EventItem>>(
+      equals: isSameDay,
+      hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
+    ),
+  );
 
   List<EventItem> get selectedDayEvents {
     final day = selectedDay.value;
     if (day == null) return <EventItem>[];
     final eventsForDay = events[day] ?? <EventItem>[];
     eventsForDay.sort((a, b) {
-      final aStart = a.startTime;
-      final bStart = b.startTime;
-
-      if (aStart == null && bStart == null) return 0;
-      if (aStart == null) return 1;
-      if (bStart == null) return -1;
-
-      double timeToDouble(TimeOfDay time) => time.hour + time.minute / 60.0;
-      return timeToDouble(aStart).compareTo(timeToDouble(bStart));
+      final orderA = a.displayOrder ?? 999;
+      final orderB = b.displayOrder ?? 999;
+      return orderA.compareTo(orderB);
     });
     return eventsForDay;
   }
@@ -192,13 +184,9 @@ class HomeController extends GetxController {
     final normalizedDay = _normalizeDate(day);
     final eventsForDay = events[normalizedDay] ?? <EventItem>[];
     eventsForDay.sort((a, b) {
-      final aStart = a.startTime;
-      final bStart = b.startTime;
-      if (aStart == null && bStart == null) return 0;
-      if (aStart == null) return 1;
-      if (bStart == null) return -1;
-      double timeToDouble(TimeOfDay time) => time.hour + time.minute / 60.0;
-      return timeToDouble(aStart).compareTo(timeToDouble(bStart));
+      final orderA = a.displayOrder ?? 999;
+      final orderB = b.displayOrder ?? 999;
+      return orderA.compareTo(orderB);
     });
     return eventsForDay;
   }
@@ -235,24 +223,29 @@ class HomeController extends GetxController {
       Get.snackbar("알림", "먼저 날짜를 선택해주세요.");
       return;
     }
-    Get.dialog(
+    Get.bottomSheet(
       AddEditEventDialog(
         eventDate: selectedDay.value!,
         onSubmit: (event) {
           _createEventOnServer(event);
         },
       ),
-      barrierDismissible: false,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
     );
   }
 
   Future<void> _createEventOnServer(EventItem event) async {
     isSubmittingEvent.value = true;
     try {
-      final createdEvent = await _eventService.createEvent(event);
-      final normalizedEventDate = _normalizeDate(createdEvent.eventDate);
+      final normalizedDate = _normalizeDate(event.eventDate);
+      final newOrder = events[normalizedDate]?.length ?? 0;
 
-      final list = events.putIfAbsent(normalizedEventDate, () => []);
+      final eventWithOrder = event.copyWith(displayOrder: newOrder);
+
+      final createdEvent = await _eventService.createEvent(eventWithOrder);
+
+      final list = events.putIfAbsent(normalizedDate, () => []);
       list.add(createdEvent);
       events.refresh();
     } catch (e) {
@@ -263,7 +256,7 @@ class HomeController extends GetxController {
   }
 
   void showEditEventDialog(EventItem existingEvent) {
-    Get.dialog(
+    Get.bottomSheet(
       AddEditEventDialog(
         eventDate: existingEvent.eventDate,
         existingEvent: existingEvent,
@@ -271,7 +264,8 @@ class HomeController extends GetxController {
           _updateEventOnServer(event);
         },
       ),
-      barrierDismissible: false,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
     );
   }
 
@@ -288,8 +282,11 @@ class HomeController extends GetxController {
       final originalNormalizedDate = _normalizeDate(eventToUpdate.eventDate);
       if (events[originalNormalizedDate] != null) {
         events[originalNormalizedDate]!.removeWhere(
-          (e) => e.backendEventId == updatedEventFromServer.backendEventId,
+              (e) => e.backendEventId == updatedEventFromServer.backendEventId,
         );
+        if (events[originalNormalizedDate]!.isEmpty) {
+          events.remove(originalNormalizedDate);
+        }
       }
 
       final updatedNormalizedDate = _normalizeDate(
@@ -338,8 +335,11 @@ class HomeController extends GetxController {
       final normalizedEventDate = _normalizeDate(eventToDelete.eventDate);
       if (events[normalizedEventDate] != null) {
         events[normalizedEventDate]!.removeWhere(
-          (e) => e.backendEventId == eventToDelete.backendEventId,
+              (e) => e.backendEventId == eventToDelete.backendEventId,
         );
+        if (events[normalizedEventDate]!.isEmpty) {
+          events.remove(normalizedEventDate);
+        }
         events.refresh();
       }
     } catch (e) {
