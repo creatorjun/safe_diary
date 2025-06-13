@@ -1,7 +1,5 @@
 // lib/app/models/weather_models.dart
 
-
-
 /// 전체 날씨 응답을 감싸는 최상위 DTO
 class WeatherResponseDto {
   final CurrentWeatherResponseDto? currentWeather;

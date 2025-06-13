@@ -35,12 +35,12 @@ class HomeController extends GetxController {
   late final Rx<DateTime?> selectedDay;
 
   final RxMap<DateTime, List<EventItem>> events =
-  RxMap<DateTime, List<EventItem>>(
-    LinkedHashMap<DateTime, List<EventItem>>(
-      equals: isSameDay,
-      hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
-    ),
-  );
+      RxMap<DateTime, List<EventItem>>(
+        LinkedHashMap<DateTime, List<EventItem>>(
+          equals: isSameDay,
+          hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
+        ),
+      );
 
   List<EventItem> get selectedDayEvents {
     final day = selectedDay.value;
@@ -282,7 +282,7 @@ class HomeController extends GetxController {
       final originalNormalizedDate = _normalizeDate(eventToUpdate.eventDate);
       if (events[originalNormalizedDate] != null) {
         events[originalNormalizedDate]!.removeWhere(
-              (e) => e.backendEventId == updatedEventFromServer.backendEventId,
+          (e) => e.backendEventId == updatedEventFromServer.backendEventId,
         );
         if (events[originalNormalizedDate]!.isEmpty) {
           events.remove(originalNormalizedDate);
@@ -335,7 +335,7 @@ class HomeController extends GetxController {
       final normalizedEventDate = _normalizeDate(eventToDelete.eventDate);
       if (events[normalizedEventDate] != null) {
         events[normalizedEventDate]!.removeWhere(
-              (e) => e.backendEventId == eventToDelete.backendEventId,
+          (e) => e.backendEventId == eventToDelete.backendEventId,
         );
         if (events[normalizedEventDate]!.isEmpty) {
           events.remove(normalizedEventDate);

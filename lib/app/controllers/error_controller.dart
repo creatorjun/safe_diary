@@ -23,10 +23,10 @@ class ErrorController extends GetxController {
     } else {
       // 오류 종류에 따라 다른 기본 메시지를 설정
       switch (e.runtimeType) {
-        case SocketException:
+        case SocketException _:
           messageToShow = "네트워크에 연결할 수 없습니다. 인터넷 상태를 확인해주세요.";
           break;
-        case ApiException:
+        case ApiException _:
           // ApiService에서 보낸 메시지를 그대로 사용하거나, 더 일반적인 메시지로 교체 가능
           messageToShow = (e as ApiException).message;
           break;
@@ -43,7 +43,7 @@ class ErrorController extends GetxController {
       '알림',
       messageToShow,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.black.withOpacity(0.7),
+      backgroundColor: Colors.black.withAlpha(70),
       colorText: Colors.white,
       margin: const EdgeInsets.all(12.0),
     );

@@ -110,6 +110,7 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
   Widget _buildTimeRangePicker(BuildContext context) {
     final String startTimeStr = _startTime?.format(context) ?? "미지정";
     final String endTimeStr = _endTime?.format(context) ?? "미지정";
+    final colorScheme = Theme.of(context).colorScheme;
 
     return InkWell(
       onTap: () => _selectDateTimeRange(context),
@@ -119,7 +120,7 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
           labelText: "시간 지정 (선택)",
           prefixIcon: Icon(
             Icons.access_time_filled_rounded,
-            color: Colors.grey.shade600,
+            color: colorScheme.onSurfaceVariant,
             size: 20,
           ),
           border: OutlineInputBorder(
@@ -128,8 +129,7 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
-            borderSide:
-            BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
+            borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
           ),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -152,13 +152,14 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
         final startTimeDouble = _startTime!.hour + _startTime!.minute / 60.0;
         final endTimeDouble = _endTime!.hour + _endTime!.minute / 60.0;
         if (endTimeDouble <= startTimeDouble) {
+          final colorScheme = Theme.of(context).colorScheme;
           Get.snackbar(
             "오류",
             "종료 시간은 시작 시간보다 늦어야 합니다.",
             snackPosition: SnackPosition.BOTTOM,
             margin: const EdgeInsets.all(12),
-            backgroundColor: Colors.red.withAlpha(200),
-            colorText: Colors.white,
+            backgroundColor: colorScheme.errorContainer,
+            colorText: colorScheme.onErrorContainer,
           );
           return;
         }
@@ -186,7 +187,7 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
     final bool isEditing = widget.existingEvent != null;
     final String dialogTitleText = isEditing ? "일정 수정" : "일정 추가";
     final String submitButtonText = isEditing ? "수정" : "추가";
-    final Color primaryColor = Theme.of(context).colorScheme.primary;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(
@@ -207,14 +208,15 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
                 // Title
                 Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined, color: primaryColor, size: 22),
+                    Icon(Icons.calendar_today_outlined,
+                        color: colorScheme.primary, size: 22),
                     horizontalSpaceSmall,
                     Expanded(
                       child: Text(
                         "${DateFormat('MM월 dd일 (E)', 'ko_KR').format(widget.eventDate.toLocal())} $dialogTitleText",
                         style: textStyleMedium.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: primaryColor,
+                          color: colorScheme.primary,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -239,7 +241,7 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
                           hintText: "무슨 일정이 있나요?",
                           prefixIcon: Icon(
                             Icons.notes_rounded,
-                            color: Colors.grey.shade600,
+                            color: colorScheme.onSurfaceVariant,
                             size: 20,
                           ),
                           border: OutlineInputBorder(
@@ -248,7 +250,8 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(color: primaryColor, width: 1.5),
+                            borderSide:
+                            BorderSide(color: colorScheme.primary, width: 1.5),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -278,7 +281,8 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
                     TextButton(
                       child: Text(
                         "취소",
-                        style: textStyleSmall.copyWith(color: Colors.grey.shade700),
+                        style: textStyleSmall.copyWith(
+                            color: colorScheme.onSurfaceVariant),
                       ),
                       onPressed: () {
                         Get.back();
@@ -293,7 +297,7 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
                         margin: const EdgeInsets.only(right: 4),
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          color: colorScheme.onPrimary,
                         ),
                       )
                           : Icon(
@@ -304,13 +308,15 @@ class _AddEditEventDialogState extends State<AddEditEventDialog> {
                       ),
                       label: Text(
                         submitButtonText,
-                        style: textStyleSmall.copyWith(fontWeight: FontWeight.bold),
+                        style: textStyleSmall.copyWith(
+                            fontWeight: FontWeight.bold),
                       ),
                       onPressed: _isSubmitting ? null : _handleSubmit,
                       style: FilledButton.styleFrom(
-                        backgroundColor: primaryColor,
-                        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
                         ),

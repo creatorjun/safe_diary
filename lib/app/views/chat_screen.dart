@@ -1,8 +1,9 @@
-// lib/app/views/chat_screen.dart
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:no_screenshot/no_screenshot.dart';
+import 'package:safe_diary/app/routes/app_pages.dart';
 
 import '../controllers/chat_controller.dart';
 import '../controllers/login_controller.dart';
@@ -10,8 +11,60 @@ import '../models/chat_models.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 
-class ChatScreen extends GetView<ChatController> {
+class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
+  final ChatController controller = Get.find<ChatController>();
+  final NoScreenshot _noScreenshot = NoScreenshot.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _toggleScreenshotProtection(true);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _toggleScreenshotProtection(false);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      if (Get.currentRoute == Routes.chat) {
+        Get.offAllNamed(Routes.home);
+      }
+    }
+  }
+
+  Future<void> _toggleScreenshotProtection(bool turnOff) async {
+    try {
+      if (turnOff) {
+        await _noScreenshot.screenshotOff();
+        if (kDebugMode) {
+          print('[ChatScreen] Screenshot protection enabled.');
+        }
+      } else {
+        await _noScreenshot.screenshotOn();
+        if (kDebugMode) {
+          print('[ChatScreen] Screenshot protection disabled.');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('[ChatScreen] Failed to toggle screenshot protection: $e');
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +94,7 @@ class ChatScreen extends GetView<ChatController> {
               }
 
               if (controller.hasInitialLoadError.value) {
-                return _buildErrorView();
+                return _buildErrorView(context);
               }
 
               if (controller.messages.isEmpty) {
@@ -51,7 +104,7 @@ class ChatScreen extends GetView<ChatController> {
                     child: Text(
                       "아직 메시지가 없습니다.\n첫 메시지를 보내보세요!",
                       style: textStyleSmall.copyWith(
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -63,8 +116,7 @@ class ChatScreen extends GetView<ChatController> {
                 controller: controller.scrollController,
                 reverse: true,
                 padding: const EdgeInsets.all(8.0),
-                itemCount:
-                    controller.messages.length +
+                itemCount: controller.messages.length +
                     (controller.isFetchingMore.value ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (controller.isFetchingMore.value &&
@@ -76,10 +128,8 @@ class ChatScreen extends GetView<ChatController> {
                       ),
                     );
                   }
-                  final message =
-                      controller.messages[controller.messages.length -
-                          1 -
-                          index];
+                  final message = controller
+                      .messages[controller.messages.length - 1 - index];
                   final bool isMe = message.senderUid == currentUserUid;
                   return _buildMessageBubble(context, message, isMe);
                 },
@@ -92,18 +142,19 @@ class ChatScreen extends GetView<ChatController> {
     );
   }
 
-  Widget _buildErrorView() {
+  Widget _buildErrorView(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
+            Icon(Icons.error_outline, color: colorScheme.error, size: 48),
             verticalSpaceMedium,
             Text(
               "메시지를 불러오는 중 오류 발생",
-              style: textStyleMedium.copyWith(color: Colors.redAccent),
+              style: textStyleMedium.copyWith(color: colorScheme.error),
               textAlign: TextAlign.center,
             ),
           ],
@@ -113,38 +164,34 @@ class ChatScreen extends GetView<ChatController> {
   }
 
   Widget _buildMessageBubble(
-    BuildContext context,
-    ChatMessage message,
-    bool isMe,
-  ) {
+      BuildContext context,
+      ChatMessage message,
+      bool isMe,
+      ) {
+    final colorScheme = Theme.of(context).colorScheme;
     final align = isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
     final bubbleColor =
-        isMe
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.surfaceContainerHighest;
-    final textColor =
-        isMe
-            ? Theme.of(context).colorScheme.onPrimary
-            : Theme.of(context).colorScheme.onSurfaceVariant;
-    final radius =
-        isMe
-            ? const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              bottomLeft: Radius.circular(16),
-              bottomRight: Radius.circular(16),
-            )
-            : const BorderRadius.only(
-              topRight: Radius.circular(16),
-              bottomLeft: Radius.circular(16),
-              bottomRight: Radius.circular(16),
-            );
+    isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest;
+    final textColor = isMe ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
+    final radius = isMe
+        ? const BorderRadius.only(
+      topLeft: Radius.circular(16),
+      bottomLeft: Radius.circular(16),
+      bottomRight: Radius.circular(16),
+    )
+        : const BorderRadius.only(
+      topRight: Radius.circular(16),
+      bottomLeft: Radius.circular(16),
+      bottomRight: Radius.circular(16),
+    );
 
     return Column(
       crossAxisAlignment: align,
       children: [
         Container(
           margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
+          padding:
+          const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.75,
           ),
@@ -153,7 +200,7 @@ class ChatScreen extends GetView<ChatController> {
             borderRadius: radius,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withAlpha(95),
+                color: Theme.of(context).shadowColor.withAlpha(50),
                 blurRadius: 3,
                 offset: const Offset(0, 1),
               ),
@@ -165,10 +212,9 @@ class ChatScreen extends GetView<ChatController> {
           ),
         ),
         Padding(
-          padding:
-              isMe
-                  ? const EdgeInsets.only(right: 10.0, bottom: 6.0)
-                  : const EdgeInsets.only(left: 10.0, bottom: 6.0),
+          padding: isMe
+              ? const EdgeInsets.only(right: 10.0, bottom: 6.0)
+              : const EdgeInsets.only(left: 10.0, bottom: 6.0),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -181,10 +227,9 @@ class ChatScreen extends GetView<ChatController> {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color:
-                        message.isRead
-                            ? Colors.blueAccent
-                            : Colors.grey.shade500,
+                    color: message.isRead
+                        ? colorScheme.primary
+                        : colorScheme.onSurfaceVariant,
                   ),
                 ),
                 horizontalSpaceSmall,
@@ -193,7 +238,7 @@ class ChatScreen extends GetView<ChatController> {
                 DateFormat('HH:mm').format(message.dateTime.toLocal()),
                 style: textStyleSmall.copyWith(
                   fontSize: 11,
-                  color: Colors.grey.shade500,
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -212,7 +257,7 @@ class ChatScreen extends GetView<ChatController> {
           BoxShadow(
             offset: const Offset(0, -1),
             blurRadius: 4,
-            color: Colors.black.withAlpha(95),
+            color: Theme.of(context).shadowColor.withAlpha(50),
           ),
         ],
       ),
@@ -232,7 +277,7 @@ class ChatScreen extends GetView<ChatController> {
                   decoration: InputDecoration(
                     hintText: "메시지를 입력하세요...",
                     hintStyle: textStyleSmall.copyWith(
-                      color: Colors.grey.shade500,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(

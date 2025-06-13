@@ -10,9 +10,9 @@ class LoginScreen extends GetView<LoginController> {
   const LoginScreen({super.key});
 
   Widget _buildNaverLoginButton(
-      BuildContext context,
-      LoginController controller,
-      ) {
+    BuildContext context,
+    LoginController controller,
+  ) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF03C75A),
@@ -38,9 +38,9 @@ class LoginScreen extends GetView<LoginController> {
   }
 
   Widget _buildKakaoLoginButton(
-      BuildContext context,
-      LoginController controller,
-      ) {
+    BuildContext context,
+    LoginController controller,
+  ) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFFFEE500),
@@ -69,9 +69,9 @@ class LoginScreen extends GetView<LoginController> {
   }
 
   Widget _buildUserProfileView(
-      BuildContext context,
-      LoginController controller,
-      ) {
+    BuildContext context,
+    LoginController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -108,7 +108,7 @@ class LoginScreen extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     final String backgroundImage =
-    Get.isDarkMode ? "assets/dark_back.png" : "assets/light_back.png";
+        Get.isDarkMode ? "assets/dark_back.png" : "assets/light_back.png";
 
     return Scaffold(
       body: Obx(() {
@@ -159,7 +159,7 @@ class LoginScreen extends GetView<LoginController> {
                                 blurRadius: 10.0,
                                 color: colorScheme.shadow.withAlpha(50),
                                 offset: const Offset(2, 2),
-                              )
+                              ),
                             ],
                           ),
                         ),

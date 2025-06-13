@@ -66,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback toggleVisibility,
   }) {
     return Obx(
-      () => TextField(
+          () => TextField(
         controller: controller,
         obscureText: isObscured.value,
         style: textStyleMedium,
@@ -87,6 +87,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('프로필 및 계정 설정', style: textStyleLarge),
@@ -140,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         hintText: '새 비밀번호 (4자 이상)',
                         isObscured: controller.isNewPasswordObscured,
                         toggleVisibility:
-                            controller.toggleNewPasswordVisibility,
+                        controller.toggleNewPasswordVisibility,
                       ),
                       verticalSpaceMedium,
                       _buildPasswordField(
@@ -149,7 +151,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         hintText: '새 비밀번호 다시 입력',
                         isObscured: controller.isConfirmPasswordObscured,
                         toggleVisibility:
-                            controller.toggleConfirmPasswordVisibility,
+                        controller.toggleConfirmPasswordVisibility,
                       ),
                     ],
                   ),
@@ -157,33 +159,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               verticalSpaceMedium,
               Obx(
-                () => FilledButton.icon(
+                    () => ElevatedButton.icon(
                   icon: const Icon(Icons.save_outlined, size: 18),
-                  label: const Text('변경 내용 저장'),
-                  style: FilledButton.styleFrom(
+                  label: const Text('변경 내용 저장', style: textStyleMedium),
+                  style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
-                    backgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
+                    disabledBackgroundColor: colorScheme.onSurface.withAlpha(30),
+                    disabledForegroundColor: colorScheme.onSurface.withAlpha(100),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    disabledBackgroundColor: Colors.grey.shade300,
                   ),
-                  onPressed:
-                      controller.hasChanges.value
-                          ? () {
-                            controller
-                                .saveChanges(
-                                  newNickname: _nicknameController.text,
-                                  newPassword: _newPasswordController.text,
-                                  confirmPassword:
-                                      _confirmPasswordController.text,
-                                )
-                                .then((_) {
-                                  _newPasswordController.clear();
-                                  _confirmPasswordController.clear();
-                                });
-                          }
-                          : null,
+                  onPressed: controller.hasChanges.value
+                      ? () {
+                    controller
+                        .saveChanges(
+                      newNickname: _nicknameController.text,
+                      newPassword: _newPasswordController.text,
+                      confirmPassword:
+                      _confirmPasswordController.text,
+                    )
+                        .then((_) {
+                      _newPasswordController.clear();
+                      _confirmPasswordController.clear();
+                    });
+                  }
+                      : null,
                 ),
               ),
               Obx(() {
@@ -193,17 +196,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: OutlinedButton.icon(
                       icon: Icon(
                         Icons.lock_open_outlined,
-                        color: Colors.red.shade700,
+                        color: colorScheme.error,
                       ),
                       label: Text(
                         '앱 비밀번호 해제',
                         style: textStyleMedium.copyWith(
-                          color: Colors.red.shade700,
+                          color: colorScheme.error,
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
-                        side: BorderSide(color: Colors.red.shade200),
+                        side: BorderSide(color: colorScheme.error.withAlpha(80)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
@@ -244,6 +247,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildPartnerSection(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Obx(() {
       if (controller.partnerController.isLoading) {
         return const Center(child: CircularProgressIndicator());
@@ -282,59 +287,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   '연결된 파트너: $partnerNickname',
                   style: textStyleMedium.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: colorScheme.primary,
                   ),
                 ),
                 verticalSpaceSmall,
                 if (formattedPartnerSince != '날짜 정보 없음')
                   Text(
                     '연결 시작일: $formattedPartnerSince',
-                    style: textStyleSmall.copyWith(color: Colors.grey.shade600),
+                    style: textStyleSmall.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                 verticalSpaceMedium,
                 ElevatedButton.icon(
                   icon: Icon(
                     Icons.chat_bubble_outline_rounded,
                     size: 18,
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: colorScheme.onPrimary,
                   ),
                   label: Text(
                     '$partnerNickname님과 채팅하기',
                     style: textStyleSmall.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      color: colorScheme.onPrimary,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 45),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                   ),
-                  onPressed:
-                      () => Get.toNamed(
-                        Routes.chat,
-                        arguments: {
-                          'partnerUid': user.partnerUid,
-                          'partnerNickname': partnerNickname,
-                        },
-                      ),
+                  onPressed: () => Get.toNamed(
+                    Routes.chat,
+                    arguments: {
+                      'partnerUid': user.partnerUid,
+                      'partnerNickname': partnerNickname,
+                    },
+                  ),
                 ),
                 verticalSpaceSmall,
                 OutlinedButton.icon(
                   icon: Icon(
                     Icons.link_off_rounded,
                     size: 18,
-                    color: Colors.red.shade700,
+                    color: colorScheme.error,
                   ),
                   label: Text(
                     '파트너 연결 끊기',
-                    style: textStyleSmall.copyWith(color: Colors.red.shade700),
+                    style: textStyleSmall.copyWith(color: colorScheme.error),
                   ),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 45),
-                    side: BorderSide(color: Colors.red.shade300),
+                    side: BorderSide(color: colorScheme.error.withAlpha(80)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
@@ -398,7 +402,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 verticalSpaceSmall,
                 Text(
                   '만료 시간: $formattedExpiresAt',
-                  style: textStyleSmall.copyWith(color: Colors.grey.shade600),
+                  style: textStyleSmall.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
                 verticalSpaceMedium,
                 OutlinedButton(
@@ -422,15 +426,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
-                backgroundColor: Colors.teal,
+                backgroundColor: colorScheme.secondary,
+                foregroundColor: colorScheme.onSecondary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
               onPressed: controller.generateInvitationCode,
-              child: Text(
+              child: const Text(
                 '파트너 초대 코드 생성하기',
-                style: textStyleMedium.copyWith(color: Colors.white),
+                style: textStyleMedium,
               ),
             ),
             verticalSpaceMedium,
@@ -461,6 +466,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildAccountInfoSection() {
     final user = controller.loginController.user;
     final formattedCreatedAt = user.formattedCreatedAt;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       elevation: 2.0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -473,21 +480,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(
                   width: 22,
                   height: 22,
-                  child:
-                      user.platform == LoginPlatform.naver
-                          ? Image(
-                            image: Svg(
-                              'assets/naver_icon.svg',
-                              color: Colors.green.shade600,
-                            ),
-                          )
-                          : user.platform == LoginPlatform.kakao
-                          ? const Image(image: Svg('assets/kakao_icon.svg'))
-                          : Icon(
-                            Icons.device_unknown_outlined,
-                            color: Colors.grey.shade700,
-                            size: 22,
-                          ),
+                  child: user.platform == LoginPlatform.naver
+                      ? Image(
+                    image: Svg(
+                      'assets/naver_icon.svg',
+                      color: Colors.green.shade600,
+                    ),
+                  )
+                      : user.platform == LoginPlatform.kakao
+                      ? const Image(image: Svg('assets/kakao_icon.svg'))
+                      : Icon(
+                    Icons.device_unknown_outlined,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 22,
+                  ),
                 ),
                 horizontalSpaceSmall,
                 Text(
@@ -496,7 +502,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       : user.platform == LoginPlatform.kakao
                       ? "카카오 로그인"
                       : "정보 없음",
-                  style: textStyleMedium.copyWith(color: Colors.grey.shade800),
+                  style: textStyleMedium.copyWith(color: colorScheme.onSurface),
                 ),
               ],
             ),
@@ -506,7 +512,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 alignment: Alignment.bottomRight,
                 child: Text(
                   '가입일: $formattedCreatedAt',
-                  style: textStyleSmall.copyWith(color: Colors.grey.shade600),
+                  style: textStyleSmall.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
               ),
             ],
@@ -517,27 +523,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAccountDeletionSection() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
       elevation: 1.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
-        side: BorderSide(color: Colors.red.shade100),
+        side: BorderSide(color: colorScheme.error.withAlpha(80)),
       ),
       child: ListTile(
         leading: Icon(
           Icons.delete_forever_outlined,
-          color: Colors.red.shade600,
+          color: colorScheme.error,
         ),
         title: Text(
           '회원 탈퇴',
           style: textStyleMedium.copyWith(
-            color: Colors.red.shade700,
+            color: colorScheme.error,
             fontWeight: FontWeight.w500,
           ),
         ),
         trailing: Icon(
           Icons.arrow_forward_ios_rounded,
-          color: Colors.grey.shade500,
+          color: colorScheme.onSurfaceVariant,
           size: 16,
         ),
         onTap: controller.handleAccountDeletionRequest,

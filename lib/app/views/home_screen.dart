@@ -1,5 +1,3 @@
-// lib/app/views/home_screen.dart
-
 import 'package:crystal_navigation_bar/crystal_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,6 +18,7 @@ class HomeScreen extends GetView<HomeController> {
   Widget build(BuildContext context) {
     final LoginController loginController = Get.find<LoginController>();
     final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
 
     final List<Widget> screens = [
       const CalendarView(),
@@ -43,15 +42,6 @@ class HomeScreen extends GetView<HomeController> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             color: Colors.transparent,
-            // gradient: LinearGradient(
-            //   colors: [
-            //     Colors.redAccent,
-            //     Colors.purpleAccent,
-            //     Colors.greenAccent,
-            //   ],
-            //   begin: Alignment.topLeft,
-            //   end: Alignment.bottomRight,
-            // ),
           ),
         ),
         actions: [
@@ -65,61 +55,59 @@ class HomeScreen extends GetView<HomeController> {
                 loginController.logout();
               }
             },
-            itemBuilder:
-                (BuildContext context) => <PopupMenuEntry<String>>[
-                  PopupMenuItem<String>(
-                    value: 'profile',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.person_outline, color: Colors.black87),
-                        horizontalSpaceSmall,
-                        const Text('개인정보', style: textStyleSmall),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'logout',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.logout, color: Colors.black87),
-                        horizontalSpaceSmall,
-                        const Text('로그아웃', style: textStyleSmall),
-                      ],
-                    ),
-                  ),
-                ],
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(Icons.person_outline),
+                    horizontalSpaceSmall,
+                    Text('개인정보', style: textStyleSmall),
+                  ],
+                ),
+              ),
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout),
+                    horizontalSpaceSmall,
+                    Text('로그아웃', style: textStyleSmall),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
       body: Obx(
-        // SafeArea 래핑을 제거했습니다.
-        () => IndexedStack(
+            () => IndexedStack(
           index: controller.selectedIndex.value,
           children: screens,
         ),
       ),
       bottomNavigationBar: Obx(
-        () => CrystalNavigationBar(
+            () => CrystalNavigationBar(
           currentIndex: controller.selectedIndex.value,
           onTap: (index) {
             controller.changeTabIndex(index);
           },
-          unselectedItemColor: Colors.grey.shade400,
-          backgroundColor: theme.cardColor.withAlpha(15),
+          unselectedItemColor: colorScheme.onSurfaceVariant.withAlpha(150),
+          backgroundColor: theme.cardColor.withAlpha(200),
           borderRadius: 24,
           enableFloatingNavBar: true,
           items: [
             CrystalNavigationBarItem(
               icon: Icons.calendar_month_outlined,
-              selectedColor: theme.colorScheme.primary,
+              selectedColor: colorScheme.primary,
             ),
             CrystalNavigationBarItem(
               icon: Icons.wb_sunny_outlined,
-              selectedColor: theme.colorScheme.primary,
+              selectedColor: colorScheme.primary,
             ),
             CrystalNavigationBarItem(
               icon: Icons.explore_outlined,
-              selectedColor: theme.colorScheme.primary,
+              selectedColor: colorScheme.primary,
             ),
           ],
         ),
@@ -131,7 +119,8 @@ class HomeScreen extends GetView<HomeController> {
               controller.showAddEventDialog();
             },
             tooltip: '일정 추가',
-            backgroundColor: Colors.purpleAccent,
+            backgroundColor: colorScheme.secondary,
+            foregroundColor: colorScheme.onSecondary,
             child: const Icon(Icons.add),
           );
         } else {
