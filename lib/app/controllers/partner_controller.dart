@@ -2,6 +2,7 @@
 
 import 'package:get/get.dart';
 import 'package:safe_diary/app/services/api_service.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 
 import '../models/partner_dtos.dart';
 import '../models/user.dart';
@@ -61,7 +62,7 @@ class PartnerController extends GetxController {
   Future<void> createPartnerInvitationCode() async {
     if (_loginController.user.partnerUid != null &&
         _loginController.user.partnerUid!.isNotEmpty) {
-      _handleError("이미 파트너와 연결되어 있어 초대 코드를 생성할 수 없습니다.");
+      _handleError(AppStrings.alreadyConnectedError);
       return;
     }
     _setLoading(true);
@@ -74,9 +75,9 @@ class PartnerController extends GetxController {
       );
       currentInvitation.value = invitation;
       currentPartnerRelation.value = null;
-      Get.snackbar('성공', '파트너 초대 코드가 생성되었습니다.');
+      Get.snackbar(AppStrings.success, AppStrings.createInvitationCodeSuccess);
     } catch (e) {
-      _handleError(e, userFriendlyMessage: '초대 코드 생성 중 오류가 발생했습니다.');
+      _handleError(e, userFriendlyMessage: AppStrings.createInvitationCodeError);
     } finally {
       _setLoading(false);
     }
@@ -108,11 +109,11 @@ class PartnerController extends GetxController {
       );
       currentInvitation.value = null;
       Get.snackbar(
-        '성공',
-        '파트너 초대를 수락했습니다! 이제부터 \'${relation.partnerUser.nickname ?? '파트너'}\'님과 연결됩니다.',
+        AppStrings.success,
+        '${AppStrings.acceptInvitationSuccess} ${AppStrings.partnerConnectedMessage(relation.partnerUser.nickname ?? '파트너')}',
       );
     } catch (e) {
-      _handleError(e, userFriendlyMessage: '파트너 초대 수락 중 오류가 발생했습니다.');
+      _handleError(e, userFriendlyMessage: AppStrings.acceptInvitationError);
     } finally {
       _setLoading(false);
     }
@@ -126,9 +127,9 @@ class PartnerController extends GetxController {
       _loginController.updateUserPartnerUid(null);
       currentPartnerRelation.value = null;
       currentInvitation.value = null;
-      Get.snackbar('성공', '파트너 관계가 해제되고 대화 내역이 삭제되었습니다.');
+      Get.snackbar(AppStrings.success, AppStrings.unfriendSuccess);
     } catch (e) {
-      _handleError(e, userFriendlyMessage: '파트너 관계 해제 중 오류가 발생했습니다.');
+      _handleError(e, userFriendlyMessage: AppStrings.unfriendError);
     } finally {
       _setLoading(false);
     }

@@ -7,6 +7,7 @@ import '../controllers/login_controller.dart';
 import '../controllers/partner_controller.dart';
 import '../routes/app_pages.dart';
 import '../services/secure_storage_service.dart';
+import '../utils/app_strings.dart';
 
 class ProfileAuthController extends GetxController {
   final LoginController _loginController;
@@ -14,10 +15,10 @@ class ProfileAuthController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   ProfileAuthController(
-    this._loginController,
-    this._partnerController,
-    this._secureStorageService,
-  );
+      this._loginController,
+      this._partnerController,
+      this._secureStorageService,
+      );
 
   late TextEditingController passwordController;
 
@@ -50,7 +51,7 @@ class ProfileAuthController extends GetxController {
     final String enteredPassword = passwordController.text;
 
     if (enteredPassword.isEmpty) {
-      errorMessage.value = '비밀번호를 입력해주세요.';
+      errorMessage.value = AppStrings.passwordRequired;
       isLoading.value = false;
       return;
     }
@@ -73,7 +74,7 @@ class ProfileAuthController extends GetxController {
       currentAttempts++;
       await _secureStorageService.saveFailedAttemptCount(currentAttempts);
 
-      errorMessage.value = '비밀번호가 일치하지 않습니다.';
+      errorMessage.value = AppStrings.passwordIncorrect;
       passwordController.clear();
 
       if (currentAttempts >= maxFailedAttempts) {
@@ -87,7 +88,7 @@ class ProfileAuthController extends GetxController {
     errorMessage.value = '비밀번호를 $maxFailedAttempts회 이상 잘못 입력하여 로그아웃됩니다.';
     Get.snackbar(
       "보안 조치",
-      "비밀번호를 여러 번 잘못 입력하여 로그아웃됩니다.",
+      AppStrings.securityLogoutWarning,
       duration: const Duration(seconds: 5),
       snackPosition: SnackPosition.BOTTOM,
       margin: const EdgeInsets.all(12.0),

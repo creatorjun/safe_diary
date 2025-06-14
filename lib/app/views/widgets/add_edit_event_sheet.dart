@@ -1,3 +1,5 @@
+// lib/app/views/widgets/add_edit_event_sheet.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +7,7 @@ import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
 import '../../models/event_item.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/app_strings.dart';
 
 class AddEditEventSheet extends StatefulWidget {
   final DateTime eventDate;
@@ -152,7 +155,7 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
         if (endTimeDouble <= startTimeDouble) {
           final colorScheme = Theme.of(context).colorScheme;
           Get.snackbar(
-            "오류",
+            AppStrings.error,
             "종료 시간은 시작 시간보다 늦어야 합니다.",
             snackPosition: SnackPosition.BOTTOM,
             margin: const EdgeInsets.all(12),
@@ -188,8 +191,9 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
     final bool isEditing = widget.existingEvent != null;
-    final String dialogTitleText = isEditing ? "일정 수정" : "일정 추가";
-    final String submitButtonText = isEditing ? "수정" : "추가";
+    final String dialogTitleText =
+    isEditing ? AppStrings.edit : AppStrings.addEvent;
+    final String submitButtonText = isEditing ? AppStrings.edit : AppStrings.add;
 
     return Container(
       decoration: BoxDecoration(
@@ -262,7 +266,7 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                   children: [
                     TextButton(
                       child: Text(
-                        "취소",
+                        AppStrings.cancel,
                         style: textStyles.bodyMedium
                             .copyWith(color: colorScheme.onSurfaceVariant),
                       ),

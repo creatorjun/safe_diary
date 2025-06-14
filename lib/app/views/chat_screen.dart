@@ -1,9 +1,12 @@
+// lib/app/views/chat_screen.dart
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 import 'package:safe_diary/app/routes/app_pages.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 
 import '../controllers/chat_controller.dart';
 import '../controllers/login_controller.dart';
@@ -75,13 +78,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            '${controller.chatPartnerNickname}님과의 대화', style: textStyles.bodyLarge),
+        title: Text(AppStrings.chatRoomTitle(controller.chatPartnerNickname),
+            style: textStyles.bodyLarge),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: "메시지 새로고침",
+            tooltip: AppStrings.refreshMessages,
             onPressed: () {
               controller.fetchInitialMessages();
             },
@@ -105,7 +108,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
-                      "아직 메시지가 없습니다.\n첫 메시지를 보내보세요!",
+                      AppStrings.noMessages,
                       style: textStyles.bodyMedium
                           .copyWith(color: theme.colorScheme.onSurfaceVariant),
                       textAlign: TextAlign.center,
@@ -158,7 +161,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             Icon(Icons.error_outline, color: theme.colorScheme.error, size: 48),
             SizedBox(height: spacing.medium),
             Text(
-              "메시지를 불러오는 중 오류 발생",
+              AppStrings.messageLoadError,
               style: textStyles.bodyLarge.copyWith(color: theme.colorScheme.error),
               textAlign: TextAlign.center,
             ),
@@ -234,7 +237,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   !(message.id!.startsWith('temp_')) &&
                   !message.isRead) ...[
                 Text(
-                  '안 읽음',
+                  AppStrings.unread,
                   style: textStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -288,7 +291,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   controller: controller.messageInputController,
                   style: textStyles.bodyMedium,
                   decoration: InputDecoration(
-                    hintText: "메시지를 입력하세요...",
+                    hintText: AppStrings.messageInputHint,
                     hintStyle: textStyles.bodyMedium.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),

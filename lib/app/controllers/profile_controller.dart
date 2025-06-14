@@ -1,7 +1,10 @@
+// lib/app/controllers/profile_controller.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:safe_diary/app/theme/app_theme.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 
 import '../routes/app_pages.dart';
 import 'error_controller.dart';
@@ -46,17 +49,17 @@ class ProfileController extends GetxController {
     final isPasswordChanged = newPassword.isNotEmpty;
 
     if (!isNicknameChanged && !isPasswordChanged) {
-      Get.snackbar('알림', '변경된 내용이 없습니다.');
+      Get.snackbar(AppStrings.notification, AppStrings.noChanges);
       return;
     }
 
     if (isPasswordChanged) {
       if (newPassword.length < 4) {
-        Get.snackbar('오류', '새 비밀번호는 4자 이상이어야 합니다.');
+        Get.snackbar(AppStrings.error, AppStrings.newPasswordMinLengthError);
         return;
       }
       if (newPassword != confirmPassword) {
-        Get.snackbar('오류', '새 비밀번호와 확인 비밀번호가 일치하지 않습니다.');
+        Get.snackbar(AppStrings.error, AppStrings.newPasswordMismatchError);
         return;
       }
     }
@@ -86,11 +89,12 @@ class ProfileController extends GetxController {
       }
 
       Get.back();
-      Get.snackbar('성공', '변경 내용이 성공적으로 저장되었습니다.');
+      Get.snackbar(AppStrings.success, AppStrings.saveSuccess);
       hasChanges.value = false;
     } catch (e) {
       Get.back();
-      _errorController.handleError(e, userFriendlyMessage: '변경 내용 저장에 실패했습니다.');
+      _errorController.handleError(e,
+          userFriendlyMessage: AppStrings.saveFailed);
     }
   }
 
@@ -103,27 +107,28 @@ class ProfileController extends GetxController {
 
     Get.dialog(
       AlertDialog(
-        title: const Text('비밀번호 해제'),
+        title: const Text(AppStrings.removePasswordPromptTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('비밀번호를 해제하려면 현재 비밀번호를 입력해주세요.'),
+            const Text(AppStrings.removePasswordPromptContent),
             SizedBox(height: spacing.medium),
             TextField(
               controller: dialogPasswordController,
               obscureText: true,
               autofocus: true,
               decoration: const InputDecoration(
-                labelText: '현재 비밀번호',
+                labelText: AppStrings.currentPassword,
                 border: OutlineInputBorder(),
               ),
             ),
           ],
         ),
         actions: [
-          TextButton(child: const Text('취소'), onPressed: () => Get.back()),
+          TextButton(
+              child: const Text(AppStrings.cancel), onPressed: () => Get.back()),
           FilledButton(
-            child: const Text('해제'),
+            child: const Text(AppStrings.removeAppPassword),
             onPressed: () async {
               final String currentPassword =
               dialogPasswordController.text.trim();
@@ -131,7 +136,7 @@ class ProfileController extends GetxController {
               Get.back();
 
               if (currentPassword.isEmpty) {
-                Get.snackbar('오류', '현재 비밀번호를 입력해주세요.');
+                Get.snackbar(AppStrings.error, AppStrings.currentPasswordRequired);
                 return;
               }
 
@@ -181,13 +186,13 @@ class ProfileController extends GetxController {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '회원 탈퇴',
+                  AppStrings.accountDeletion,
                   style: textStyles.titleMedium,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: spacing.medium),
                 Text(
-                  '회원 탈퇴 즉시 사용자의 모든 정보가 파기되며 복구할 수 없습니다. 정말로 탈퇴하시겠습니까?',
+                  AppStrings.accountDeletionConfirmationContent,
                   style: textStyles.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -203,7 +208,7 @@ class ProfileController extends GetxController {
                           side: BorderSide(
                               color: theme.colorScheme.outline.withAlpha(128)),
                         ),
-                        child: Text('취소'),
+                        child: const Text(AppStrings.cancel),
                       ),
                     ),
                     SizedBox(width: spacing.medium),
@@ -218,7 +223,7 @@ class ProfileController extends GetxController {
                           backgroundColor: theme.colorScheme.error,
                           foregroundColor: theme.colorScheme.onError,
                         ),
-                        child: Text('탈퇴 진행'),
+                        child: const Text(AppStrings.proceedWithDeletion),
                       ),
                     ),
                   ],
@@ -237,25 +242,23 @@ class ProfileController extends GetxController {
     if (code.isNotEmpty) {
       await partnerController.acceptPartnerInvitation(code);
     } else {
-      Get.snackbar('오류', '초대 코드를 입력해주세요.');
+      Get.snackbar(AppStrings.error, AppStrings.invitationCodeRequired);
     }
   }
 
   Future<void> disconnectPartner() async {
     Get.dialog(
       AlertDialog(
-        title: const Text("파트너 연결 끊기"),
-        content: const Text(
-          "파트너와의 연결을 끊고 모든 대화 내역을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-        ),
+        title: const Text(AppStrings.unfriendConfirmationTitle),
+        content: const Text(AppStrings.unfriendConfirmationContent),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text("취소")),
+          TextButton(onPressed: () => Get.back(), child: const Text(AppStrings.cancel)),
           TextButton(
             onPressed: () async {
               Get.back();
               await partnerController.unfriendPartnerAndClearChat();
             },
-            child: Text("연결 끊기",
+            child: Text(AppStrings.unfriendButton,
                 style: TextStyle(color: Theme.of(Get.context!).colorScheme.error)),
           ),
         ],

@@ -1,7 +1,10 @@
+// lib/app/controllers/home_controller.dart
+
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../controllers/login_controller.dart';
@@ -21,7 +24,11 @@ class HomeController extends GetxController {
   ErrorController get _errorController => Get.find<ErrorController>();
 
   final RxInt selectedIndex = 0.obs;
-  final List<String> tabTitles = ['일정', '날씨', '운세'];
+  final List<String> tabTitles = [
+    AppStrings.tabCalendar,
+    AppStrings.tabWeather,
+    AppStrings.tabLuck,
+  ];
 
   String get currentTitle => tabTitles[selectedIndex.value];
 
@@ -117,7 +124,7 @@ class HomeController extends GetxController {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '🔒 개인 정보 보호 알림',
+                  '🔒 ${AppStrings.profile}',
                   style: textStyles.titleMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -225,7 +232,7 @@ class HomeController extends GetxController {
 
   void showAddEventDialog() {
     if (selectedDay.value == null) {
-      Get.snackbar("알림", "먼저 날짜를 선택해주세요.");
+      Get.snackbar(AppStrings.notification, "먼저 날짜를 선택해주세요.");
       return;
     }
     Get.bottomSheet(
@@ -314,16 +321,19 @@ class HomeController extends GetxController {
     }
     Get.dialog(
       AlertDialog(
-        title: const Text("일정 삭제"),
-        content: Text("'${eventToDelete.title}' 일정을 삭제하시겠습니까?"),
+        title: const Text(AppStrings.deleteEventConfirmationTitle),
+        content:
+        Text(AppStrings.deleteEventConfirmationContent(eventToDelete.title)),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text("취소")),
+          TextButton(
+              onPressed: () => Get.back(), child: const Text(AppStrings.cancel)),
           TextButton(
             onPressed: () {
               Get.back();
               _deleteEventOnServer(eventToDelete);
             },
-            child: const Text("삭제", style: TextStyle(color: Colors.red)),
+            child:
+            const Text(AppStrings.delete, style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

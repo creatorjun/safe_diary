@@ -1,8 +1,11 @@
+// lib/app/controllers/luck_controller.dart
+
 import 'package:get/get.dart';
 
 import '../models/luck_models.dart';
 import '../services/luck_service.dart';
 import '../services/secure_storage_service.dart';
+import '../utils/app_strings.dart';
 import 'error_controller.dart';
 import 'login_controller.dart';
 
@@ -46,8 +49,7 @@ class LuckController extends GetxController {
     return zodiacNameMap.entries
         .firstWhere(
           (entry) => entry.value == selectedZodiacApiName.value,
-      orElse:
-          () => MapEntry(
+      orElse: () => MapEntry(
         availableZodiacsForDisplay.first,
         _defaultZodiacApiName,
       ),
@@ -93,7 +95,7 @@ class LuckController extends GetxController {
       selectedZodiacLuck.value = null;
       _errorController.handleError(
         e,
-        userFriendlyMessage: '운세 정보를 불러오는 데 실패했습니다.',
+        userFriendlyMessage: AppStrings.luckInfoError,
       );
     } finally {
       isLoading.value = false;

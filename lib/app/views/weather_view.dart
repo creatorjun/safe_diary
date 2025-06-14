@@ -1,3 +1,5 @@
+// lib/app/views/weather_view.dart
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../controllers/weather_controller.dart';
 import '../models/weather_models.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_strings.dart';
 import '../utils/weather_utils.dart';
 
 class WeatherView extends GetView<WeatherController> {
@@ -38,7 +41,7 @@ class WeatherView extends GetView<WeatherController> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Text("지역 선택", style: textStyles.bodyLarge),
+              child: Text(AppStrings.selectRegion, style: textStyles.bodyLarge),
             ),
             const Divider(height: 1),
             Expanded(
@@ -259,16 +262,17 @@ class WeatherView extends GetView<WeatherController> {
                     style: textStyles.bodyLarge
                         .copyWith(color: colorScheme.onPrimary.withAlpha(204)),
                     children: <TextSpan>[
-                      const TextSpan(text: '최고 : '),
+                      const TextSpan(text: '${AppStrings.maxTemp} : '),
                       TextSpan(
                         text: '$highTemp°',
                         style: TextStyle(color: colorScheme.error),
                       ),
-                      const TextSpan(text: '  최저 : '),
+                      const TextSpan(text: '  ${AppStrings.minTemp} : '),
                       TextSpan(
                         text: '$lowTemp°',
                         style: TextStyle(
-                            color: colorScheme.primary.withRed(150).withGreen(150)),
+                            color:
+                            colorScheme.primary.withRed(150).withGreen(150)),
                       ),
                     ],
                   ),
@@ -284,7 +288,7 @@ class WeatherView extends GetView<WeatherController> {
                     ),
                     SizedBox(width: spacing.small),
                     Text(
-                      '체감 온도 : ${current.apparentTemperature.toStringAsFixed(0)}°',
+                      '${AppStrings.apparentTemp} : ${current.apparentTemperature.toStringAsFixed(0)}°',
                       style:
                       textStyles.bodyLarge.copyWith(color: colorScheme.onPrimary),
                     ),
@@ -300,19 +304,19 @@ class WeatherView extends GetView<WeatherController> {
                       context,
                       icon: Icons.air,
                       value: '${current.windSpeed.toStringAsFixed(1)}km/h',
-                      label: '풍속',
+                      label: AppStrings.windSpeed,
                     ),
                     _buildDetailItem(
                       context,
                       icon: Icons.wb_sunny_outlined,
                       value: current.uvIndex.toString(),
-                      label: '자외선',
+                      label: AppStrings.uvIndex,
                     ),
                     _buildDetailItem(
                       context,
                       icon: Icons.water_drop_outlined,
                       value: '${(current.humidity * 100).toInt()}%',
-                      label: '습도',
+                      label: AppStrings.humidity,
                     ),
                   ],
                 ),
@@ -380,7 +384,8 @@ class WeatherView extends GetView<WeatherController> {
                 Icon(Icons.hourglass_bottom,
                     color: colorScheme.onSurfaceVariant, size: 18),
                 SizedBox(width: spacing.small),
-                Text("시간별 예보 요약", style: textStyles.bodyLarge),
+                Text(AppStrings.hourlyForecastSummary,
+                    style: textStyles.bodyLarge),
               ],
             ),
             SizedBox(height: spacing.small),
@@ -458,7 +463,9 @@ class WeatherView extends GetView<WeatherController> {
                           TextSpan(
                             text: '$lowTemp°',
                             style: TextStyle(
-                                color: colorScheme.primary.withRed(150).withGreen(150)),
+                                color: colorScheme.primary
+                                    .withRed(150)
+                                    .withGreen(150)),
                           ),
                         ],
                       ),
@@ -494,14 +501,14 @@ class WeatherView extends GetView<WeatherController> {
                 color: colorScheme.onSurfaceVariant, size: 48),
             SizedBox(height: spacing.medium),
             Text(
-              "날씨 정보를 불러오는 데 실패했습니다.",
+              AppStrings.weatherInfoError,
               style: textStyles.bodyLarge,
               textAlign: TextAlign.center,
             ),
             SizedBox(height: spacing.medium),
             ElevatedButton.icon(
               icon: const Icon(Icons.refresh),
-              label: const Text("다시 시도"),
+              label: const Text(AppStrings.tryAgain),
               onPressed: () {
                 controller.fetchWeather(controller.selectedCityName.value);
               },

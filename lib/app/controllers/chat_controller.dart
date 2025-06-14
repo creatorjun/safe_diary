@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 
 import '../config/app_config.dart';
@@ -25,10 +26,10 @@ class ChatController extends GetxController {
     required LoginController loginController,
     required String partnerUid,
     String? partnerNickname,
-  }) : _chatService = chatService,
-       _loginController = loginController,
-       _chatPartnerUid = partnerUid,
-       _chatPartnerNickname = partnerNickname;
+  })  : _chatService = chatService,
+        _loginController = loginController,
+        _chatPartnerUid = partnerUid,
+        _chatPartnerNickname = partnerNickname;
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -129,8 +130,8 @@ class ChatController extends GetxController {
 
             if (isMyEchoMessage) {
               final index = messages.lastIndexWhere(
-                (msg) =>
-                    (msg.id?.startsWith('temp_') ?? false) &&
+                    (msg) =>
+                (msg.id?.startsWith('temp_') ?? false) &&
                     msg.content == receivedMessage.content,
               );
               if (index != -1) {
@@ -254,7 +255,7 @@ class ChatController extends GetxController {
       hasInitialLoadError.value = true;
       _errorController.handleError(
         e,
-        userFriendlyMessage: "메시지를 불러오는 데 실패했습니다.",
+        userFriendlyMessage: AppStrings.messageLoadError,
       );
     } finally {
       isLoading.value = false;
@@ -292,7 +293,7 @@ class ChatController extends GetxController {
     final String content = messageInputController.text.trim();
     if (content.isEmpty) return;
     if (stompClient == null || !stompClient!.connected) {
-      _errorController.handleError("채팅 서버에 연결되어 있지 않습니다.");
+      _errorController.handleError(AppStrings.chatServerError);
       return;
     }
 
@@ -326,7 +327,7 @@ class ChatController extends GetxController {
 
   void _scrollListener() {
     if (scrollController.position.pixels <=
-            scrollController.position.minScrollExtent + 50 &&
+        scrollController.position.minScrollExtent + 50 &&
         !isFetchingMore.value &&
         !hasReachedMax.value) {
       fetchMoreMessages();

@@ -1,3 +1,5 @@
+// lib/app/views/luck_view.dart
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,6 +8,7 @@ import 'package:intl/intl.dart';
 import '../controllers/luck_controller.dart';
 import '../models/luck_models.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_strings.dart';
 
 class LuckView extends GetView<LuckController> {
   const LuckView({super.key});
@@ -33,7 +36,7 @@ class LuckView extends GetView<LuckController> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Text("띠 선택", style: textStyles.bodyLarge),
+              child: Text(AppStrings.selectZodiac, style: textStyles.bodyLarge),
             ),
             const Divider(height: 1),
             Expanded(
@@ -113,14 +116,14 @@ class LuckView extends GetView<LuckController> {
                 color: colorScheme.error.withAlpha(179), size: 48),
             SizedBox(height: spacing.medium),
             Text(
-              "운세 정보를 불러오는 데 실패했습니다.",
+              AppStrings.luckInfoError,
               style: textStyles.bodyLarge,
               textAlign: TextAlign.center,
             ),
             SizedBox(height: spacing.medium),
             ElevatedButton.icon(
               icon: const Icon(Icons.refresh),
-              label: const Text("다시 시도"),
+              label: const Text(AppStrings.tryAgain),
               onPressed: () => controller
                   .fetchTodaysLuck(controller.selectedZodiacApiName.value),
             ),
@@ -145,7 +148,7 @@ class LuckView extends GetView<LuckController> {
             size: 48,
           ),
           SizedBox(height: spacing.medium),
-          Text("오늘의 운세 정보가 아직 없습니다.", style: textStyles.bodyLarge),
+          Text(AppStrings.noLuckInfo, style: textStyles.bodyLarge),
           SizedBox(height: spacing.small),
           ElevatedButton.icon(
             icon: const Icon(Icons.refresh),
@@ -172,16 +175,18 @@ class LuckView extends GetView<LuckController> {
     }
 
     final List<Widget> luckCards = [
-      _buildLuckCategoryCard(context, "✨ 총운", luckData.overallLuck),
-      _buildLuckCategoryCard(context, "💰 재물운", luckData.financialLuck),
-      _buildLuckCategoryCard(context, "💕 애정운", luckData.loveLuck),
-      _buildLuckCategoryCard(context, "💪 건강운", luckData.healthLuck),
+      _buildLuckCategoryCard(context, AppStrings.overallLuck, luckData.overallLuck),
+      _buildLuckCategoryCard(
+          context, AppStrings.financialLuck, luckData.financialLuck),
+      _buildLuckCategoryCard(context, AppStrings.loveLuck, luckData.loveLuck),
+      _buildLuckCategoryCard(context, AppStrings.healthLuck, luckData.healthLuck),
       if (luckData.luckyNumber != null)
         _buildLuckCategoryCard(
-            context, "🍀 행운의 숫자", luckData.luckyNumber.toString()),
+            context, AppStrings.luckyNumber, luckData.luckyNumber.toString()),
       if (luckData.luckyColor != null)
-        _buildLuckCategoryCard(context, "🎨 행운의 색상", luckData.luckyColor),
-      _buildLuckCategoryCard(context, "💡 조언", luckData.advice),
+        _buildLuckCategoryCard(
+            context, AppStrings.luckyColor, luckData.luckyColor),
+      _buildLuckCategoryCard(context, AppStrings.advice, luckData.advice),
     ];
 
     return SafeArea(
@@ -206,7 +211,8 @@ class LuckView extends GetView<LuckController> {
                         children: [
                           Obx(
                                 () => Text(
-                              '${controller.currentSelectedZodiacDisplayName} 띠별 운세',
+                              AppStrings.zodiacLuckTitle(
+                                  controller.currentSelectedZodiacDisplayName),
                               style: textStyles.titleMedium,
                             ),
                           ),

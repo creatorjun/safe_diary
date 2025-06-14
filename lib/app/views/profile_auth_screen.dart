@@ -1,8 +1,11 @@
+// lib/app/views/profile_auth_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/profile_auth_controller.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_strings.dart';
 
 class ProfileAuthScreen extends GetView<ProfileAuthController> {
   const ProfileAuthScreen({super.key});
@@ -16,7 +19,7 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('개인정보 접근 인증', style: textStyles.bodyLarge),
+        title: Text(AppStrings.profileAuthTitle, style: textStyles.bodyLarge),
         centerTitle: true,
         automaticallyImplyLeading: true,
       ),
@@ -28,13 +31,13 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                '접근 비밀번호 입력',
+                AppStrings.profileAuthPrompt,
                 style: textStyles.titleLarge,
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: spacing.medium),
               Text(
-                '개인정보를 보호하기 위해 설정하신 비밀번호를 입력해주세요.',
+                AppStrings.profileAuthDescription,
                 style: textStyles.bodyMedium,
                 textAlign: TextAlign.center,
               ),
@@ -46,7 +49,7 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
                 textAlign: TextAlign.center,
                 style: textStyles.bodyLarge,
                 decoration: const InputDecoration(
-                  hintText: '비밀번호',
+                  hintText: AppStrings.password,
                 ),
                 onSubmitted: (_) => controller.verifyPasswordAndNavigate(),
               ),
@@ -54,7 +57,7 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
               Obx(() {
                 if (controller.errorMessage.value.isNotEmpty) {
                   return Padding(
-                    padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                     child: Text(
                       controller.errorMessage.value,
                       style: textStyles.bodyMedium
@@ -71,7 +74,8 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
                     ? const Center(child: CircularProgressIndicator())
                     : FilledButton(
                   onPressed: controller.verifyPasswordAndNavigate,
-                  child: Text('확인', style: textStyles.labelLarge),
+                  child:
+                  Text(AppStrings.confirm, style: textStyles.labelLarge),
                 );
               }),
             ],

@@ -1,3 +1,5 @@
+// lib/app/views/calendar_view.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +8,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../controllers/home_controller.dart';
 import '../models/event_item.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_strings.dart';
 
 class CalendarView extends StatelessWidget {
   const CalendarView({super.key});
@@ -190,7 +193,7 @@ class CalendarView extends StatelessWidget {
               if (events.isEmpty) {
                 return Center(
                   child: Text(
-                    "선택된 날짜에 일정이 없습니다.",
+                    AppStrings.noEventsOnSelectedDate,
                     style: textStyles.bodyMedium.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -232,14 +235,14 @@ class CalendarView extends StatelessWidget {
                               color: colorScheme.secondary,
                               size: 20,
                             ),
-                            tooltip: '수정',
+                            tooltip: AppStrings.edit,
                             onPressed: () {
                               if (event.backendEventId != null) {
                                 controller.showEditEventDialog(event);
                               } else {
                                 Get.snackbar(
-                                  "알림",
-                                  "이벤트가 아직 동기화되지 않았습니다.",
+                                  AppStrings.notification,
+                                  AppStrings.eventNotSynced,
                                 );
                               }
                             },
@@ -250,14 +253,14 @@ class CalendarView extends StatelessWidget {
                               color: colorScheme.error,
                               size: 20,
                             ),
-                            tooltip: '삭제',
+                            tooltip: AppStrings.delete,
                             onPressed: () {
                               if (event.backendEventId != null) {
                                 controller.confirmDeleteEvent(event);
                               } else {
                                 Get.snackbar(
-                                  "알림",
-                                  "이벤트가 아직 동기화되지 않았습니다.",
+                                  AppStrings.notification,
+                                  AppStrings.eventNotSynced,
                                 );
                               }
                             },

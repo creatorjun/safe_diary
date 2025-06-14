@@ -1,3 +1,5 @@
+// lib/app/views/profile_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
@@ -8,6 +10,7 @@ import '../controllers/profile_controller.dart';
 import '../models/user.dart' show LoginPlatform;
 import '../routes/app_pages.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_strings.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -94,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('프로필 및 계정 설정', style: textStyles.titleMedium),
+        title: Text(AppStrings.profileAndSettings, style: textStyles.titleMedium),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -104,7 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                '프로필 변경',
+                AppStrings.editProfile,
                 style: textStyles.titleLarge,
               ),
               SizedBox(height: spacing.small),
@@ -117,30 +120,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       controller: _nicknameController,
                       style: textStyles.bodyLarge,
                       decoration: const InputDecoration(
-                        labelText: '닉네임',
-                        hintText: '새 닉네임을 입력하세요',
+                        labelText: AppStrings.nickname,
+                        hintText: AppStrings.newNicknameHint,
                       ),
                     ),
                     SizedBox(height: spacing.large),
                     Text(
                       controller.loginController.user.isAppPasswordSet
-                          ? '앱 비밀번호 변경'
-                          : '앱 비밀번호 설정',
+                          ? AppStrings.changeAppPassword
+                          : AppStrings.setAppPassword,
                       style: textStyles.bodyLarge,
                     ),
                     SizedBox(height: spacing.small),
                     _buildPasswordField(
                       controller: _newPasswordController,
-                      labelText: '새 비밀번호',
-                      hintText: '새 비밀번호 (4자 이상)',
+                      labelText: AppStrings.newPassword,
+                      hintText: AppStrings.newPasswordHint,
                       isObscured: controller.isNewPasswordObscured,
                       toggleVisibility: controller.toggleNewPasswordVisibility,
                     ),
                     SizedBox(height: spacing.medium),
                     _buildPasswordField(
                       controller: _confirmPasswordController,
-                      labelText: '새 비밀번호 확인',
-                      hintText: '새 비밀번호 다시 입력',
+                      labelText: AppStrings.newPasswordConfirm,
+                      hintText: AppStrings.newPasswordConfirmHint,
                       isObscured: controller.isConfirmPasswordObscured,
                       toggleVisibility:
                       controller.toggleConfirmPasswordVisibility,
@@ -152,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Obx(
                     () => FilledButton.icon(
                   icon: const Icon(Icons.save_outlined, size: 18),
-                  label: Text('변경 내용 저장', style: textStyles.labelLarge),
+                  label: Text(AppStrings.saveChanges, style: textStyles.labelLarge),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
                   ),
@@ -182,7 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: colorScheme.error,
                       ),
                       label: Text(
-                        '앱 비밀번호 해제',
+                        AppStrings.removeAppPassword,
                         style: textStyles.bodyLarge
                             .copyWith(color: colorScheme.error),
                       ),
@@ -202,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Divider(),
               SizedBox(height: spacing.large),
               Text(
-                '파트너 연결',
+                AppStrings.partnerConnection,
                 style: textStyles.titleLarge,
               ),
               SizedBox(height: spacing.medium),
@@ -211,7 +214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const Divider(),
               SizedBox(height: spacing.medium),
               Text(
-                '계정 정보',
+                AppStrings.accountInfo,
                 style: textStyles.titleLarge,
               ),
               SizedBox(height: spacing.small),
@@ -260,13 +263,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '연결된 파트너: $partnerNickname',
+              AppStrings.connectedPartner(partnerNickname),
               style: textStyles.bodyLarge.copyWith(color: colorScheme.primary),
             ),
             SizedBox(height: spacing.small),
             if (formattedPartnerSince != '날짜 정보 없음')
               Text(
-                '연결 시작일: $formattedPartnerSince',
+                AppStrings.partnerSince(formattedPartnerSince),
                 style: textStyles.bodyMedium
                     .copyWith(color: colorScheme.onSurfaceVariant),
               ),
@@ -274,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             FilledButton.icon(
               icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
               label: Text(
-                '$partnerNickname님과 채팅하기',
+                AppStrings.chatWithPartner(partnerNickname),
                 style: textStyles.bodyMedium.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -295,7 +298,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: Icon(Icons.link_off_rounded,
                   size: 18, color: colorScheme.error),
               label: Text(
-                '파트너 연결 끊기',
+                AppStrings.unfriendButton,
                 style: textStyles.bodyMedium.copyWith(color: colorScheme.error),
               ),
               style: OutlinedButton.styleFrom(
@@ -333,12 +336,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.copy, size: 20),
-                  tooltip: '코드 복사',
+                  tooltip: AppStrings.copyCode,
                   onPressed: () {
                     Clipboard.setData(
                       ClipboardData(text: invitation.invitationId),
                     );
-                    Get.snackbar('복사 완료', '초대 코드가 클립보드에 복사되었습니다.');
+                    Get.snackbar(AppStrings.success, AppStrings.copyCodeSuccess);
                   },
                 ),
               ),
@@ -355,7 +358,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 minimumSize: const Size(double.infinity, 45),
               ),
               onPressed: controller.generateInvitationCode,
-              child: const Text('새 코드로 다시 생성'),
+              child: const Text(AppStrings.generateNewCode),
             ),
           ],
         );
@@ -371,7 +374,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               onPressed: controller.generateInvitationCode,
               child: Text(
-                '파트너 초대 코드 생성하기',
+                AppStrings.createInvitationCode,
                 style: textStyles.labelLarge,
               ),
             ),
@@ -380,10 +383,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               controller: _invitationCodeInputController,
               style: textStyles.bodyLarge,
               decoration: InputDecoration(
-                hintText: '받은 초대 코드 입력',
+                hintText: AppStrings.enterInvitationCode,
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.send_rounded),
-                  tooltip: '초대 수락',
+                  tooltip: AppStrings.acceptInvitation,
                   onPressed: () {
                     final code = _invitationCodeInputController.text.trim();
                     controller.acceptInvitation(code);
@@ -430,9 +433,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(width: spacing.small),
                 Text(
                   user.platform == LoginPlatform.naver
-                      ? "네이버 로그인"
+                      ? AppStrings.naverLogin
                       : user.platform == LoginPlatform.kakao
-                      ? "카카오 로그인"
+                      ? AppStrings.kakaoLogin
                       : "정보 없음",
                   style: textStyles.bodyLarge,
                 ),
@@ -470,7 +473,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         color: colorScheme.error,
       ),
       title: Text(
-        '회원 탈퇴',
+        AppStrings.accountDeletion,
         style: textStyles.bodyLarge.copyWith(color: colorScheme.error),
       ),
       trailing: Icon(

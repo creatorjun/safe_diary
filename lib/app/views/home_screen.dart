@@ -1,3 +1,5 @@
+// lib/app/views/home_screen.dart
+
 import 'package:crystal_navigation_bar/crystal_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -6,6 +8,7 @@ import '../controllers/home_controller.dart';
 import '../controllers/login_controller.dart';
 import '../routes/app_pages.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_strings.dart';
 import './calendar_view.dart';
 import './luck_view.dart';
 import './weather_view.dart';
@@ -43,8 +46,8 @@ class HomeScreen extends GetView<HomeController> {
         extendBody: true,
         appBar: AppBar(
           title: Obx(() {
-            final displayTitle =
-                '${loginController.user.nickname ?? '사용자'}님 - ${controller.currentTitle}';
+            final displayTitle = AppStrings.homeTitle(
+                loginController.user.nickname ?? '사용자', controller.currentTitle);
             return Text(
               displayTitle,
               style: textStyles.titleMedium,
@@ -57,7 +60,7 @@ class HomeScreen extends GetView<HomeController> {
           actions: [
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
-              tooltip: '더보기',
+              tooltip: AppStrings.more,
               onSelected: (String value) {
                 if (value == 'profile') {
                   Get.toNamed(Routes.profileAuth);
@@ -72,7 +75,7 @@ class HomeScreen extends GetView<HomeController> {
                     children: [
                       const Icon(Icons.person_outline),
                       SizedBox(width: spacing.small),
-                      Text('개인정보', style: textStyles.bodyMedium),
+                      Text(AppStrings.profile, style: textStyles.bodyMedium),
                     ],
                   ),
                 ),
@@ -82,7 +85,7 @@ class HomeScreen extends GetView<HomeController> {
                     children: [
                       const Icon(Icons.logout),
                       SizedBox(width: spacing.small),
-                      Text('로그아웃', style: textStyles.bodyMedium),
+                      Text(AppStrings.logout, style: textStyles.bodyMedium),
                     ],
                   ),
                 ),
@@ -128,7 +131,7 @@ class HomeScreen extends GetView<HomeController> {
               onPressed: () {
                 controller.showAddEventDialog();
               },
-              tooltip: '일정 추가',
+              tooltip: AppStrings.addEvent,
               backgroundColor: colorScheme.secondary,
               foregroundColor: colorScheme.onSecondary,
               child: const Icon(Icons.add),

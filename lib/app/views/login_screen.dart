@@ -1,9 +1,12 @@
+// lib/app/views/login_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:get/get.dart';
 
 import '../controllers/login_controller.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_strings.dart';
 
 class LoginScreen extends GetView<LoginController> {
   const LoginScreen({super.key});
@@ -35,7 +38,7 @@ class LoginScreen extends GetView<LoginController> {
             height: 24,
           ),
           SizedBox(width: spacing.small),
-          Text('네이버 로그인', style: textStyles.labelLarge),
+          Text(AppStrings.naverLogin, style: textStyles.labelLarge),
         ],
       ),
     );
@@ -68,7 +71,7 @@ class LoginScreen extends GetView<LoginController> {
             height: 24,
           ),
           SizedBox(width: spacing.small),
-          Text('카카오 로그인', style: textStyles.labelLarge),
+          Text(AppStrings.kakaoLogin, style: textStyles.labelLarge),
         ],
       ),
     );
@@ -87,13 +90,13 @@ class LoginScreen extends GetView<LoginController> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          '${controller.user.nickname ?? '사용자'}님, 환영합니다!',
+          AppStrings.welcomeMessage(controller.user.nickname ?? '사용자'),
           style: textStyles.titleMedium,
           textAlign: TextAlign.center,
         ),
         SizedBox(height: spacing.medium),
         Text(
-          '로그인 플랫폼: ${controller.user.platform.name}',
+          AppStrings.loginPlatform(controller.user.platform.name),
           style: textStyles.bodyMedium,
           textAlign: TextAlign.center,
         ),
@@ -107,7 +110,7 @@ class LoginScreen extends GetView<LoginController> {
             foregroundColor: colorScheme.onSecondaryContainer,
             minimumSize: const Size(double.infinity, 50),
           ),
-          child: Text('로그아웃', style: textStyles.labelLarge),
+          child: Text(AppStrings.logout, style: textStyles.labelLarge),
         ),
       ],
     );
@@ -160,7 +163,7 @@ class LoginScreen extends GetView<LoginController> {
                       child: FittedBox(
                         fit: BoxFit.contain,
                         child: Text(
-                          'Safe Diary',
+                          AppStrings.appName,
                           textAlign: TextAlign.center,
                           style: textStyles.titleLarge.copyWith(
                             fontSize: 48,
