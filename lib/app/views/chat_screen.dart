@@ -75,7 +75,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(controller.chatPartnerNickname, style: textStyles.bodyLarge),
+        title: Text(
+            '${controller.chatPartnerNickname}님과의 대화', style: textStyles.bodyLarge),
         centerTitle: true,
         actions: [
           IconButton(
@@ -202,7 +203,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           padding:
           const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
           constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.75,
+            maxWidth: MediaQuery.of(context).size.width * 0.65,
           ),
           decoration: BoxDecoration(
             color: bubbleColor,
