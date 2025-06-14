@@ -4,8 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
 import '../../models/event_item.dart';
-import '../../theme/app_spacing.dart';
-import '../../theme/app_text_styles.dart';
+import '../../theme/app_theme.dart';
 
 class AddEditEventSheet extends StatefulWidget {
   final DateTime eventDate;
@@ -108,9 +107,12 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
   }
 
   Widget _buildTimeRangePicker(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+
     final String startTimeStr = _startTime?.format(context) ?? "미지정";
     final String endTimeStr = _endTime?.format(context) ?? "미지정";
-    final colorScheme = Theme.of(context).colorScheme;
 
     return InkWell(
       onTap: () => _selectDateTimeRange(context),
@@ -131,14 +133,10 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
             borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
           ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
         ),
         child: Text(
           "$startTimeStr - $endTimeStr",
-          style: textStyleMedium.copyWith(fontWeight: FontWeight.w500),
+          style: textStyles.bodyLarge,
         ),
       ),
     );
@@ -184,14 +182,18 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+
     final bool isEditing = widget.existingEvent != null;
     final String dialogTitleText = isEditing ? "일정 수정" : "일정 추가";
     final String submitButtonText = isEditing ? "수정" : "추가";
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: theme.cardColor,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16.0),
           topRight: Radius.circular(16.0),
@@ -205,34 +207,29 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Title
                 Row(
                   children: [
                     Icon(Icons.calendar_today_outlined,
                         color: colorScheme.primary, size: 22),
-                    horizontalSpaceSmall,
+                    SizedBox(width: spacing.small),
                     Expanded(
                       child: Text(
                         "${DateFormat('MM월 dd일 (E)', 'ko_KR').format(widget.eventDate.toLocal())} $dialogTitleText",
-                        style: textStyleMedium.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
-                        ),
+                        style: textStyles.bodyLarge
+                            .copyWith(color: colorScheme.primary),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-                verticalSpaceMedium,
-
-                // Content
+                SizedBox(height: spacing.medium),
                 Form(
                   key: _formKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      verticalSpaceSmall,
+                      SizedBox(height: spacing.small),
                       TextFormField(
                         controller: _titleController,
                         autofocus: true,
@@ -244,21 +241,8 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                             color: colorScheme.onSurfaceVariant,
                             size: 20,
                           ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide(color: colorScheme.outline),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide:
-                            BorderSide(color: colorScheme.primary, width: 1.5),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
                         ),
-                        style: textStyleMedium,
+                        style: textStyles.bodyLarge,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return '일정 내용을 입력해주세요.';
@@ -266,29 +250,27 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                           return null;
                         },
                       ),
-                      verticalSpaceMedium,
+                      SizedBox(height: spacing.medium),
                       _buildTimeRangePicker(context),
-                      verticalSpaceSmall,
+                      SizedBox(height: spacing.small),
                     ],
                   ),
                 ),
-                verticalSpaceLarge,
-
-                // Actions
+                SizedBox(height: spacing.large),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
                       child: Text(
                         "취소",
-                        style: textStyleSmall.copyWith(
-                            color: colorScheme.onSurfaceVariant),
+                        style: textStyles.bodyMedium
+                            .copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                       onPressed: () {
                         Get.back();
                       },
                     ),
-                    horizontalSpaceSmall,
+                    SizedBox(width: spacing.small),
                     FilledButton.icon(
                       icon: _isSubmitting
                           ? Container(
@@ -308,19 +290,10 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                       ),
                       label: Text(
                         submitButtonText,
-                        style: textStyleSmall.copyWith(
-                            fontWeight: FontWeight.bold),
+                        style: textStyles.bodyMedium
+                            .copyWith(fontWeight: FontWeight.bold),
                       ),
                       onPressed: _isSubmitting ? null : _handleSubmit,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
                     ),
                   ],
                 ),

@@ -7,8 +7,7 @@ import 'package:intl/intl.dart';
 import '../controllers/profile_controller.dart';
 import '../models/user.dart' show LoginPlatform;
 import '../routes/app_pages.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -65,15 +64,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required RxBool isObscured,
     required VoidCallback toggleVisibility,
   }) {
+    final AppTextStyles textStyles =
+    Theme.of(context).extension<AppTextStyles>()!;
     return Obx(
           () => TextField(
         controller: controller,
         obscureText: isObscured.value,
-        style: textStyleMedium,
+        style: textStyles.bodyLarge,
         decoration: InputDecoration(
           labelText: labelText,
           hintText: hintText,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
           suffixIcon: IconButton(
             icon: Icon(
               isObscured.value ? Icons.visibility_off : Icons.visibility,
@@ -87,92 +87,74 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('프로필 및 계정 설정', style: textStyleLarge),
+        title: Text('프로필 및 계정 설정', style: textStyles.titleMedium),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(spacing.medium),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
                 '프로필 변경',
-                style: textStyleLarge.copyWith(fontWeight: FontWeight.bold),
+                style: textStyles.titleLarge,
               ),
-              verticalSpaceSmall,
-              Card(
-                elevation: 2.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextField(
-                        controller: _nicknameController,
-                        style: textStyleMedium,
-                        decoration: InputDecoration(
-                          labelText: '닉네임',
-                          hintText: '새 닉네임을 입력하세요',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
+              SizedBox(height: spacing.small),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: spacing.medium),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: _nicknameController,
+                      style: textStyles.bodyLarge,
+                      decoration: const InputDecoration(
+                        labelText: '닉네임',
+                        hintText: '새 닉네임을 입력하세요',
                       ),
-                      verticalSpaceLarge,
-                      Text(
-                        controller.loginController.user.isAppPasswordSet
-                            ? '앱 비밀번호 변경'
-                            : '앱 비밀번호 설정',
-                        style: textStyleMedium.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      verticalSpaceSmall,
-                      _buildPasswordField(
-                        controller: _newPasswordController,
-                        labelText: '새 비밀번호',
-                        hintText: '새 비밀번호 (4자 이상)',
-                        isObscured: controller.isNewPasswordObscured,
-                        toggleVisibility:
-                        controller.toggleNewPasswordVisibility,
-                      ),
-                      verticalSpaceMedium,
-                      _buildPasswordField(
-                        controller: _confirmPasswordController,
-                        labelText: '새 비밀번호 확인',
-                        hintText: '새 비밀번호 다시 입력',
-                        isObscured: controller.isConfirmPasswordObscured,
-                        toggleVisibility:
-                        controller.toggleConfirmPasswordVisibility,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              verticalSpaceMedium,
-              Obx(
-                    () => ElevatedButton.icon(
-                  icon: const Icon(Icons.save_outlined, size: 18),
-                  label: const Text('변경 내용 저장', style: textStyleMedium),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    backgroundColor: colorScheme.primary,
-                    foregroundColor: colorScheme.onPrimary,
-                    disabledBackgroundColor:
-                    colorScheme.onSurface.withAlpha(30),
-                    disabledForegroundColor:
-                    colorScheme.onSurface.withAlpha(100),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
                     ),
+                    SizedBox(height: spacing.large),
+                    Text(
+                      controller.loginController.user.isAppPasswordSet
+                          ? '앱 비밀번호 변경'
+                          : '앱 비밀번호 설정',
+                      style: textStyles.bodyLarge,
+                    ),
+                    SizedBox(height: spacing.small),
+                    _buildPasswordField(
+                      controller: _newPasswordController,
+                      labelText: '새 비밀번호',
+                      hintText: '새 비밀번호 (4자 이상)',
+                      isObscured: controller.isNewPasswordObscured,
+                      toggleVisibility: controller.toggleNewPasswordVisibility,
+                    ),
+                    SizedBox(height: spacing.medium),
+                    _buildPasswordField(
+                      controller: _confirmPasswordController,
+                      labelText: '새 비밀번호 확인',
+                      hintText: '새 비밀번호 다시 입력',
+                      isObscured: controller.isConfirmPasswordObscured,
+                      toggleVisibility:
+                      controller.toggleConfirmPasswordVisibility,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: spacing.small),
+              Obx(
+                    () => FilledButton.icon(
+                  icon: const Icon(Icons.save_outlined, size: 18),
+                  label: Text('변경 내용 저장', style: textStyles.labelLarge),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
                   ),
                   onPressed: controller.hasChanges.value
                       ? () {
@@ -201,17 +183,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       label: Text(
                         '앱 비밀번호 해제',
-                        style: textStyleMedium.copyWith(
-                          color: colorScheme.error,
-                        ),
+                        style: textStyles.bodyLarge
+                            .copyWith(color: colorScheme.error),
                       ),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
                         side:
                         BorderSide(color: colorScheme.error.withAlpha(80)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
                       ),
                       onPressed: controller.promptForPasswordAndRemove,
                     ),
@@ -220,27 +198,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return const SizedBox.shrink();
                 }
               }),
-              verticalSpaceLarge,
+              SizedBox(height: spacing.large),
               const Divider(),
-              verticalSpaceLarge,
+              SizedBox(height: spacing.large),
               Text(
                 '파트너 연결',
-                style: textStyleLarge.copyWith(fontWeight: FontWeight.bold),
+                style: textStyles.titleLarge,
               ),
-              verticalSpaceMedium,
+              SizedBox(height: spacing.medium),
               _buildPartnerSection(context),
-              verticalSpaceLarge,
+              SizedBox(height: spacing.large),
               const Divider(),
-              verticalSpaceMedium,
+              SizedBox(height: spacing.medium),
               Text(
                 '계정 정보',
-                style: textStyleLarge.copyWith(fontWeight: FontWeight.bold),
+                style: textStyles.titleLarge,
               ),
-              verticalSpaceSmall,
+              SizedBox(height: spacing.small),
               _buildAccountInfoSection(),
-              verticalSpaceMedium,
+              SizedBox(height: spacing.medium),
               _buildAccountDeletionSection(),
-              verticalSpaceLarge,
+              SizedBox(height: spacing.large),
             ],
           ),
         ),
@@ -249,7 +227,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildPartnerSection(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
     return Obx(() {
       if (controller.partnerController.isLoading) {
@@ -275,82 +256,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
         }
 
-        return Card(
-          elevation: 2.0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '연결된 파트너: $partnerNickname',
-                  style: textStyleMedium.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
-                  ),
-                ),
-                verticalSpaceSmall,
-                if (formattedPartnerSince != '날짜 정보 없음')
-                  Text(
-                    '연결 시작일: $formattedPartnerSince',
-                    style: textStyleSmall.copyWith(
-                        color: colorScheme.onSurfaceVariant),
-                  ),
-                verticalSpaceMedium,
-                ElevatedButton.icon(
-                  icon: Icon(
-                    Icons.chat_bubble_outline_rounded,
-                    size: 18,
-                    color: colorScheme.onPrimary,
-                  ),
-                  label: Text(
-                    '$partnerNickname님과 채팅하기',
-                    style: textStyleSmall.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onPrimary,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 45),
-                    backgroundColor: colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  onPressed: () => Get.toNamed(
-                    Routes.chat,
-                    arguments: {
-                      'partnerUid': user.partnerUid,
-                      'partnerNickname': partnerNickname,
-                    },
-                  ),
-                ),
-                verticalSpaceSmall,
-                OutlinedButton.icon(
-                  icon: Icon(
-                    Icons.link_off_rounded,
-                    size: 18,
-                    color: colorScheme.error,
-                  ),
-                  label: Text(
-                    '파트너 연결 끊기',
-                    style: textStyleSmall.copyWith(color: colorScheme.error),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 45),
-                    side: BorderSide(color: colorScheme.error.withAlpha(80)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  onPressed: controller.disconnectPartner,
-                ),
-              ],
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '연결된 파트너: $partnerNickname',
+              style: textStyles.bodyLarge.copyWith(color: colorScheme.primary),
             ),
-          ),
+            SizedBox(height: spacing.small),
+            if (formattedPartnerSince != '날짜 정보 없음')
+              Text(
+                '연결 시작일: $formattedPartnerSince',
+                style: textStyles.bodyMedium
+                    .copyWith(color: colorScheme.onSurfaceVariant),
+              ),
+            SizedBox(height: spacing.medium),
+            FilledButton.icon(
+              icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+              label: Text(
+                '$partnerNickname님과 채팅하기',
+                style: textStyles.bodyMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 45),
+              ),
+              onPressed: () => Get.toNamed(
+                Routes.chat,
+                arguments: {
+                  'partnerUid': user.partnerUid,
+                  'partnerNickname': partnerNickname,
+                },
+              ),
+            ),
+            SizedBox(height: spacing.small),
+            OutlinedButton.icon(
+              icon: Icon(Icons.link_off_rounded,
+                  size: 18, color: colorScheme.error),
+              label: Text(
+                '파트너 연결 끊기',
+                style: textStyles.bodyMedium.copyWith(color: colorScheme.error),
+              ),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 45),
+                side: BorderSide(color: colorScheme.error.withAlpha(80)),
+              ),
+              onPressed: controller.disconnectPartner,
+            ),
+          ],
         );
       } else if (invitation != null) {
         String formattedExpiresAt = '알 수 없음';
@@ -363,65 +317,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
           /* 날짜 파싱 실패 무시 */
         }
 
-        return Card(
-          elevation: 2.0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '생성된 파트너 초대 코드',
-                  style: textStyleMedium.copyWith(fontWeight: FontWeight.bold),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('생성된 파트너 초대 코드', style: textStyles.bodyLarge),
+            SizedBox(height: spacing.small),
+            TextField(
+              controller: TextEditingController(
+                text: invitation.invitationId,
+              ),
+              readOnly: true,
+              style: textStyles.bodyMedium,
+              decoration: InputDecoration(
+                contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.copy, size: 20),
+                  tooltip: '코드 복사',
+                  onPressed: () {
+                    Clipboard.setData(
+                      ClipboardData(text: invitation.invitationId),
+                    );
+                    Get.snackbar('복사 완료', '초대 코드가 클립보드에 복사되었습니다.');
+                  },
                 ),
-                verticalSpaceSmall,
-                TextField(
-                  controller: TextEditingController(
-                    text: invitation.invitationId,
-                  ),
-                  readOnly: true,
-                  style: textStyleSmall,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.copy, size: 20),
-                      tooltip: '코드 복사',
-                      onPressed: () {
-                        Clipboard.setData(
-                          ClipboardData(text: invitation.invitationId),
-                        );
-                        Get.snackbar('복사 완료', '초대 코드가 클립보드에 복사되었습니다.');
-                      },
-                    ),
-                  ),
-                ),
-                verticalSpaceSmall,
-                Text(
-                  '만료 시간: $formattedExpiresAt',
-                  style: textStyleSmall.copyWith(
-                      color: colorScheme.onSurfaceVariant),
-                ),
-                verticalSpaceMedium,
-                OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 45),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  onPressed: controller.generateInvitationCode,
-                  child: const Text('새 코드로 다시 생성'),
-                ),
-              ],
+              ),
             ),
-          ),
+            SizedBox(height: spacing.small),
+            Text(
+              '만료 시간: $formattedExpiresAt',
+              style: textStyles.bodyMedium
+                  .copyWith(color: colorScheme.onSurfaceVariant),
+            ),
+            SizedBox(height: spacing.medium),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 45),
+              ),
+              onPressed: controller.generateInvitationCode,
+              child: const Text('새 코드로 다시 생성'),
+            ),
+          ],
         );
       } else {
         return Column(
@@ -432,25 +368,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 minimumSize: const Size(double.infinity, 50),
                 backgroundColor: colorScheme.secondary,
                 foregroundColor: colorScheme.onSecondary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
               ),
               onPressed: controller.generateInvitationCode,
-              child: const Text(
+              child: Text(
                 '파트너 초대 코드 생성하기',
-                style: textStyleMedium,
+                style: textStyles.labelLarge,
               ),
             ),
-            verticalSpaceMedium,
+            SizedBox(height: spacing.medium),
             TextField(
               controller: _invitationCodeInputController,
-              style: textStyleMedium,
+              style: textStyles.bodyLarge,
               decoration: InputDecoration(
                 hintText: '받은 초대 코드 입력',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.send_rounded),
                   tooltip: '초대 수락',
@@ -468,13 +398,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAccountInfoSection() {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+
     final user = controller.loginController.user;
     final formattedCreatedAt = user.formattedCreatedAt;
-    final colorScheme = Theme.of(context).colorScheme;
 
     return Card(
       elevation: 2.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Column(
@@ -494,25 +427,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     size: 22,
                   ),
                 ),
-                horizontalSpaceSmall,
+                SizedBox(width: spacing.small),
                 Text(
                   user.platform == LoginPlatform.naver
                       ? "네이버 로그인"
                       : user.platform == LoginPlatform.kakao
                       ? "카카오 로그인"
                       : "정보 없음",
-                  style: textStyleMedium.copyWith(color: colorScheme.onSurface),
+                  style: textStyles.bodyLarge,
                 ),
               ],
             ),
             if (formattedCreatedAt.isNotEmpty) ...[
-              verticalSpaceSmall,
+              SizedBox(height: spacing.small),
               Align(
                 alignment: Alignment.bottomRight,
                 child: Text(
                   '가입일: $formattedCreatedAt',
-                  style: textStyleSmall.copyWith(
-                      color: colorScheme.onSurfaceVariant),
+                  style: textStyles.bodyMedium
+                      .copyWith(color: colorScheme.onSurfaceVariant),
                 ),
               ),
             ],
@@ -523,37 +456,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAccountDeletionSection() {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
 
-    return Card(
-      elevation: 1.0,
+    return ListTile(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
         side: BorderSide(color: colorScheme.error.withAlpha(80)),
       ),
-      child: ListTile(
-        leading: Icon(
-          Icons.delete_forever_outlined,
-          color: colorScheme.error,
-        ),
-        title: Text(
-          '회원 탈퇴',
-          style: textStyleMedium.copyWith(
-            color: colorScheme.error,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        trailing: Icon(
-          Icons.arrow_forward_ios_rounded,
-          color: colorScheme.onSurfaceVariant,
-          size: 16,
-        ),
-        onTap: controller.handleAccountDeletionRequest,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 4.0,
-        ),
+      leading: Icon(
+        Icons.delete_forever_outlined,
+        color: colorScheme.error,
       ),
+      title: Text(
+        '회원 탈퇴',
+        style: textStyles.bodyLarge.copyWith(color: colorScheme.error),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios_rounded,
+        color: colorScheme.onSurfaceVariant,
+        size: 16,
+      ),
+      onTap: controller.handleAccountDeletionRequest,
+      contentPadding:
+      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
     );
   }
 }

@@ -5,8 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import '../controllers/home_controller.dart';
 import '../models/event_item.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/app_theme.dart';
 
 class CalendarView extends StatelessWidget {
   const CalendarView({super.key});
@@ -54,16 +53,10 @@ class CalendarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final HomeController controller = Get.find<HomeController>();
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final bool isDarkMode = Get.isDarkMode;
-
-    // 테마에 따른 동적 색상 정의
-    final Color textColor =
-    isDarkMode ? colorScheme.onPrimary : colorScheme.onSurface;
-    final Color subtleTextColor = textColor.withAlpha(179);
-    final Color iconColor = textColor.withAlpha(200);
-    final Color cardBackgroundColor =
-    isDarkMode ? Colors.black.withAlpha(51) : Colors.white.withAlpha(150);
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
     final List<Color> markerColors = [
       colorScheme.primary,
@@ -95,41 +88,45 @@ class CalendarView extends StatelessWidget {
                 headerStyle: HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
-                  titleTextStyle: textStyleMedium.copyWith(color: textColor),
-                  leftChevronIcon: Icon(Icons.chevron_left, color: iconColor),
-                  rightChevronIcon: Icon(Icons.chevron_right, color: iconColor),
+                  titleTextStyle: textStyles.bodyLarge,
+                  leftChevronIcon: Icon(
+                    Icons.chevron_left,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  rightChevronIcon: Icon(
+                    Icons.chevron_right,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 daysOfWeekStyle: DaysOfWeekStyle(
-                  weekdayStyle: TextStyle(color: subtleTextColor),
-                  weekendStyle: const TextStyle(color: Colors.redAccent),
+                  weekdayStyle: textStyles.bodyMedium,
+                  weekendStyle: textStyles.bodyMedium.copyWith(
+                    color: colorScheme.error,
+                  ),
                 ),
                 calendarStyle: CalendarStyle(
                   todayDecoration: BoxDecoration(
-                    color: colorScheme.primaryContainer.withAlpha(150),
+                    color: colorScheme.primaryContainer.withAlpha(204),
                     shape: BoxShape.circle,
                   ),
-                  todayTextStyle: TextStyle(
-                    color: colorScheme.onPrimaryContainer,
-                  ),
+                  todayTextStyle: textStyles.bodyMedium
+                      .copyWith(color: colorScheme.onPrimaryContainer),
                   selectedDecoration: BoxDecoration(
                     color: colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
-                  selectedTextStyle: TextStyle(color: colorScheme.onPrimary),
-                  defaultDecoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.transparent),
-                  weekendDecoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.transparent),
-                  outsideDecoration: const BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.transparent),
-                  defaultTextStyle: TextStyle(color: textColor),
-                  weekendTextStyle: const TextStyle(color: Colors.redAccent),
-                  outsideTextStyle: TextStyle(color: textColor.withAlpha(120)),
+                  selectedTextStyle:
+                  textStyles.bodyMedium.copyWith(color: colorScheme.onPrimary),
+                  defaultTextStyle: textStyles.bodyMedium,
+                  weekendTextStyle:
+                  textStyles.bodyMedium.copyWith(color: colorScheme.error),
+                  outsideTextStyle: textStyles.bodyMedium.copyWith(
+                    color: colorScheme.onSurface.withAlpha(128),
+                  ),
                 ),
                 calendarBuilders: CalendarBuilders(
                   markerBuilder: (context, day, eventsFromLoader) {
                     if (eventsFromLoader.isEmpty) return null;
-
                     List<Widget> markers = [];
                     if (eventsFromLoader.length <= 3) {
                       for (int i = 0; i < eventsFromLoader.length; i++) {
@@ -151,7 +148,6 @@ class CalendarView extends StatelessWidget {
                         ),
                       );
                     }
-
                     return Positioned(
                       bottom: 1,
                       child: Row(
@@ -164,7 +160,7 @@ class CalendarView extends StatelessWidget {
               ),
             );
           }),
-          verticalSpaceSmall,
+          SizedBox(height: spacing.small),
           Obx(() {
             if (controller.selectedDay.value == null) {
               return const SizedBox.shrink();
@@ -177,12 +173,12 @@ class CalendarView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Text(
                 formattedDate,
-                style: textStyleMedium.copyWith(color: textColor),
+                style: textStyles.bodyLarge,
                 textAlign: TextAlign.center,
               ),
             );
           }),
-          verticalSpaceSmall,
+          SizedBox(height: spacing.small),
           Expanded(
             child: Obx(() {
               if (controller.isLoadingEvents.value) {
@@ -194,8 +190,8 @@ class CalendarView extends StatelessWidget {
                 return Center(
                   child: Text(
                     "선택된 날짜에 일정이 없습니다.",
-                    style: textStyleSmall.copyWith(
-                      color: subtleTextColor,
+                    style: textStyles.bodyMedium.copyWith(
+                      color: colorScheme.onSurfaceVariant,
                     ),
                   ),
                 );
@@ -210,18 +206,15 @@ class CalendarView extends StatelessWidget {
                           event.backendEventId == null;
 
                   return Card(
-                    color: cardBackgroundColor,
-                    elevation: 0,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 8.0,
-                      vertical: 4.0,
-                    ),
                     child: ListTile(
-                      title: Text(event.title,
-                          style: textStyleMedium.copyWith(color: textColor)),
+                      title: Text(
+                        event.title,
+                        style: textStyles.bodyLarge,
+                      ),
                       subtitle: Text(
                         event.displayTime(context),
-                        style: textStyleSmall.copyWith(color: subtleTextColor),
+                        style: textStyles.bodyMedium
+                            .copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                       trailing: isCurrentlySubmittingThisEvent
                           ? const SizedBox(

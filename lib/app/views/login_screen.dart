@@ -3,8 +3,7 @@ import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:get/get.dart';
 
 import '../controllers/login_controller.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/app_theme.dart';
 
 class LoginScreen extends GetView<LoginController> {
   const LoginScreen({super.key});
@@ -13,10 +12,15 @@ class LoginScreen extends GetView<LoginController> {
       BuildContext context,
       LoginController controller,
       ) {
+    final ThemeData theme = Theme.of(context);
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppBrandColors brandColors = theme.extension<AppBrandColors>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF03C75A),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        backgroundColor: brandColors.naver,
+        foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 50),
       ),
       onPressed: () {
@@ -30,8 +34,8 @@ class LoginScreen extends GetView<LoginController> {
             width: 24,
             height: 24,
           ),
-          horizontalSpaceSmall,
-          Text('네이버 로그인', style: textStyleLarge.copyWith(color: Colors.white)),
+          SizedBox(width: spacing.small),
+          Text('네이버 로그인', style: textStyles.labelLarge),
         ],
       ),
     );
@@ -41,10 +45,15 @@ class LoginScreen extends GetView<LoginController> {
       BuildContext context,
       LoginController controller,
       ) {
+    final ThemeData theme = Theme.of(context);
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppBrandColors brandColors = theme.extension<AppBrandColors>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFFEE500),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        backgroundColor: brandColors.kakao,
+        foregroundColor: const Color(0xFF191919),
         minimumSize: const Size(double.infinity, 50),
       ),
       onPressed: () {
@@ -58,11 +67,8 @@ class LoginScreen extends GetView<LoginController> {
             width: 24,
             height: 24,
           ),
-          horizontalSpaceSmall,
-          Text(
-            '카카오 로그인',
-            style: textStyleLarge.copyWith(color: const Color(0xFF191919)),
-          ),
+          SizedBox(width: spacing.small),
+          Text('카카오 로그인', style: textStyles.labelLarge),
         ],
       ),
     );
@@ -72,23 +78,26 @@ class LoginScreen extends GetView<LoginController> {
       BuildContext context,
       LoginController controller,
       ) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+    final ColorScheme colorScheme = theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           '${controller.user.nickname ?? '사용자'}님, 환영합니다!',
-          style: textStyleLarge.copyWith(fontSize: 20.0),
+          style: textStyles.titleMedium,
           textAlign: TextAlign.center,
         ),
-        verticalSpaceMedium,
+        SizedBox(height: spacing.medium),
         Text(
           '로그인 플랫폼: ${controller.user.platform.name}',
-          style: textStyleSmall,
+          style: textStyles.bodyMedium,
           textAlign: TextAlign.center,
         ),
-        verticalSpaceLarge,
+        SizedBox(height: spacing.large),
         ElevatedButton(
           onPressed: () {
             controller.logout();
@@ -96,10 +105,9 @@ class LoginScreen extends GetView<LoginController> {
           style: ElevatedButton.styleFrom(
             backgroundColor: colorScheme.secondaryContainer,
             foregroundColor: colorScheme.onSecondaryContainer,
-            padding: const EdgeInsets.symmetric(vertical: 12),
             minimumSize: const Size(double.infinity, 50),
           ),
-          child: const Text('로그아웃', style: textStyleMedium),
+          child: Text('로그아웃', style: textStyles.labelLarge),
         ),
       ],
     );
@@ -130,7 +138,10 @@ class LoginScreen extends GetView<LoginController> {
       return const CircularProgressIndicator();
     }
 
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+    final ColorScheme colorScheme = theme.colorScheme;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -151,9 +162,9 @@ class LoginScreen extends GetView<LoginController> {
                         child: Text(
                           'Safe Diary',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: textStyles.titleLarge.copyWith(
+                            fontSize: 48,
                             color: colorScheme.primary,
-                            fontWeight: FontWeight.bold,
                             shadows: [
                               Shadow(
                                 blurRadius: 10.0,
@@ -172,7 +183,7 @@ class LoginScreen extends GetView<LoginController> {
                       children: [
                         if (!controller.isLoggedIn.value) ...[
                           _buildNaverLoginButton(context, controller),
-                          verticalSpaceMedium,
+                          SizedBox(height: spacing.medium),
                           _buildKakaoLoginButton(context, controller),
                         ] else ...[
                           _buildUserProfileView(context, controller),

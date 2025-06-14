@@ -8,8 +8,7 @@ import 'package:safe_diary/app/routes/app_pages.dart';
 import '../controllers/chat_controller.dart';
 import '../controllers/login_controller.dart';
 import '../models/chat_models.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/app_theme.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -39,7 +38,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
       if (Get.currentRoute == Routes.chat) {
         Get.offAllNamed(Routes.home);
       }
@@ -70,10 +70,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final LoginController loginController = Get.find<LoginController>();
     final String currentUserUid = loginController.user.id ?? "";
+    final ThemeData theme = Theme.of(context);
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(controller.chatPartnerNickname, style: textStyleMedium),
+        title: Text(controller.chatPartnerNickname, style: textStyles.bodyLarge),
         centerTitle: true,
         actions: [
           IconButton(
@@ -103,9 +105,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       "아직 메시지가 없습니다.\n첫 메시지를 보내보세요!",
-                      style: textStyleSmall.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                      style: textStyles.bodyMedium
+                          .copyWith(color: theme.colorScheme.onSurfaceVariant),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -143,18 +144,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildErrorView(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: colorScheme.error, size: 48),
-            verticalSpaceMedium,
+            Icon(Icons.error_outline, color: theme.colorScheme.error, size: 48),
+            SizedBox(height: spacing.medium),
             Text(
               "메시지를 불러오는 중 오류 발생",
-              style: textStyleMedium.copyWith(color: colorScheme.error),
+              style: textStyles.bodyLarge.copyWith(color: theme.colorScheme.error),
               textAlign: TextAlign.center,
             ),
           ],
@@ -168,11 +172,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       ChatMessage message,
       bool isMe,
       ) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+
     final align = isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
     final bubbleColor =
     isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest;
-    final textColor = isMe ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
+    final textColor =
+    isMe ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
     final radius = isMe
         ? const BorderRadius.only(
       topLeft: Radius.circular(16),
@@ -200,7 +209,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             borderRadius: radius,
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).shadowColor.withAlpha(50),
+                color: theme.shadowColor.withAlpha(50),
                 blurRadius: 3,
                 offset: const Offset(0, 1),
               ),
@@ -208,7 +217,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
           child: Text(
             message.content ?? '',
-            style: textStyleSmall.copyWith(color: textColor, height: 1.4),
+            style: textStyles.bodyMedium.copyWith(color: textColor, height: 1.4),
           ),
         ),
         Padding(
@@ -221,22 +230,21 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             children: [
               if (isMe &&
                   message.id != null &&
-                  !(message.id!.startsWith('temp_'))) ...[
+                  !(message.id!.startsWith('temp_')) &&
+                  !message.isRead) ...[
                 Text(
-                  message.isRead ? '읽음' : '안 읽음',
-                  style: TextStyle(
+                  '안 읽음',
+                  style: textStyles.bodyMedium.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: message.isRead
-                        ? colorScheme.primary
-                        : colorScheme.onSurfaceVariant,
+                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
-                horizontalSpaceSmall,
+                SizedBox(width: spacing.small),
               ],
               Text(
                 DateFormat('HH:mm').format(message.dateTime.toLocal()),
-                style: textStyleSmall.copyWith(
+                style: textStyles.bodyMedium.copyWith(
                   fontSize: 11,
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -249,15 +257,19 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildMessageInputField(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: theme.cardColor,
         boxShadow: [
           BoxShadow(
             offset: const Offset(0, -1),
             blurRadius: 4,
-            color: Theme.of(context).shadowColor.withAlpha(50),
+            color: theme.shadowColor.withAlpha(50),
           ),
         ],
       ),
@@ -268,16 +280,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 2.0),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
+                  color: theme.scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(24.0),
                 ),
                 child: TextField(
                   controller: controller.messageInputController,
-                  style: textStyleSmall,
+                  style: textStyles.bodyMedium,
                   decoration: InputDecoration(
                     hintText: "메시지를 입력하세요...",
-                    hintStyle: textStyleSmall.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    hintStyle: textStyles.bodyMedium.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
@@ -292,9 +304,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 ),
               ),
             ),
-            horizontalSpaceSmall,
+            SizedBox(width: spacing.small),
             Material(
-              color: Theme.of(context).colorScheme.primary,
+              color: theme.colorScheme.primary,
               borderRadius: BorderRadius.circular(24.0),
               child: InkWell(
                 borderRadius: BorderRadius.circular(24.0),
@@ -303,7 +315,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   padding: const EdgeInsets.all(12.0),
                   child: Icon(
                     Icons.send_rounded,
-                    color: Theme.of(context).colorScheme.onPrimary,
+                    color: theme.colorScheme.onPrimary,
                     size: 22,
                   ),
                 ),

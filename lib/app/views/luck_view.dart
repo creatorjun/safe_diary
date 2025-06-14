@@ -5,13 +5,14 @@ import 'package:intl/intl.dart';
 
 import '../controllers/luck_controller.dart';
 import '../models/luck_models.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/app_theme.dart';
 
 class LuckView extends GetView<LuckController> {
   const LuckView({super.key});
 
   void _showZodiacSelectionBottomSheet(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     int selectedIndex = controller.availableZodiacsForDisplay
         .indexOf(controller.currentSelectedZodiacDisplayName);
 
@@ -22,7 +23,7 @@ class LuckView extends GetView<LuckController> {
       Container(
         height: 320,
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: theme.colorScheme.surface,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16.0),
             topRight: Radius.circular(16.0),
@@ -32,10 +33,7 @@ class LuckView extends GetView<LuckController> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Text(
-                "띠 선택",
-                style: textStyleMedium.copyWith(fontWeight: FontWeight.bold),
-              ),
+              child: Text("띠 선택", style: textStyles.bodyLarge),
             ),
             const Divider(height: 1),
             Expanded(
@@ -49,8 +47,8 @@ class LuckView extends GetView<LuckController> {
                     .map((zodiac) => Center(
                   child: Text(
                     zodiac,
-                    style: textStyleMedium.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
+                    style: textStyles.bodyLarge.copyWith(
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                 ))
@@ -101,7 +99,10 @@ class LuckView extends GetView<LuckController> {
   }
 
   Widget _buildErrorView(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -110,13 +111,13 @@ class LuckView extends GetView<LuckController> {
           children: [
             Icon(Icons.error_outline,
                 color: colorScheme.error.withAlpha(179), size: 48),
-            verticalSpaceMedium,
+            SizedBox(height: spacing.medium),
             Text(
               "운세 정보를 불러오는 데 실패했습니다.",
-              style: textStyleMedium.copyWith(color: colorScheme.onPrimary),
+              style: textStyles.bodyLarge,
               textAlign: TextAlign.center,
             ),
-            verticalSpaceMedium,
+            SizedBox(height: spacing.medium),
             ElevatedButton.icon(
               icon: const Icon(Icons.refresh),
               label: const Text("다시 시도"),
@@ -130,20 +131,22 @@ class LuckView extends GetView<LuckController> {
   }
 
   Widget _buildEmptyView(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.sentiment_neutral_outlined,
-            color: colorScheme.onPrimary.withAlpha(179),
+            color: colorScheme.onSurfaceVariant,
             size: 48,
           ),
-          verticalSpaceMedium,
-          Text("오늘의 운세 정보가 아직 없습니다.",
-              style: textStyleMedium.copyWith(color: colorScheme.onPrimary)),
-          verticalSpaceSmall,
+          SizedBox(height: spacing.medium),
+          Text("오늘의 운세 정보가 아직 없습니다.", style: textStyles.bodyLarge),
+          SizedBox(height: spacing.small),
           ElevatedButton.icon(
             icon: const Icon(Icons.refresh),
             label: const Text("새로고침"),
@@ -156,7 +159,10 @@ class LuckView extends GetView<LuckController> {
   }
 
   Widget _buildLuckContentView(BuildContext context, ZodiacLuckData luckData) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
     String requestDateFormatted = luckData.requestDate;
     try {
       final date = DateTime.parse(luckData.requestDate);
@@ -165,120 +171,81 @@ class LuckView extends GetView<LuckController> {
       //
     }
 
-    return RefreshIndicator(
-      onRefresh: () =>
-          controller.fetchTodaysLuck(controller.selectedZodiacApiName.value),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: InkWell(
-                  onTap: () => _showZodiacSelectionBottomSheet(context),
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0, vertical: 8.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Obx(
-                              () => Text(
-                            '${controller.currentSelectedZodiacDisplayName} 띠별 운세',
-                            style: textStyleLarge.copyWith(
-                                color: colorScheme.onPrimary),
+    final List<Widget> luckCards = [
+      _buildLuckCategoryCard(context, "✨ 총운", luckData.overallLuck),
+      _buildLuckCategoryCard(context, "💰 재물운", luckData.financialLuck),
+      _buildLuckCategoryCard(context, "💕 애정운", luckData.loveLuck),
+      _buildLuckCategoryCard(context, "💪 건강운", luckData.healthLuck),
+      if (luckData.luckyNumber != null)
+        _buildLuckCategoryCard(
+            context, "🍀 행운의 숫자", luckData.luckyNumber.toString()),
+      if (luckData.luckyColor != null)
+        _buildLuckCategoryCard(context, "🎨 행운의 색상", luckData.luckyColor),
+      _buildLuckCategoryCard(context, "💡 조언", luckData.advice),
+    ];
+
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              children: [
+                SizedBox(height: spacing.small),
+                Center(
+                  child: InkWell(
+                    onTap: () => _showZodiacSelectionBottomSheet(context),
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 8.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Obx(
+                                () => Text(
+                              '${controller.currentSelectedZodiacDisplayName} 띠별 운세',
+                              style: textStyles.titleMedium,
+                            ),
                           ),
-                        ),
-                        horizontalSpaceSmall,
-                        Icon(
-                          Icons.arrow_drop_down_circle_outlined,
-                          size: 20,
-                          color: colorScheme.onPrimary.withAlpha(179),
-                        ),
-                      ],
+                          SizedBox(width: spacing.small),
+                          Icon(
+                            Icons.arrow_drop_down_circle_outlined,
+                            size: 20,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Center(
-                child: Text(
-                  requestDateFormatted,
-                  style: textStyleSmall.copyWith(
-                    color: colorScheme.onPrimary.withAlpha(179),
+                Center(
+                  child: Text(
+                    requestDateFormatted,
+                    style: textStyles.bodyMedium
+                        .copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                 ),
-              ),
-              verticalSpaceMedium,
-              _buildLuckCategoryCard(
-                context,
-                "✨ 총운",
-                luckData.overallLuck,
-              ),
-              _buildLuckCategoryCard(
-                context,
-                "💰 재물운",
-                luckData.financialLuck,
-              ),
-              _buildLuckCategoryCard(
-                context,
-                "💕 애정운",
-                luckData.loveLuck,
-              ),
-              _buildLuckCategoryCard(
-                context,
-                "💪 건강운",
-                luckData.healthLuck,
-              ),
-              if (luckData.luckyNumber != null ||
-                  luckData.luckyColor != null) ...[
-                verticalSpaceMedium,
-                Card(
-                  color: Colors.black.withAlpha(51),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          "행운의 요소",
-                          style: textStyleMedium.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onPrimary.withAlpha(217),
-                          ),
-                        ),
-                        verticalSpaceSmall,
-                        if (luckData.luckyNumber != null)
-                          _buildLuckDetailRow(
-                            context,
-                            "🍀 행운의 숫자:",
-                            luckData.luckyNumber.toString(),
-                          ),
-                        if (luckData.luckyColor != null)
-                          _buildLuckDetailRow(
-                            context,
-                            "🎨 행운의 색상:",
-                            luckData.luckyColor!,
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
+                SizedBox(height: spacing.medium),
               ],
-              _buildLuckCategoryCard(
-                context,
-                "💡 조언",
-                luckData.advice,
-              ),
-              const SizedBox(height: 80),
-            ],
+            ),
           ),
-        ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => controller
+                  .fetchTodaysLuck(controller.selectedZodiacApiName.value),
+              child: ListView.builder(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                itemCount: luckCards.length,
+                itemBuilder: (context, index) {
+                  return luckCards[index];
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -291,57 +258,28 @@ class LuckView extends GetView<LuckController> {
     if (content == null || content.isEmpty) {
       return const SizedBox.shrink();
     }
-    final colorScheme = Theme.of(context).colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
     return Card(
-      color: Colors.black.withAlpha(51),
-      elevation: 0,
       margin: const EdgeInsets.symmetric(vertical: 8.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: textStyleMedium.copyWith(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onPrimary.withAlpha(217),
-              ),
-            ),
-            verticalSpaceSmall,
+            Text(title, style: textStyles.bodyLarge),
+            SizedBox(height: spacing.small),
             Text(
               content,
-              style: textStyleSmall.copyWith(
-                  height: 1.5, color: colorScheme.onPrimary.withAlpha(179)),
+              style: textStyles.bodyMedium.copyWith(
+                  height: 1.5, color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.justify,
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildLuckDetailRow(BuildContext context, String label, String value) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: textStyleSmall.copyWith(
-                fontWeight: FontWeight.w500,
-                color: colorScheme.onPrimary.withAlpha(217)),
-          ),
-          horizontalSpaceSmall,
-          Expanded(
-              child: Text(value,
-                  style: textStyleSmall.copyWith(
-                      color: colorScheme.onPrimary.withAlpha(179)))),
-        ],
       ),
     );
   }

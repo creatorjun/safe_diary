@@ -8,8 +8,7 @@ import '../controllers/login_controller.dart';
 import '../models/event_item.dart';
 import '../routes/app_pages.dart';
 import '../services/event_service.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/app_theme.dart';
 import '../views/widgets/add_edit_event_sheet.dart';
 import 'error_controller.dart';
 
@@ -35,12 +34,12 @@ class HomeController extends GetxController {
   late final Rx<DateTime?> selectedDay;
 
   final RxMap<DateTime, List<EventItem>> events =
-      RxMap<DateTime, List<EventItem>>(
-        LinkedHashMap<DateTime, List<EventItem>>(
-          equals: isSameDay,
-          hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
-        ),
-      );
+  RxMap<DateTime, List<EventItem>>(
+    LinkedHashMap<DateTime, List<EventItem>>(
+      equals: isSameDay,
+      hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
+    ),
+  );
 
   List<EventItem> get selectedDayEvents {
     final day = selectedDay.value;
@@ -89,11 +88,16 @@ class HomeController extends GetxController {
   }
 
   void _showNewUserPasswordSetupWarning() {
+    final BuildContext context = Get.context!;
+    final ThemeData theme = Theme.of(context);
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
+
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(20.0),
         decoration: BoxDecoration(
-          color: Get.isDarkMode ? Colors.grey[800] : Colors.white,
+          color: theme.cardColor,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(16.0),
             topRight: Radius.circular(16.0),
@@ -112,18 +116,18 @@ class HomeController extends GetxController {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
+                Text(
                   '🔒 개인 정보 보호 알림',
-                  style: textStyleLarge,
+                  style: textStyles.titleMedium,
                   textAlign: TextAlign.center,
                 ),
-                verticalSpaceMedium,
+                SizedBox(height: spacing.medium),
                 Text(
                   "개인정보 - 비밀번호 설정을 활성화 해주세요.",
-                  style: textStyleMedium.copyWith(height: 1.5),
+                  style: textStyles.bodyMedium.copyWith(height: 1.5),
                   textAlign: TextAlign.center,
                 ),
-                verticalSpaceLarge,
+                SizedBox(height: spacing.large),
                 Row(
                   children: [
                     Expanded(
@@ -135,15 +139,15 @@ class HomeController extends GetxController {
                         onPressed: () {
                           Get.back();
                         },
-                        child: const Text('나중에 하기', style: textStyleSmall),
+                        child: Text('나중에 하기', style: textStyles.bodyMedium),
                       ),
                     ),
-                    horizontalSpaceSmall,
+                    SizedBox(width: spacing.small),
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: Theme.of(Get.context!).primaryColor,
+                          backgroundColor: theme.primaryColor,
                         ),
                         onPressed: () {
                           Get.back();
@@ -151,7 +155,8 @@ class HomeController extends GetxController {
                         },
                         child: Text(
                           '지금 설정',
-                          style: textStyleSmall.copyWith(color: Colors.white),
+                          style: textStyles.bodyMedium
+                              .copyWith(color: theme.colorScheme.onPrimary),
                         ),
                       ),
                     ),
@@ -282,7 +287,7 @@ class HomeController extends GetxController {
       final originalNormalizedDate = _normalizeDate(eventToUpdate.eventDate);
       if (events[originalNormalizedDate] != null) {
         events[originalNormalizedDate]!.removeWhere(
-          (e) => e.backendEventId == updatedEventFromServer.backendEventId,
+              (e) => e.backendEventId == updatedEventFromServer.backendEventId,
         );
         if (events[originalNormalizedDate]!.isEmpty) {
           events.remove(originalNormalizedDate);
@@ -335,7 +340,7 @@ class HomeController extends GetxController {
       final normalizedEventDate = _normalizeDate(eventToDelete.eventDate);
       if (events[normalizedEventDate] != null) {
         events[normalizedEventDate]!.removeWhere(
-          (e) => e.backendEventId == eventToDelete.backendEventId,
+              (e) => e.backendEventId == eventToDelete.backendEventId,
         );
         if (events[normalizedEventDate]!.isEmpty) {
           events.remove(normalizedEventDate);

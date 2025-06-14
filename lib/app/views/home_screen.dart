@@ -5,8 +5,7 @@ import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import '../controllers/login_controller.dart';
 import '../routes/app_pages.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/app_theme.dart';
 import './calendar_view.dart';
 import './luck_view.dart';
 import './weather_view.dart';
@@ -19,6 +18,8 @@ class HomeScreen extends GetView<HomeController> {
     final LoginController loginController = Get.find<LoginController>();
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
     final List<Widget> screens = [
       const CalendarView(),
@@ -46,7 +47,7 @@ class HomeScreen extends GetView<HomeController> {
                 '${loginController.user.nickname ?? '사용자'}님 - ${controller.currentTitle}';
             return Text(
               displayTitle,
-              style: textStyleLarge,
+              style: textStyles.titleMedium,
               overflow: TextOverflow.ellipsis,
             );
           }),
@@ -65,23 +66,23 @@ class HomeScreen extends GetView<HomeController> {
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'profile',
                   child: Row(
                     children: [
-                      Icon(Icons.person_outline),
-                      horizontalSpaceSmall,
-                      Text('개인정보', style: textStyleSmall),
+                      const Icon(Icons.person_outline),
+                      SizedBox(width: spacing.small),
+                      Text('개인정보', style: textStyles.bodyMedium),
                     ],
                   ),
                 ),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'logout',
                   child: Row(
                     children: [
-                      Icon(Icons.logout),
-                      horizontalSpaceSmall,
-                      Text('로그아웃', style: textStyleSmall),
+                      const Icon(Icons.logout),
+                      SizedBox(width: spacing.small),
+                      Text('로그아웃', style: textStyles.bodyMedium),
                     ],
                   ),
                 ),
