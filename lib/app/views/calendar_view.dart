@@ -65,6 +65,7 @@ class CalendarView extends StatelessWidget {
     ];
 
     return SafeArea(
+      bottom: false,
       child: Column(
         children: [
           Obx(() {

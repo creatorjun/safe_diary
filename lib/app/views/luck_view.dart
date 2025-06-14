@@ -185,6 +185,7 @@ class LuckView extends GetView<LuckController> {
     ];
 
     return SafeArea(
+      bottom: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -235,13 +236,13 @@ class LuckView extends GetView<LuckController> {
             child: RefreshIndicator(
               onRefresh: () => controller
                   .fetchTodaysLuck(controller.selectedZodiacApiName.value),
-              child: ListView.builder(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                itemCount: luckCards.length,
-                itemBuilder: (context, index) {
-                  return luckCards[index];
-                },
+              child: ListView(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 8.0),
+                children: [
+                  ...luckCards,
+                  SizedBox(height: spacing.large * 5),
+                ],
               ),
             ),
           ),
@@ -274,8 +275,8 @@ class LuckView extends GetView<LuckController> {
             SizedBox(height: spacing.small),
             Text(
               content,
-              style: textStyles.bodyMedium.copyWith(
-                  height: 1.5, color: colorScheme.onSurfaceVariant),
+              style: textStyles.bodyMedium
+                  .copyWith(height: 1.5, color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.justify,
             ),
           ],
