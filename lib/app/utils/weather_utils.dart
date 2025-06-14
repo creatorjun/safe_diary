@@ -1,3 +1,7 @@
+// lib/app/utils/weather_utils.dart
+
+import 'package:flutter/material.dart';
+
 class WeatherUtils {
   // 이 클래스는 인스턴스화할 필요가 없으므로 private 생성자를 만듭니다.
   WeatherUtils._();
@@ -93,6 +97,38 @@ class WeatherUtils {
       return weatherAm ?? 'clear';
     } else {
       return weatherPm ?? 'clear';
+    }
+  }
+
+  // === 대기질 관련 유틸리티 함수 ===
+
+  static Color getColorForGrade(String? grade) {
+    switch (grade) {
+      case '좋음':
+        return Colors.blue.shade400;
+      case '보통':
+        return Colors.green.shade400;
+      case '나쁨':
+        return Colors.orange.shade400;
+      case '매우나쁨':
+        return Colors.red.shade400;
+      default:
+        return Colors.grey.shade400;
+    }
+  }
+
+  static IconData getIconForGrade(String? grade) {
+    switch (grade) {
+      case '좋음':
+        return Icons.sentiment_very_satisfied_outlined;
+      case '보통':
+        return Icons.sentiment_satisfied_outlined;
+      case '나쁨':
+        return Icons.sentiment_dissatisfied_outlined;
+      case '매우나쁨':
+        return Icons.sentiment_very_dissatisfied_outlined;
+      default:
+        return Icons.sentiment_neutral_outlined;
     }
   }
 }

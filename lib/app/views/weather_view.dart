@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 
 import '../controllers/weather_controller.dart';
 import '../models/weather_models.dart';
 import '../theme/app_theme.dart';
-import '../utils/app_strings.dart';
 import '../utils/weather_utils.dart';
 
 class WeatherView extends GetView<WeatherController> {
@@ -78,7 +78,7 @@ class WeatherView extends GetView<WeatherController> {
                       controller.availableCities[selectedIndex];
                   controller.changeCity(selectedCity);
                 },
-                child: const Text("선택"),
+                child: const Text(AppStrings.select),
               ),
             ),
           ],
@@ -137,6 +137,7 @@ class WeatherView extends GetView<WeatherController> {
                   context,
                   weather.currentWeather!,
                   todayForecast,
+                  weather.airQuality,
                 ),
               SizedBox(height: spacing.large),
               Expanded(
@@ -208,6 +209,7 @@ class WeatherView extends GetView<WeatherController> {
     BuildContext context,
     CurrentWeatherResponseDto current,
     DailyWeatherForecastResponseDto today,
+    AirQualityInfoResponseDto? airQuality,
   ) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
@@ -329,12 +331,6 @@ class WeatherView extends GetView<WeatherController> {
                   children: [
                     _buildDetailItem(
                       context,
-                      icon: Icons.air,
-                      value: '${current.windSpeed.toStringAsFixed(1)}km/h',
-                      label: AppStrings.windSpeed,
-                    ),
-                    _buildDetailItem(
-                      context,
                       icon: Icons.wb_sunny_outlined,
                       value: current.uvIndex.toString(),
                       label: AppStrings.uvIndex,
@@ -345,6 +341,24 @@ class WeatherView extends GetView<WeatherController> {
                       value: '${(current.humidity * 100).toInt()}%',
                       label: AppStrings.humidity,
                     ),
+                    if (airQuality?.pm10Grade != null)
+                      _buildDetailItem(
+                        context,
+                        icon: WeatherUtils.getIconForGrade(
+                          airQuality!.pm10Grade,
+                        ),
+                        value: airQuality.pm10Grade!,
+                        label: AppStrings.pm10Label,
+                      ),
+                    if (airQuality?.pm25Grade != null)
+                      _buildDetailItem(
+                        context,
+                        icon: WeatherUtils.getIconForGrade(
+                          airQuality!.pm25Grade,
+                        ),
+                        value: airQuality.pm25Grade!,
+                        label: AppStrings.pm25Label,
+                      ),
                   ],
                 ),
               ],
@@ -364,16 +378,15 @@ class WeatherView extends GetView<WeatherController> {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+    final color =
+        (label == AppStrings.pm10Label || label == AppStrings.pm25Label)
+            ? WeatherUtils.getColorForGrade(value)
+            : colorScheme.onPrimary;
 
     return Column(
       children: [
-        Icon(icon, color: colorScheme.onPrimary.withAlpha(230), size: 20),
+        Icon(icon, color: color.withAlpha(230), size: 20),
         const SizedBox(height: 6),
-        Text(
-          value,
-          style: textStyles.bodyMedium.copyWith(color: colorScheme.onPrimary),
-        ),
-        const SizedBox(height: 2),
         Text(
           label,
           style: textStyles.bodyMedium.copyWith(
@@ -381,6 +394,8 @@ class WeatherView extends GetView<WeatherController> {
             color: colorScheme.onPrimary.withAlpha(179),
           ),
         ),
+        const SizedBox(height: 2),
+        Text(value, style: textStyles.bodyMedium.copyWith(color: color)),
       ],
     );
   }
@@ -455,7 +470,7 @@ class WeatherView extends GetView<WeatherController> {
     );
 
     DateTime date;
-    String displayDate = "정보 없음";
+    String displayDate = AppStrings.noInfo;
     try {
       date = DateTime.parse(day.date);
       displayDate = DateFormat('M월 d일 EEEE', 'ko_KR').format(date);

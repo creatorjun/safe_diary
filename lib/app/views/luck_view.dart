@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 
 import '../controllers/luck_controller.dart';
 import '../models/luck_models.dart';
 import '../theme/app_theme.dart';
-import '../utils/app_strings.dart';
 
 class LuckView extends GetView<LuckController> {
   const LuckView({super.key});
@@ -73,7 +73,7 @@ class LuckView extends GetView<LuckController> {
                       controller.availableZodiacsForDisplay[selectedIndex];
                   controller.changeZodiacByDisplayName(selectedZodiac);
                 },
-                child: const Text("선택"),
+                child: const Text(AppStrings.select),
               ),
             ),
           ],
@@ -161,7 +161,7 @@ class LuckView extends GetView<LuckController> {
           SizedBox(height: spacing.small),
           ElevatedButton.icon(
             icon: const Icon(Icons.refresh),
-            label: const Text("새로고침"),
+            label: const Text(AppStrings.refresh),
             onPressed:
                 () => controller.fetchTodaysLuck(
                   controller.selectedZodiacApiName.value,
@@ -202,6 +202,7 @@ class LuckView extends GetView<LuckController> {
         AppStrings.healthLuck,
         luckData.healthLuck,
       ),
+      _buildLuckCategoryCard(context, AppStrings.advice, luckData.advice),
       if (luckData.luckyNumber != null)
         _buildLuckCategoryCard(
           context,
@@ -214,7 +215,6 @@ class LuckView extends GetView<LuckController> {
           AppStrings.luckyColor,
           luckData.luckyColor,
         ),
-      _buildLuckCategoryCard(context, AppStrings.advice, luckData.advice),
     ];
 
     return SafeArea(

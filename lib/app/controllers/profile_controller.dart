@@ -1,8 +1,7 @@
-// lib/app/controllers/profile_controller.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:safe_diary/app/services/dialog_service.dart';
 import 'package:safe_diary/app/theme/app_theme.dart';
 import 'package:safe_diary/app/utils/app_strings.dart';
 
@@ -14,8 +13,13 @@ import 'partner_controller.dart';
 class ProfileController extends GetxController {
   final LoginController loginController;
   final PartnerController partnerController;
+  final DialogService _dialogService;
 
-  ProfileController(this.loginController, this.partnerController);
+  ProfileController(
+    this.loginController,
+    this.partnerController,
+    this._dialogService,
+  );
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -49,25 +53,31 @@ class ProfileController extends GetxController {
     final isPasswordChanged = newPassword.isNotEmpty;
 
     if (!isNicknameChanged && !isPasswordChanged) {
-      Get.snackbar(AppStrings.notification, AppStrings.noChanges);
+      _dialogService.showSnackbar(
+        AppStrings.notification,
+        AppStrings.noChanges,
+      );
       return;
     }
 
     if (isPasswordChanged) {
       if (newPassword.length < 4) {
-        Get.snackbar(AppStrings.error, AppStrings.newPasswordMinLengthError);
+        _dialogService.showSnackbar(
+          AppStrings.error,
+          AppStrings.newPasswordMinLengthError,
+        );
         return;
       }
       if (newPassword != confirmPassword) {
-        Get.snackbar(AppStrings.error, AppStrings.newPasswordMismatchError);
+        _dialogService.showSnackbar(
+          AppStrings.error,
+          AppStrings.newPasswordMismatchError,
+        );
         return;
       }
     }
 
-    Get.dialog(
-      const Center(child: CircularProgressIndicator()),
-      barrierDismissible: false,
-    );
+    _dialogService.showLoading();
 
     try {
       if (isNicknameChanged) {
@@ -88,11 +98,11 @@ class ProfileController extends GetxController {
         }
       }
 
-      Get.back();
-      Get.snackbar(AppStrings.success, AppStrings.saveSuccess);
+      _dialogService.hideLoading();
+      _dialogService.showSnackbar(AppStrings.success, AppStrings.saveSuccess);
       hasChanges.value = false;
     } catch (e) {
-      Get.back();
+      _dialogService.hideLoading();
       _errorController.handleError(
         e,
         userFriendlyMessage: AppStrings.saveFailed,
@@ -101,66 +111,45 @@ class ProfileController extends GetxController {
   }
 
   void promptForPasswordAndRemove() {
-    final BuildContext context = Get.context!;
-    final ThemeData theme = Theme.of(context);
-    final AppSpacing spacing = theme.extension<AppSpacing>()!;
     final TextEditingController dialogPasswordController =
         TextEditingController();
 
-    Get.dialog(
-      AlertDialog(
-        title: const Text(AppStrings.removePasswordPromptTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(AppStrings.removePasswordPromptContent),
-            SizedBox(height: spacing.medium),
-            TextField(
-              controller: dialogPasswordController,
-              obscureText: true,
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: AppStrings.currentPassword,
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
+    _dialogService.showConfirmDialog(
+      title: AppStrings.removePasswordPromptTitle,
+      content: AppStrings.removePasswordPromptContent,
+      confirmText: AppStrings.removeAppPassword,
+      customContent: TextField(
+        controller: dialogPasswordController,
+        obscureText: true,
+        autofocus: true,
+        decoration: const InputDecoration(
+          labelText: AppStrings.currentPassword,
+          border: OutlineInputBorder(),
         ),
-        actions: [
-          TextButton(
-            child: const Text(AppStrings.cancel),
-            onPressed: () => Get.back(),
-          ),
-          FilledButton(
-            child: const Text(AppStrings.removeAppPassword),
-            onPressed: () async {
-              final String currentPassword =
-                  dialogPasswordController.text.trim();
-
-              Get.back();
-
-              if (currentPassword.isEmpty) {
-                Get.snackbar(
-                  AppStrings.error,
-                  AppStrings.currentPasswordRequired,
-                );
-                return;
-              }
-
-              final bool success = await loginController.removeAppPassword(
-                currentPassword,
-              );
-
-              if (success) {
-                SchedulerBinding.instance.addPostFrameCallback((_) {
-                  Get.offNamedUntil(Routes.home, (route) => route.isFirst);
-                  Get.toNamed(Routes.profileAuth);
-                });
-              }
-            },
-          ),
-        ],
       ),
+      onConfirm: () async {
+        final String currentPassword = dialogPasswordController.text.trim();
+        dialogPasswordController.dispose();
+
+        if (currentPassword.isEmpty) {
+          _dialogService.showSnackbar(
+            AppStrings.error,
+            AppStrings.currentPasswordRequired,
+          );
+          return;
+        }
+
+        final bool success = await loginController.removeAppPassword(
+          currentPassword,
+        );
+
+        if (success) {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            Get.offNamedUntil(Routes.home, (route) => route.isFirst);
+            Get.toNamed(Routes.profileAuth);
+          });
+        }
+      },
     );
   }
 
@@ -176,8 +165,8 @@ class ProfileController extends GetxController {
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
-    Get.bottomSheet(
-      Container(
+    _dialogService.showCustomBottomSheet(
+      child: Container(
         padding: const EdgeInsets.all(20.0),
         decoration: BoxDecoration(
           color: theme.cardColor,
@@ -242,7 +231,6 @@ class ProfileController extends GetxController {
           ],
         ),
       ),
-      isScrollControlled: true,
     );
   }
 
@@ -250,32 +238,21 @@ class ProfileController extends GetxController {
     if (code.isNotEmpty) {
       await partnerController.acceptPartnerInvitation(code);
     } else {
-      Get.snackbar(AppStrings.error, AppStrings.invitationCodeRequired);
+      _dialogService.showSnackbar(
+        AppStrings.error,
+        AppStrings.invitationCodeRequired,
+      );
     }
   }
 
   Future<void> disconnectPartner() async {
-    Get.dialog(
-      AlertDialog(
-        title: const Text(AppStrings.unfriendConfirmationTitle),
-        content: const Text(AppStrings.unfriendConfirmationContent),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text(AppStrings.cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              Get.back();
-              await partnerController.unfriendPartnerAndClearChat();
-            },
-            child: Text(
-              AppStrings.unfriendButton,
-              style: TextStyle(color: Theme.of(Get.context!).colorScheme.error),
-            ),
-          ),
-        ],
-      ),
+    _dialogService.showConfirmDialog(
+      title: AppStrings.unfriendConfirmationTitle,
+      content: AppStrings.unfriendConfirmationContent,
+      confirmText: AppStrings.unfriendButton,
+      onConfirm: () async {
+        await partnerController.unfriendPartnerAndClearChat();
+      },
     );
   }
 

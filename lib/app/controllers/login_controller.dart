@@ -1,3 +1,5 @@
+// lib/app/controllers/login_controller.dart
+
 import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart' as kakao;
 import 'package:naver_login_sdk/naver_login_sdk.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 
 import '../models/user.dart';
 import '../routes/app_pages.dart';
@@ -77,10 +80,7 @@ class LoginController extends GetxController {
       final socialUser = await _getNaverSocialUser();
       await _processSocialLogin(socialUser);
     } catch (e) {
-      _handleError(
-        e,
-        userFriendlyMsg: "네이버 로그인에 실패했습니다. 네트워크 상태를 확인 후 다시 시도해주세요.",
-      );
+      _handleError(e, userFriendlyMsg: AppStrings.naverLoginFailed);
     } finally {
       _setLoading(false);
     }
@@ -144,7 +144,7 @@ class LoginController extends GetxController {
       if (e is PlatformException && e.code == 'CANCELED') {
         // 사용자가 로그인을 취소한 경우는 오류로 처리하지 않음
       } else {
-        _handleError(e, userFriendlyMsg: "카카오 로그인에 실패했습니다. 잠시 후 다시 시도해주세요.");
+        _handleError(e, userFriendlyMsg: AppStrings.kakaoLoginFailed);
       }
     } finally {
       _setLoading(false);
@@ -200,7 +200,7 @@ class LoginController extends GetxController {
         Get.offAllNamed(Routes.home);
       }
     } catch (e) {
-      _handleError(e, userFriendlyMsg: "서버에 연결할 수 없습니다. 관리자에게 문의해주세요.");
+      _handleError(e, userFriendlyMsg: AppStrings.serverConnectionError);
       rethrow;
     }
   }
@@ -219,9 +219,9 @@ class LoginController extends GetxController {
       _user.value = User(platform: LoginPlatform.none);
 
       Get.offAllNamed(Routes.login);
-      Get.snackbar('로그아웃', '성공적으로 로그아웃되었습니다.');
+      Get.snackbar(AppStrings.logout, AppStrings.logoutSuccess);
     } catch (e) {
-      _handleError(e, userFriendlyMsg: "로그아웃 중 오류가 발생했습니다.");
+      _handleError(e, userFriendlyMsg: AppStrings.logoutError);
     } finally {
       _setLoading(false);
     }
@@ -283,7 +283,7 @@ class LoginController extends GetxController {
       );
       return _user.value;
     } catch (e) {
-      _handleError(e, userFriendlyMsg: '닉네임 변경에 실패했습니다.');
+      _handleError(e, userFriendlyMsg: AppStrings.nicknameUpdateFailed);
       rethrow;
     }
   }
@@ -292,7 +292,7 @@ class LoginController extends GetxController {
     try {
       return await _userService.verifyAppPassword(appPassword);
     } catch (e) {
-      _handleError(e, userFriendlyMsg: '비밀번호 확인 중 오류가 발생했습니다.');
+      _handleError(e, userFriendlyMsg: AppStrings.passwordVerifyFailed);
       return false;
     }
   }
@@ -309,7 +309,7 @@ class LoginController extends GetxController {
       _user.value = _user.value.copyWith(isAppPasswordSet: true);
       return true;
     } catch (e) {
-      _handleError(e, userFriendlyMsg: '비밀번호 설정에 실패했습니다.');
+      _handleError(e, userFriendlyMsg: AppStrings.passwordSetFailed);
       rethrow;
     }
   }
@@ -320,7 +320,7 @@ class LoginController extends GetxController {
       _user.value = _user.value.copyWith(isAppPasswordSet: false);
       return true;
     } catch (e) {
-      _handleError(e, userFriendlyMsg: '비밀번호 해제에 실패했습니다.');
+      _handleError(e, userFriendlyMsg: AppStrings.passwordRemoveFailed);
       rethrow;
     }
   }
@@ -345,9 +345,12 @@ class LoginController extends GetxController {
       _user.value = User(platform: LoginPlatform.none);
 
       Get.offAllNamed(Routes.login);
-      Get.snackbar('회원 탈퇴 완료', '회원 탈퇴가 성공적으로 처리되었습니다.');
+      Get.snackbar(
+        AppStrings.accountDeletion,
+        AppStrings.accountDeletionSuccess,
+      );
     } catch (e) {
-      _handleError(e, userFriendlyMsg: "회원 탈퇴 중 오류가 발생했습니다.");
+      _handleError(e, userFriendlyMsg: AppStrings.accountDeletionFailed);
     } finally {
       _setLoading(false);
     }

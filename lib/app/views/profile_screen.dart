@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg_provider/flutter_svg_provider.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 
 import '../controllers/profile_controller.dart';
 import '../models/user.dart' show LoginPlatform;
 import '../routes/app_pages.dart';
 import '../theme/app_theme.dart';
-import '../utils/app_strings.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -247,8 +247,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final invitation = controller.partnerController.currentInvitation.value;
 
       if (user.partnerUid != null && user.partnerUid!.isNotEmpty) {
-        String partnerNickname = user.partnerNickname ?? '파트너';
-        String formattedPartnerSince = '날짜 정보 없음';
+        String partnerNickname =
+            user.partnerNickname ?? AppStrings.defaultPartner;
+        String formattedPartnerSince = AppStrings.noDateInfo;
         if (partnerRelation != null) {
           try {
             formattedPartnerSince = DateFormat(
@@ -268,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: textStyles.bodyLarge.copyWith(color: colorScheme.primary),
             ),
             SizedBox(height: spacing.small),
-            if (formattedPartnerSince != '날짜 정보 없음')
+            if (formattedPartnerSince != AppStrings.noDateInfo)
               Text(
                 AppStrings.partnerSince(formattedPartnerSince),
                 style: textStyles.bodyMedium.copyWith(
@@ -316,7 +317,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         );
       } else if (invitation != null) {
-        String formattedExpiresAt = '알 수 없음';
+        String formattedExpiresAt = AppStrings.unknown;
         try {
           formattedExpiresAt = DateFormat(
             'yy/MM/dd HH:mm',
@@ -329,7 +330,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('생성된 파트너 초대 코드', style: textStyles.bodyLarge),
+            Text(
+              AppStrings.generatedInvitationCode,
+              style: textStyles.bodyLarge,
+            ),
             SizedBox(height: spacing.small),
             TextField(
               controller: TextEditingController(text: invitation.invitationId),
@@ -357,7 +361,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(height: spacing.small),
             Text(
-              '만료 시간: $formattedExpiresAt',
+              AppStrings.expiresAt(formattedExpiresAt),
               style: textStyles.bodyMedium.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -447,7 +451,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ? AppStrings.naverLogin
                       : user.platform == LoginPlatform.kakao
                       ? AppStrings.kakaoLogin
-                      : "정보 없음",
+                      : AppStrings.noInfo,
                   style: textStyles.bodyLarge,
                 ),
               ],
@@ -457,7 +461,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Align(
                 alignment: Alignment.bottomRight,
                 child: Text(
-                  '가입일: $formattedCreatedAt',
+                  '${AppStrings.memberSince}: $formattedCreatedAt',
                   style: textStyles.bodyMedium.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),

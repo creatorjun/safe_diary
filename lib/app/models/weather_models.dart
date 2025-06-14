@@ -5,11 +5,13 @@ class WeatherResponseDto {
   final CurrentWeatherResponseDto? currentWeather;
   final HourlyForecastResponseDto? hourlyForecast;
   final List<DailyWeatherForecastResponseDto> dailyForecast;
+  final AirQualityInfoResponseDto? airQuality; // airQuality 필드 추가
 
   WeatherResponseDto({
     this.currentWeather,
     this.hourlyForecast,
     required this.dailyForecast,
+    this.airQuality, // 생성자에 추가
   });
 
   factory WeatherResponseDto.fromJson(Map<String, dynamic> json) {
@@ -35,12 +37,19 @@ class WeatherResponseDto {
               )
               .toList() ??
           [],
+      // airQuality 필드 파싱 로직 추가
+      airQuality:
+          json['airQuality'] != null
+              ? AirQualityInfoResponseDto.fromJson(
+                json['airQuality'] as Map<String, dynamic>,
+              )
+              : null,
     );
   }
 
   @override
   String toString() {
-    return 'WeatherResponseDto(currentWeather: $currentWeather, hourlyForecast: $hourlyForecast, dailyForecast: $dailyForecast)';
+    return 'WeatherResponseDto(currentWeather: $currentWeather, hourlyForecast: $hourlyForecast, dailyForecast: $dailyForecast, airQuality: $airQuality)';
   }
 }
 
@@ -74,6 +83,30 @@ class CurrentWeatherResponseDto {
       humidity: (json['humidity'] as num?)?.toDouble() ?? 0.0,
       windSpeed: (json['windSpeed'] as num?)?.toDouble() ?? 0.0,
       uvIndex: json['uvIndex'] as int? ?? 0,
+    );
+  }
+}
+
+/// 새로 추가된 대기질 정보 DTO
+class AirQualityInfoResponseDto {
+  final String? pm10Grade;
+  final String? pm25Grade;
+  final String? overallForecast;
+  final String? informCause;
+
+  AirQualityInfoResponseDto({
+    this.pm10Grade,
+    this.pm25Grade,
+    this.overallForecast,
+    this.informCause,
+  });
+
+  factory AirQualityInfoResponseDto.fromJson(Map<String, dynamic> json) {
+    return AirQualityInfoResponseDto(
+      pm10Grade: json['pm10Grade'] as String?,
+      pm25Grade: json['pm25Grade'] as String?,
+      overallForecast: json['overallForecast'] as String?,
+      informCause: json['informCause'] as String?,
     );
   }
 }

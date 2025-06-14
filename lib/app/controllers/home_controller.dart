@@ -1,9 +1,8 @@
-// lib/app/controllers/home_controller.dart
-
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:safe_diary/app/services/dialog_service.dart';
 import 'package:safe_diary/app/utils/app_strings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -18,8 +17,13 @@ import 'error_controller.dart';
 class HomeController extends GetxController {
   final LoginController _loginController;
   final EventService _eventService;
+  final DialogService _dialogService;
 
-  HomeController(this._loginController, this._eventService);
+  HomeController(
+    this._loginController,
+    this._eventService,
+    this._dialogService,
+  );
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -233,18 +237,16 @@ class HomeController extends GetxController {
 
   void showAddEventDialog() {
     if (selectedDay.value == null) {
-      Get.snackbar(AppStrings.notification, "먼저 날짜를 선택해주세요.");
+      _dialogService.showSnackbar(AppStrings.notification, "먼저 날짜를 선택해주세요.");
       return;
     }
-    Get.bottomSheet(
-      AddEditEventSheet(
+    _dialogService.showCustomBottomSheet(
+      child: AddEditEventSheet(
         eventDate: selectedDay.value!,
         onSubmit: (event) {
           _createEventOnServer(event);
         },
       ),
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
     );
   }
 
@@ -269,16 +271,14 @@ class HomeController extends GetxController {
   }
 
   void showEditEventDialog(EventItem existingEvent) {
-    Get.bottomSheet(
-      AddEditEventSheet(
+    _dialogService.showCustomBottomSheet(
+      child: AddEditEventSheet(
         eventDate: existingEvent.eventDate,
         existingEvent: existingEvent,
         onSubmit: (event) {
           _updateEventOnServer(event);
         },
       ),
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
     );
   }
 
@@ -320,29 +320,11 @@ class HomeController extends GetxController {
     if (eventToDelete.backendEventId == null) {
       return;
     }
-    Get.dialog(
-      AlertDialog(
-        title: const Text(AppStrings.deleteEventConfirmationTitle),
-        content: Text(
-          AppStrings.deleteEventConfirmationContent(eventToDelete.title),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text(AppStrings.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              _deleteEventOnServer(eventToDelete);
-            },
-            child: const Text(
-              AppStrings.delete,
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
+    _dialogService.showConfirmDialog(
+      title: AppStrings.deleteEventConfirmationTitle,
+      content: AppStrings.deleteEventConfirmationContent(eventToDelete.title),
+      confirmText: AppStrings.delete,
+      onConfirm: () => _deleteEventOnServer(eventToDelete),
     );
   }
 

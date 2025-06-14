@@ -41,7 +41,8 @@ class ChatController extends GetxController {
   final ScrollController scrollController = ScrollController();
   final TextEditingController messageInputController = TextEditingController();
 
-  String get chatPartnerNickname => _chatPartnerNickname ?? '상대방';
+  String get chatPartnerNickname =>
+      _chatPartnerNickname ?? AppStrings.defaultPartner;
 
   StompClient? stompClient;
   StompUnsubscribe? _chatSubscription;
@@ -57,7 +58,7 @@ class ChatController extends GetxController {
   void _initializeChat() {
     if (_loginController.user.id == null || _chatPartnerUid.isEmpty) {
       hasInitialLoadError.value = true;
-      _errorController.handleError("채팅 상대방 정보가 유효하지 않습니다.");
+      _errorController.handleError(AppStrings.invalidChatPartnerInfo);
       isLoading.value = false;
       return;
     }
@@ -70,7 +71,7 @@ class ChatController extends GetxController {
   void _connectToStomp() {
     final String? baseApiUrl = AppConfig.apiUrl;
     if (baseApiUrl == null) {
-      _errorController.handleError("STOMP 연결을 위한 API URL을 찾을 수 없습니다.");
+      _errorController.handleError(AppStrings.stompApiUrlNotFound);
       return;
     }
     String stompUrl;
@@ -82,7 +83,7 @@ class ChatController extends GetxController {
 
     final String? token = _loginController.user.safeAccessToken;
     if (token == null) {
-      _errorController.handleError("STOMP 연결을 위한 인증 토큰이 없습니다.");
+      _errorController.handleError(AppStrings.stompTokenNotFound);
       return;
     }
 
@@ -93,13 +94,13 @@ class ChatController extends GetxController {
         onWebSocketError: (dynamic error) {
           _errorController.handleError(
             error,
-            userFriendlyMessage: '채팅 서버에 연결할 수 없습니다.',
+            userFriendlyMessage: AppStrings.chatConnectionError,
           );
         },
         onStompError: (StompFrame frame) {
           _errorController.handleError(
             frame.body ?? 'STOMP 프로토콜 오류',
-            userFriendlyMessage: '채팅 서버 연결에 문제가 발생했습니다.',
+            userFriendlyMessage: AppStrings.chatProtocolError,
           );
         },
         onDisconnect: (StompFrame frame) {
@@ -145,7 +146,7 @@ class ChatController extends GetxController {
           } catch (e) {
             _errorController.handleError(
               e,
-              userFriendlyMessage: '새 메시지를 처리하는 중 문제가 발생했습니다.',
+              userFriendlyMessage: AppStrings.newMessageProcessingError,
             );
           }
         }
@@ -236,7 +237,7 @@ class ChatController extends GetxController {
   Future<void> fetchInitialMessages() async {
     if (_chatPartnerUid.isEmpty) {
       hasInitialLoadError.value = true;
-      _errorController.handleError("상대방 정보가 없어 메시지를 조회할 수 없습니다.");
+      _errorController.handleError(AppStrings.cannotFetchMessagesNoPartner);
       return;
     }
     isLoading.value = true;
@@ -282,7 +283,7 @@ class ChatController extends GetxController {
     } catch (e) {
       _errorController.handleError(
         e,
-        userFriendlyMessage: "이전 메시지를 불러오는 데 실패했습니다.",
+        userFriendlyMessage: AppStrings.fetchPreviousMessagesError,
       );
     } finally {
       isFetchingMore.value = false;

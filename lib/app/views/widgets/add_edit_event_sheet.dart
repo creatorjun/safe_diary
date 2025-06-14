@@ -101,8 +101,8 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
       transitionDuration: const Duration(milliseconds: 200),
       barrierDismissible: true,
       type: OmniDateTimePickerType.time,
-      startWidget: const Text("시작 시간"),
-      endWidget: const Text("종료 시간"),
+      startWidget: const Text(AppStrings.startTime),
+      endWidget: const Text(AppStrings.endTime),
     );
 
     if (dateTimeList != null && dateTimeList.length == 2) {
@@ -118,15 +118,17 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
 
-    final String startTimeStr = _startTime?.format(context) ?? "미지정";
-    final String endTimeStr = _endTime?.format(context) ?? "미지정";
+    final String startTimeStr =
+        _startTime?.format(context) ?? AppStrings.unspecified;
+    final String endTimeStr =
+        _endTime?.format(context) ?? AppStrings.unspecified;
 
     return InkWell(
       onTap: () => _selectDateTimeRange(context),
       borderRadius: BorderRadius.circular(12.0),
       child: InputDecorator(
         decoration: InputDecoration(
-          labelText: "시간 지정 (선택)",
+          labelText: AppStrings.timePickerLabelOptional,
           prefixIcon: Icon(
             Icons.access_time_filled_rounded,
             color: colorScheme.onSurfaceVariant,
@@ -157,7 +159,7 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
           final colorScheme = Theme.of(context).colorScheme;
           Get.snackbar(
             AppStrings.error,
-            "종료 시간은 시작 시간보다 늦어야 합니다.",
+            AppStrings.endTimeAfterStartTimeError,
             snackPosition: SnackPosition.BOTTOM,
             margin: const EdgeInsets.all(12),
             backgroundColor: colorScheme.errorContainer,
@@ -193,7 +195,7 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
 
     final bool isEditing = widget.existingEvent != null;
     final String dialogTitleText =
-        isEditing ? AppStrings.edit : AppStrings.addEvent;
+        isEditing ? AppStrings.editEvent : AppStrings.addEvent;
     final String submitButtonText =
         isEditing ? AppStrings.edit : AppStrings.add;
 
@@ -243,19 +245,19 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                       TextFormField(
                         controller: _titleController,
                         autofocus: true,
-                        decoration: InputDecoration(
-                          labelText: "일정 내용",
-                          hintText: "무슨 일정이 있나요?",
+                        decoration: const InputDecoration(
+                          labelText: AppStrings.eventContent,
+                          hintText: AppStrings.eventContentHint,
                           prefixIcon: Icon(
                             Icons.notes_rounded,
-                            color: colorScheme.onSurfaceVariant,
+                            color: Colors.grey,
                             size: 20,
                           ),
                         ),
                         style: textStyles.bodyLarge,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return '일정 내용을 입력해주세요.';
+                            return AppStrings.eventContentRequired;
                           }
                           return null;
                         },
