@@ -33,8 +33,10 @@ class WeatherUtils {
     }
   }
 
-  static String getWeatherIllustrationPath(String? conditionCode,
-      {required bool isDay}) {
+  static String getWeatherIllustrationPath(
+    String? conditionCode, {
+    required bool isDay,
+  }) {
     final basePath = 'assets/weather/';
     switch (conditionCode?.toLowerCase()) {
       case 'thunderstorm':

@@ -18,14 +18,15 @@ class WeatherView extends GetView<WeatherController> {
     final ThemeData theme = Theme.of(context);
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
 
-    int selectedIndex =
-    controller.availableCities.indexOf(controller.selectedCityName.value);
+    int selectedIndex = controller.availableCities.indexOf(
+      controller.selectedCityName.value,
+    );
     if (selectedIndex == -1) {
       selectedIndex = 0;
     }
 
     final FixedExtentScrollController scrollController =
-    FixedExtentScrollController(initialItem: selectedIndex);
+        FixedExtentScrollController(initialItem: selectedIndex);
 
     Get.bottomSheet(
       Container(
@@ -51,16 +52,19 @@ class WeatherView extends GetView<WeatherController> {
                 onSelectedItemChanged: (index) {
                   selectedIndex = index;
                 },
-                children: controller.availableCities
-                    .map((city) => Center(
-                  child: Text(
-                    city,
-                    style: textStyles.bodyLarge.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ))
-                    .toList(),
+                children:
+                    controller.availableCities
+                        .map(
+                          (city) => Center(
+                            child: Text(
+                              city,
+                              style: textStyles.bodyLarge.copyWith(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
               ),
             ),
             Padding(
@@ -71,7 +75,7 @@ class WeatherView extends GetView<WeatherController> {
                 ),
                 onPressed: () {
                   final selectedCity =
-                  controller.availableCities[selectedIndex];
+                      controller.availableCities[selectedIndex];
                   controller.changeCity(selectedCity);
                 },
                 child: const Text("선택"),
@@ -112,12 +116,13 @@ class WeatherView extends GetView<WeatherController> {
         });
       } catch (e) {
         todayForecast =
-        allDailyForecasts.isNotEmpty ? allDailyForecasts.first : null;
+            allDailyForecasts.isNotEmpty ? allDailyForecasts.first : null;
       }
 
-      final futureForecasts = allDailyForecasts
-          .where((f) => f.date != todayForecast?.date)
-          .toList();
+      final futureForecasts =
+          allDailyForecasts
+              .where((f) => f.date != todayForecast?.date)
+              .toList();
 
       return SafeArea(
         bottom: false,
@@ -129,19 +134,29 @@ class WeatherView extends GetView<WeatherController> {
               _buildCitySelectorHeader(context),
               if (weather.currentWeather != null && todayForecast != null)
                 _buildModernCurrentWeather(
-                    context, weather.currentWeather!, todayForecast),
+                  context,
+                  weather.currentWeather!,
+                  todayForecast,
+                ),
               SizedBox(height: spacing.large),
               Expanded(
                 child: RefreshIndicator(
-                  onRefresh: () =>
-                      controller.fetchWeather(controller.selectedCityName.value),
+                  onRefresh:
+                      () => controller.fetchWeather(
+                        controller.selectedCityName.value,
+                      ),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
                         if (weather.hourlyForecast != null)
-                          _buildHourlyForecast(context, weather.hourlyForecast!),
+                          _buildHourlyForecast(
+                            context,
+                            weather.hourlyForecast!,
+                          ),
                         ...futureForecasts.map(
-                                (forecast) => _buildDailyForecastCard(context, forecast)),
+                          (forecast) =>
+                              _buildDailyForecastCard(context, forecast),
+                        ),
                         SizedBox(height: spacing.large * 5),
                       ],
                     ),
@@ -172,8 +187,9 @@ class WeatherView extends GetView<WeatherController> {
             children: [
               Text(
                 controller.selectedCityName.value,
-                style:
-                textStyles.titleMedium.copyWith(color: colorScheme.onSurface),
+                style: textStyles.titleMedium.copyWith(
+                  color: colorScheme.onSurface,
+                ),
               ),
               SizedBox(width: spacing.small),
               Icon(
@@ -189,10 +205,10 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildModernCurrentWeather(
-      BuildContext context,
-      CurrentWeatherResponseDto current,
-      DailyWeatherForecastResponseDto today,
-      ) {
+    BuildContext context,
+    CurrentWeatherResponseDto current,
+    DailyWeatherForecastResponseDto today,
+  ) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
@@ -200,17 +216,23 @@ class WeatherView extends GetView<WeatherController> {
 
     final String highTemp = today.maxTemp?.toStringAsFixed(0) ?? '--';
     final String lowTemp = today.minTemp?.toStringAsFixed(0) ?? '--';
-    final String cardBackgroundImage = Get.isDarkMode
-        ? 'assets/weather/card_back_dark.png'
-        : 'assets/weather/card_back_light.png';
+    final String cardBackgroundImage =
+        Get.isDarkMode
+            ? 'assets/weather/card_back_dark.png'
+            : 'assets/weather/card_back_light.png';
 
     bool isDay = true;
     if (today.sunset != null && today.sunset!.isNotEmpty) {
       try {
         final now = DateTime.now();
         final sunsetParts = today.sunset!.split(':');
-        final sunsetTime = DateTime(now.year, now.month, now.day,
-            int.parse(sunsetParts[0]), int.parse(sunsetParts[1]));
+        final sunsetTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.parse(sunsetParts[0]),
+          int.parse(sunsetParts[1]),
+        );
         if (now.isAfter(sunsetTime)) {
           isDay = false;
         }
@@ -220,8 +242,9 @@ class WeatherView extends GetView<WeatherController> {
     }
 
     final String illustrationPath = WeatherUtils.getWeatherIllustrationPath(
-        current.conditionCode,
-        isDay: isDay);
+      current.conditionCode,
+      isDay: isDay,
+    );
 
     return Container(
       width: double.infinity,
@@ -259,8 +282,9 @@ class WeatherView extends GetView<WeatherController> {
                 SizedBox(height: spacing.small),
                 RichText(
                   text: TextSpan(
-                    style: textStyles.bodyLarge
-                        .copyWith(color: colorScheme.onPrimary.withAlpha(204)),
+                    style: textStyles.bodyLarge.copyWith(
+                      color: colorScheme.onPrimary.withAlpha(204),
+                    ),
                     children: <TextSpan>[
                       const TextSpan(text: '${AppStrings.maxTemp} : '),
                       TextSpan(
@@ -271,8 +295,10 @@ class WeatherView extends GetView<WeatherController> {
                       TextSpan(
                         text: '$lowTemp°',
                         style: TextStyle(
-                            color:
-                            colorScheme.primary.withRed(150).withGreen(150)),
+                          color: colorScheme.primary
+                              .withRed(150)
+                              .withGreen(150),
+                        ),
                       ),
                     ],
                   ),
@@ -289,8 +315,9 @@ class WeatherView extends GetView<WeatherController> {
                     SizedBox(width: spacing.small),
                     Text(
                       '${AppStrings.apparentTemp} : ${current.apparentTemperature.toStringAsFixed(0)}°',
-                      style:
-                      textStyles.bodyLarge.copyWith(color: colorScheme.onPrimary),
+                      style: textStyles.bodyLarge.copyWith(
+                        color: colorScheme.onPrimary,
+                      ),
                     ),
                   ],
                 ),
@@ -329,11 +356,11 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildDetailItem(
-      BuildContext context, {
-        required IconData icon,
-        required String value,
-        required String label,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
@@ -359,9 +386,9 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildHourlyForecast(
-      BuildContext context,
-      HourlyForecastResponseDto hourly,
-      ) {
+    BuildContext context,
+    HourlyForecastResponseDto hourly,
+  ) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
@@ -381,18 +408,25 @@ class WeatherView extends GetView<WeatherController> {
           children: [
             Row(
               children: [
-                Icon(Icons.hourglass_bottom,
-                    color: colorScheme.onSurfaceVariant, size: 18),
+                Icon(
+                  Icons.hourglass_bottom,
+                  color: colorScheme.onSurfaceVariant,
+                  size: 18,
+                ),
                 SizedBox(width: spacing.small),
-                Text(AppStrings.hourlyForecastSummary,
-                    style: textStyles.bodyLarge),
+                Text(
+                  AppStrings.hourlyForecastSummary,
+                  style: textStyles.bodyLarge,
+                ),
               ],
             ),
             SizedBox(height: spacing.small),
             Text(
               hourly.summary!,
-              style: textStyles.bodyMedium
-                  .copyWith(color: colorScheme.onSurfaceVariant, height: 1.5),
+              style: textStyles.bodyMedium.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                height: 1.5,
+              ),
             ),
           ],
         ),
@@ -401,9 +435,9 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildDailyForecastCard(
-      BuildContext context,
-      DailyWeatherForecastResponseDto day,
-      ) {
+    BuildContext context,
+    DailyWeatherForecastResponseDto day,
+  ) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
@@ -411,10 +445,14 @@ class WeatherView extends GetView<WeatherController> {
 
     final String highTemp = day.maxTemp?.toStringAsFixed(0) ?? '--';
     final String lowTemp = day.minTemp?.toStringAsFixed(0) ?? '--';
-    final String severeWeather =
-    WeatherUtils.getMoreSevereWeather(day.weatherAm, day.weatherPm);
-    final String illustrationPath =
-    WeatherUtils.getWeatherIllustrationPath(severeWeather, isDay: true);
+    final String severeWeather = WeatherUtils.getMoreSevereWeather(
+      day.weatherAm,
+      day.weatherPm,
+    );
+    final String illustrationPath = WeatherUtils.getWeatherIllustrationPath(
+      severeWeather,
+      isDay: true,
+    );
 
     DateTime date;
     String displayDate = "정보 없음";
@@ -451,8 +489,9 @@ class WeatherView extends GetView<WeatherController> {
                     SizedBox(height: spacing.small),
                     RichText(
                       text: TextSpan(
-                        style: textStyles.titleMedium
-                            .copyWith(color: colorScheme.onSurface),
+                        style: textStyles.titleMedium.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
                         children: <TextSpan>[
                           const TextSpan(text: 'H : '),
                           TextSpan(
@@ -463,9 +502,10 @@ class WeatherView extends GetView<WeatherController> {
                           TextSpan(
                             text: '$lowTemp°',
                             style: TextStyle(
-                                color: colorScheme.primary
-                                    .withRed(150)
-                                    .withGreen(150)),
+                              color: colorScheme.primary
+                                  .withRed(150)
+                                  .withGreen(150),
+                            ),
                           ),
                         ],
                       ),
@@ -497,8 +537,11 @@ class WeatherView extends GetView<WeatherController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.cloud_off_outlined,
-                color: colorScheme.onSurfaceVariant, size: 48),
+            Icon(
+              Icons.cloud_off_outlined,
+              color: colorScheme.onSurfaceVariant,
+              size: 48,
+            ),
             SizedBox(height: spacing.medium),
             Text(
               AppStrings.weatherInfoError,

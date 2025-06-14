@@ -77,7 +77,7 @@ class ProfileController extends GetxController {
 
       if (isPasswordChanged) {
         final currentPwd =
-        loginController.user.isAppPasswordSet ? _verifiedPassword : null;
+            loginController.user.isAppPasswordSet ? _verifiedPassword : null;
         final bool success = await loginController.setOrUpdateAppPassword(
           currentAppPassword: currentPwd,
           newAppPassword: newPassword,
@@ -93,8 +93,10 @@ class ProfileController extends GetxController {
       hasChanges.value = false;
     } catch (e) {
       Get.back();
-      _errorController.handleError(e,
-          userFriendlyMessage: AppStrings.saveFailed);
+      _errorController.handleError(
+        e,
+        userFriendlyMessage: AppStrings.saveFailed,
+      );
     }
   }
 
@@ -103,7 +105,7 @@ class ProfileController extends GetxController {
     final ThemeData theme = Theme.of(context);
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
     final TextEditingController dialogPasswordController =
-    TextEditingController();
+        TextEditingController();
 
     Get.dialog(
       AlertDialog(
@@ -126,17 +128,22 @@ class ProfileController extends GetxController {
         ),
         actions: [
           TextButton(
-              child: const Text(AppStrings.cancel), onPressed: () => Get.back()),
+            child: const Text(AppStrings.cancel),
+            onPressed: () => Get.back(),
+          ),
           FilledButton(
             child: const Text(AppStrings.removeAppPassword),
             onPressed: () async {
               final String currentPassword =
-              dialogPasswordController.text.trim();
+                  dialogPasswordController.text.trim();
 
               Get.back();
 
               if (currentPassword.isEmpty) {
-                Get.snackbar(AppStrings.error, AppStrings.currentPasswordRequired);
+                Get.snackbar(
+                  AppStrings.error,
+                  AppStrings.currentPasswordRequired,
+                );
                 return;
               }
 
@@ -206,7 +213,8 @@ class ProfileController extends GetxController {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           side: BorderSide(
-                              color: theme.colorScheme.outline.withAlpha(128)),
+                            color: theme.colorScheme.outline.withAlpha(128),
+                          ),
                         ),
                         child: const Text(AppStrings.cancel),
                       ),
@@ -252,14 +260,19 @@ class ProfileController extends GetxController {
         title: const Text(AppStrings.unfriendConfirmationTitle),
         content: const Text(AppStrings.unfriendConfirmationContent),
         actions: [
-          TextButton(onPressed: () => Get.back(), child: const Text(AppStrings.cancel)),
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(AppStrings.cancel),
+          ),
           TextButton(
             onPressed: () async {
               Get.back();
               await partnerController.unfriendPartnerAndClearChat();
             },
-            child: Text(AppStrings.unfriendButton,
-                style: TextStyle(color: Theme.of(Get.context!).colorScheme.error)),
+            child: Text(
+              AppStrings.unfriendButton,
+              style: TextStyle(color: Theme.of(Get.context!).colorScheme.error),
+            ),
           ),
         ],
       ),

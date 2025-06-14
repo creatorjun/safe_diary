@@ -40,9 +40,9 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
 
   @override
   ThemeExtension<AppTextStyles> lerp(
-      covariant ThemeExtension<AppTextStyles>? other,
-      double t,
-      ) {
+    covariant ThemeExtension<AppTextStyles>? other,
+    double t,
+  ) {
     if (other is! AppTextStyles) {
       return this;
     }
@@ -62,11 +62,7 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
 /// `SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium)`
 @immutable
 class AppSpacing extends ThemeExtension<AppSpacing> {
-  const AppSpacing({
-    this.small = 8.0,
-    this.medium = 16.0,
-    this.large = 24.0,
-  });
+  const AppSpacing({this.small = 8.0, this.medium = 16.0, this.large = 24.0});
 
   final double small;
   final double medium;
@@ -89,9 +85,9 @@ class AppSpacing extends ThemeExtension<AppSpacing> {
 
   @override
   ThemeExtension<AppSpacing> lerp(
-      covariant ThemeExtension<AppSpacing>? other,
-      double t,
-      ) {
+    covariant ThemeExtension<AppSpacing>? other,
+    double t,
+  ) {
     return this;
   }
 }
@@ -102,10 +98,7 @@ class AppSpacing extends ThemeExtension<AppSpacing> {
 /// `Theme.of(context).extension<AppBrandColors>()!.naver`
 @immutable
 class AppBrandColors extends ThemeExtension<AppBrandColors> {
-  const AppBrandColors({
-    required this.naver,
-    required this.kakao,
-  });
+  const AppBrandColors({required this.naver, required this.kakao});
 
   final Color naver;
   final Color kakao;
@@ -116,10 +109,7 @@ class AppBrandColors extends ThemeExtension<AppBrandColors> {
   );
 
   @override
-  ThemeExtension<AppBrandColors> copyWith({
-    Color? naver,
-    Color? kakao,
-  }) {
+  ThemeExtension<AppBrandColors> copyWith({Color? naver, Color? kakao}) {
     return AppBrandColors(
       naver: naver ?? this.naver,
       kakao: kakao ?? this.kakao,
@@ -128,9 +118,9 @@ class AppBrandColors extends ThemeExtension<AppBrandColors> {
 
   @override
   ThemeExtension<AppBrandColors> lerp(
-      covariant ThemeExtension<AppBrandColors>? other,
-      double t,
-      ) {
+    covariant ThemeExtension<AppBrandColors>? other,
+    double t,
+  ) {
     if (other is! AppBrandColors) {
       return this;
     }
@@ -163,29 +153,27 @@ class AppTheme {
   );
 
   static final InputDecorationTheme _inputDecorationTheme =
-  InputDecorationTheme(
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12.0),
-    ),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-  );
+      InputDecorationTheme(
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+      );
 
   static final OutlinedButtonThemeData _outlinedButtonTheme =
-  OutlinedButtonThemeData(
-    style: OutlinedButton.styleFrom(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    ),
-  );
+      OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      );
 
-  static final FilledButtonThemeData _filledButtonTheme =
-  FilledButtonThemeData(
+  static final FilledButtonThemeData _filledButtonTheme = FilledButtonThemeData(
     style: FilledButton.styleFrom(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     ),
   );

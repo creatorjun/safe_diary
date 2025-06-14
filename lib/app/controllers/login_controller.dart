@@ -19,6 +19,7 @@ import 'partner_controller.dart';
 class LoginController extends GetxController {
   final AuthService _authService;
   final UserService _userService;
+  // ignore: unused_field
   final SecureStorageService _secureStorageService;
 
   LoginController(

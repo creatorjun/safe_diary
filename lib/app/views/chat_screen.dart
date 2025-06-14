@@ -78,8 +78,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppStrings.chatRoomTitle(controller.chatPartnerNickname),
-            style: textStyles.bodyLarge),
+        title: Text(
+          AppStrings.chatRoomTitle(controller.chatPartnerNickname),
+          style: textStyles.bodyLarge,
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -109,8 +111,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     padding: const EdgeInsets.all(16.0),
                     child: Text(
                       AppStrings.noMessages,
-                      style: textStyles.bodyMedium
-                          .copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: textStyles.bodyMedium.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -121,7 +124,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 controller: controller.scrollController,
                 reverse: true,
                 padding: const EdgeInsets.all(8.0),
-                itemCount: controller.messages.length +
+                itemCount:
+                    controller.messages.length +
                     (controller.isFetchingMore.value ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (controller.isFetchingMore.value &&
@@ -133,8 +137,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       ),
                     );
                   }
-                  final message = controller
-                      .messages[controller.messages.length - 1 - index];
+                  final message =
+                      controller.messages[controller.messages.length -
+                          1 -
+                          index];
                   final bool isMe = message.senderUid == currentUserUid;
                   return _buildMessageBubble(context, message, isMe);
                 },
@@ -162,7 +168,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             SizedBox(height: spacing.medium),
             Text(
               AppStrings.messageLoadError,
-              style: textStyles.bodyLarge.copyWith(color: theme.colorScheme.error),
+              style: textStyles.bodyLarge.copyWith(
+                color: theme.colorScheme.error,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -172,10 +180,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildMessageBubble(
-      BuildContext context,
-      ChatMessage message,
-      bool isMe,
-      ) {
+    BuildContext context,
+    ChatMessage message,
+    bool isMe,
+  ) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
@@ -183,28 +191,28 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     final align = isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
     final bubbleColor =
-    isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest;
+        isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest;
     final textColor =
-    isMe ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
-    final radius = isMe
-        ? const BorderRadius.only(
-      topLeft: Radius.circular(16),
-      bottomLeft: Radius.circular(16),
-      bottomRight: Radius.circular(16),
-    )
-        : const BorderRadius.only(
-      topRight: Radius.circular(16),
-      bottomLeft: Radius.circular(16),
-      bottomRight: Radius.circular(16),
-    );
+        isMe ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
+    final radius =
+        isMe
+            ? const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            )
+            : const BorderRadius.only(
+              topRight: Radius.circular(16),
+              bottomLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            );
 
     return Column(
       crossAxisAlignment: align,
       children: [
         Container(
           margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-          padding:
-          const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.65,
           ),
@@ -221,13 +229,17 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
           child: Text(
             message.content ?? '',
-            style: textStyles.bodyMedium.copyWith(color: textColor, height: 1.4),
+            style: textStyles.bodyMedium.copyWith(
+              color: textColor,
+              height: 1.4,
+            ),
           ),
         ),
         Padding(
-          padding: isMe
-              ? const EdgeInsets.only(right: 10.0, bottom: 6.0)
-              : const EdgeInsets.only(left: 10.0, bottom: 6.0),
+          padding:
+              isMe
+                  ? const EdgeInsets.only(right: 10.0, bottom: 6.0)
+                  : const EdgeInsets.only(left: 10.0, bottom: 6.0),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,

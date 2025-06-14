@@ -60,8 +60,9 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
                     padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
                     child: Text(
                       controller.errorMessage.value,
-                      style: textStyles.bodyMedium
-                          .copyWith(color: colorScheme.error),
+                      style: textStyles.bodyMedium.copyWith(
+                        color: colorScheme.error,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   );
@@ -73,10 +74,12 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
                 return controller.isLoading.value
                     ? const Center(child: CircularProgressIndicator())
                     : FilledButton(
-                  onPressed: controller.verifyPasswordAndNavigate,
-                  child:
-                  Text(AppStrings.confirm, style: textStyles.labelLarge),
-                );
+                      onPressed: controller.verifyPasswordAndNavigate,
+                      child: Text(
+                        AppStrings.confirm,
+                        style: textStyles.labelLarge,
+                      ),
+                    );
               }),
             ],
           ),

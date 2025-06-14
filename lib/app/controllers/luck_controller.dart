@@ -15,10 +15,10 @@ class LuckController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   LuckController(
-      this._luckService,
-      this._loginController,
-      this._secureStorageService,
-      );
+    this._luckService,
+    this._loginController,
+    this._secureStorageService,
+  );
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -49,11 +49,12 @@ class LuckController extends GetxController {
     return zodiacNameMap.entries
         .firstWhere(
           (entry) => entry.value == selectedZodiacApiName.value,
-      orElse: () => MapEntry(
-        availableZodiacsForDisplay.first,
-        _defaultZodiacApiName,
-      ),
-    )
+          orElse:
+              () => MapEntry(
+                availableZodiacsForDisplay.first,
+                _defaultZodiacApiName,
+              ),
+        )
         .key;
   }
 
@@ -73,7 +74,7 @@ class LuckController extends GetxController {
 
   Future<void> _loadSavedZodiacAndFetchLuck() async {
     String? savedZodiacApiName =
-    await _secureStorageService.getSelectedZodiac();
+        await _secureStorageService.getSelectedZodiac();
     if (savedZodiacApiName != null &&
         zodiacNameMap.containsValue(savedZodiacApiName)) {
       selectedZodiacApiName.value = savedZodiacApiName;

@@ -22,9 +22,9 @@ class PartnerController extends GetxController {
   bool get isLoading => _isLoading.value;
 
   final Rx<PartnerInvitationResponseDto?> currentInvitation =
-  Rx<PartnerInvitationResponseDto?>(null);
+      Rx<PartnerInvitationResponseDto?>(null);
   final Rx<PartnerRelationResponseDto?> currentPartnerRelation =
-  Rx<PartnerRelationResponseDto?>(null);
+      Rx<PartnerRelationResponseDto?>(null);
 
   void _setLoading(bool loading) {
     _isLoading.value = loading;
@@ -70,14 +70,19 @@ class PartnerController extends GetxController {
     try {
       final invitation = await _apiService.post<PartnerInvitationResponseDto>(
         '/api/v1/partner/invitation',
-        parser: (data) =>
-            PartnerInvitationResponseDto.fromJson(data as Map<String, dynamic>),
+        parser:
+            (data) => PartnerInvitationResponseDto.fromJson(
+              data as Map<String, dynamic>,
+            ),
       );
       currentInvitation.value = invitation;
       currentPartnerRelation.value = null;
       Get.snackbar(AppStrings.success, AppStrings.createInvitationCodeSuccess);
     } catch (e) {
-      _handleError(e, userFriendlyMessage: AppStrings.createInvitationCodeError);
+      _handleError(
+        e,
+        userFriendlyMessage: AppStrings.createInvitationCodeError,
+      );
     } finally {
       _setLoading(false);
     }
@@ -92,14 +97,16 @@ class PartnerController extends GetxController {
     _setLoading(true);
 
     final requestBody =
-    PartnerInvitationAcceptRequestDto(invitationId: invitationId).toJson();
+        PartnerInvitationAcceptRequestDto(invitationId: invitationId).toJson();
 
     try {
       final relation = await _apiService.post<PartnerRelationResponseDto>(
         '/api/v1/partner/invitation/accept',
         body: requestBody,
-        parser: (data) =>
-            PartnerRelationResponseDto.fromJson(data as Map<String, dynamic>),
+        parser:
+            (data) => PartnerRelationResponseDto.fromJson(
+              data as Map<String, dynamic>,
+            ),
       );
 
       currentPartnerRelation.value = relation;

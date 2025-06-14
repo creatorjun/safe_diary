@@ -20,7 +20,9 @@ class AppStrings {
   static const String naverLogin = '네이버 로그인';
   static const String kakaoLogin = '카카오 로그인';
   static const String logout = '로그아웃';
+
   static String welcomeMessage(String nickname) => '$nickname님, 환영합니다!';
+
   static String loginPlatform(String platform) => '로그인 플랫폼: $platform';
   static const String logoutSuccess = '성공적으로 로그아웃되었습니다.';
 
@@ -38,6 +40,7 @@ class AppStrings {
   static const String noEventsOnSelectedDate = '선택된 날짜에 일정이 없습니다.';
   static const String eventNotSynced = '이벤트가 아직 동기화되지 않았습니다.';
   static const String deleteEventConfirmationTitle = '일정 삭제';
+
   static String deleteEventConfirmationContent(String title) =>
       "'$title' 일정을 삭제하시겠습니까?";
 
@@ -58,6 +61,7 @@ class AppStrings {
   static const String selectZodiac = "띠 선택";
   static const String luckInfoError = '운세 정보를 불러오는 데 실패했습니다.';
   static const String noLuckInfo = '오늘의 운세 정보가 아직 없습니다.';
+
   static String zodiacLuckTitle(String zodiac) => '$zodiac 띠별 운세';
   static const String overallLuck = '✨ 총운';
   static const String financialLuck = '💰 재물운';
@@ -75,8 +79,7 @@ class AppStrings {
   static const String password = '비밀번호';
   static const String passwordIncorrect = '비밀번호가 일치하지 않습니다.';
   static const String passwordRequired = '비밀번호를 입력해주세요.';
-  static const String securityLogoutWarning =
-      '비밀번호를 여러 번 잘못 입력하여 로그아웃됩니다.';
+  static const String securityLogoutWarning = '비밀번호를 여러 번 잘못 입력하여 로그아웃됩니다.';
   static const String profileAndSettings = '프로필 및 계정 설정';
   static const String editProfile = '프로필 변경';
   static const String nickname = '닉네임';
@@ -88,8 +91,7 @@ class AppStrings {
   static const String newPasswordConfirm = '새 비밀번호 확인';
   static const String newPasswordConfirmHint = '새 비밀번호 다시 입력';
   static const String newPasswordMinLengthError = '새 비밀번호는 4자 이상이어야 합니다.';
-  static const String newPasswordMismatchError =
-      '새 비밀번호와 확인 비밀번호가 일치하지 않습니다.';
+  static const String newPasswordMismatchError = '새 비밀번호와 확인 비밀번호가 일치하지 않습니다.';
   static const String saveChanges = '변경 내용 저장';
   static const String noChanges = '변경된 내용이 없습니다.';
   static const String saveSuccess = '변경 내용이 성공적으로 저장되었습니다.';
@@ -113,11 +115,13 @@ class AppStrings {
   static const String proceedWithDeletion = '탈퇴 진행';
 
   // Partner
-  static const String alreadyConnectedError = '이미 파트너와 연결되어 있어 초대 코드를 생성할 수 없습니다.';
+  static const String alreadyConnectedError =
+      '이미 파트너와 연결되어 있어 초대 코드를 생성할 수 없습니다.';
   static const String createInvitationCodeSuccess = '파트너 초대 코드가 생성되었습니다.';
   static const String createInvitationCodeError = '초대 코드 생성 중 오류가 발생했습니다.';
   static const String invitationCodeRequired = '초대 코드를 입력해주세요.';
   static const String acceptInvitationSuccess = '파트너 초대를 수락했습니다!';
+
   static String partnerConnectedMessage(String nickname) =>
       "이제부터 '$nickname'님과 연결됩니다.";
   static const String acceptInvitationError = '파트너 초대 수락 중 오류가 발생했습니다.';
@@ -128,8 +132,11 @@ class AppStrings {
   static const String acceptInvitation = '초대 수락';
   static const String copyCode = '코드 복사';
   static const String copyCodeSuccess = '초대 코드가 클립보드에 복사되었습니다.';
+
   static String connectedPartner(String nickname) => '연결된 파트너: $nickname';
+
   static String partnerSince(String date) => '연결 시작일: $date';
+
   static String chatWithPartner(String nickname) => '$nickname님과 채팅하기';
   static const String generateNewCode = '새 코드로 다시 생성';
 

@@ -15,10 +15,10 @@ class WeatherController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   WeatherController(
-      this._weatherService,
-      this._loginController,
-      this._secureStorageService,
-      );
+    this._weatherService,
+    this._loginController,
+    this._secureStorageService,
+  );
 
   ErrorController get _errorController => Get.find<ErrorController>();
 

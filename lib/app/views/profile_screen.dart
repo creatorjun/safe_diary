@@ -68,9 +68,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback toggleVisibility,
   }) {
     final AppTextStyles textStyles =
-    Theme.of(context).extension<AppTextStyles>()!;
+        Theme.of(context).extension<AppTextStyles>()!;
     return Obx(
-          () => TextField(
+      () => TextField(
         controller: controller,
         obscureText: isObscured.value,
         style: textStyles.bodyLarge,
@@ -97,7 +97,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppStrings.profileAndSettings, style: textStyles.titleMedium),
+        title: Text(
+          AppStrings.profileAndSettings,
+          style: textStyles.titleMedium,
+        ),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -106,10 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                AppStrings.editProfile,
-                style: textStyles.titleLarge,
-              ),
+              Text(AppStrings.editProfile, style: textStyles.titleLarge),
               SizedBox(height: spacing.small),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: spacing.medium),
@@ -146,33 +146,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       hintText: AppStrings.newPasswordConfirmHint,
                       isObscured: controller.isConfirmPasswordObscured,
                       toggleVisibility:
-                      controller.toggleConfirmPasswordVisibility,
+                          controller.toggleConfirmPasswordVisibility,
                     ),
                   ],
                 ),
               ),
               SizedBox(height: spacing.small),
               Obx(
-                    () => FilledButton.icon(
+                () => FilledButton.icon(
                   icon: const Icon(Icons.save_outlined, size: 18),
-                  label: Text(AppStrings.saveChanges, style: textStyles.labelLarge),
+                  label: Text(
+                    AppStrings.saveChanges,
+                    style: textStyles.labelLarge,
+                  ),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
                   ),
-                  onPressed: controller.hasChanges.value
-                      ? () {
-                    controller
-                        .saveChanges(
-                      newNickname: _nicknameController.text,
-                      newPassword: _newPasswordController.text,
-                      confirmPassword: _confirmPasswordController.text,
-                    )
-                        .then((_) {
-                      _newPasswordController.clear();
-                      _confirmPasswordController.clear();
-                    });
-                  }
-                      : null,
+                  onPressed:
+                      controller.hasChanges.value
+                          ? () {
+                            controller
+                                .saveChanges(
+                                  newNickname: _nicknameController.text,
+                                  newPassword: _newPasswordController.text,
+                                  confirmPassword:
+                                      _confirmPasswordController.text,
+                                )
+                                .then((_) {
+                                  _newPasswordController.clear();
+                                  _confirmPasswordController.clear();
+                                });
+                          }
+                          : null,
                 ),
               ),
               Obx(() {
@@ -186,13 +191,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       label: Text(
                         AppStrings.removeAppPassword,
-                        style: textStyles.bodyLarge
-                            .copyWith(color: colorScheme.error),
+                        style: textStyles.bodyLarge.copyWith(
+                          color: colorScheme.error,
+                        ),
                       ),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
-                        side:
-                        BorderSide(color: colorScheme.error.withAlpha(80)),
+                        side: BorderSide(
+                          color: colorScheme.error.withAlpha(80),
+                        ),
                       ),
                       onPressed: controller.promptForPasswordAndRemove,
                     ),
@@ -204,19 +211,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: spacing.large),
               const Divider(),
               SizedBox(height: spacing.large),
-              Text(
-                AppStrings.partnerConnection,
-                style: textStyles.titleLarge,
-              ),
+              Text(AppStrings.partnerConnection, style: textStyles.titleLarge),
               SizedBox(height: spacing.medium),
               _buildPartnerSection(context),
               SizedBox(height: spacing.large),
               const Divider(),
               SizedBox(height: spacing.medium),
-              Text(
-                AppStrings.accountInfo,
-                style: textStyles.titleLarge,
-              ),
+              Text(AppStrings.accountInfo, style: textStyles.titleLarge),
               SizedBox(height: spacing.small),
               _buildAccountInfoSection(),
               SizedBox(height: spacing.medium),
@@ -270,8 +271,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (formattedPartnerSince != '날짜 정보 없음')
               Text(
                 AppStrings.partnerSince(formattedPartnerSince),
-                style: textStyles.bodyMedium
-                    .copyWith(color: colorScheme.onSurfaceVariant),
+                style: textStyles.bodyMedium.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             SizedBox(height: spacing.medium),
             FilledButton.icon(
@@ -285,18 +287,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(double.infinity, 45),
               ),
-              onPressed: () => Get.toNamed(
-                Routes.chat,
-                arguments: {
-                  'partnerUid': user.partnerUid,
-                  'partnerNickname': partnerNickname,
-                },
-              ),
+              onPressed:
+                  () => Get.toNamed(
+                    Routes.chat,
+                    arguments: {
+                      'partnerUid': user.partnerUid,
+                      'partnerNickname': partnerNickname,
+                    },
+                  ),
             ),
             SizedBox(height: spacing.small),
             OutlinedButton.icon(
-              icon: Icon(Icons.link_off_rounded,
-                  size: 18, color: colorScheme.error),
+              icon: Icon(
+                Icons.link_off_rounded,
+                size: 18,
+                color: colorScheme.error,
+              ),
               label: Text(
                 AppStrings.unfriendButton,
                 style: textStyles.bodyMedium.copyWith(color: colorScheme.error),
@@ -326,14 +332,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('생성된 파트너 초대 코드', style: textStyles.bodyLarge),
             SizedBox(height: spacing.small),
             TextField(
-              controller: TextEditingController(
-                text: invitation.invitationId,
-              ),
+              controller: TextEditingController(text: invitation.invitationId),
               readOnly: true,
               style: textStyles.bodyMedium,
               decoration: InputDecoration(
-                contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.copy, size: 20),
                   tooltip: AppStrings.copyCode,
@@ -341,7 +347,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Clipboard.setData(
                       ClipboardData(text: invitation.invitationId),
                     );
-                    Get.snackbar(AppStrings.success, AppStrings.copyCodeSuccess);
+                    Get.snackbar(
+                      AppStrings.success,
+                      AppStrings.copyCodeSuccess,
+                    );
                   },
                 ),
               ),
@@ -349,8 +358,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SizedBox(height: spacing.small),
             Text(
               '만료 시간: $formattedExpiresAt',
-              style: textStyles.bodyMedium
-                  .copyWith(color: colorScheme.onSurfaceVariant),
+              style: textStyles.bodyMedium.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
             SizedBox(height: spacing.medium),
             OutlinedButton(
@@ -420,15 +430,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(
                   width: 22,
                   height: 22,
-                  child: user.platform == LoginPlatform.naver
-                      ? const Image(image: Svg('assets/naver_icon.svg'))
-                      : user.platform == LoginPlatform.kakao
-                      ? const Image(image: Svg('assets/kakao_icon.svg'))
-                      : Icon(
-                    Icons.device_unknown_outlined,
-                    color: colorScheme.onSurfaceVariant,
-                    size: 22,
-                  ),
+                  child:
+                      user.platform == LoginPlatform.naver
+                          ? const Image(image: Svg('assets/naver_icon.svg'))
+                          : user.platform == LoginPlatform.kakao
+                          ? const Image(image: Svg('assets/kakao_icon.svg'))
+                          : Icon(
+                            Icons.device_unknown_outlined,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 22,
+                          ),
                 ),
                 SizedBox(width: spacing.small),
                 Text(
@@ -447,8 +458,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 alignment: Alignment.bottomRight,
                 child: Text(
                   '가입일: $formattedCreatedAt',
-                  style: textStyles.bodyMedium
-                      .copyWith(color: colorScheme.onSurfaceVariant),
+                  style: textStyles.bodyMedium.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],
@@ -468,10 +480,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(12.0),
         side: BorderSide(color: colorScheme.error.withAlpha(80)),
       ),
-      leading: Icon(
-        Icons.delete_forever_outlined,
-        color: colorScheme.error,
-      ),
+      leading: Icon(Icons.delete_forever_outlined, color: colorScheme.error),
       title: Text(
         AppStrings.accountDeletion,
         style: textStyles.bodyLarge.copyWith(color: colorScheme.error),
@@ -482,8 +491,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         size: 16,
       ),
       onTap: controller.handleAccountDeletionRequest,
-      contentPadding:
-      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 4.0,
+      ),
     );
   }
 }

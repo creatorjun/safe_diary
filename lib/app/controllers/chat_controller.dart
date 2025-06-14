@@ -26,10 +26,10 @@ class ChatController extends GetxController {
     required LoginController loginController,
     required String partnerUid,
     String? partnerNickname,
-  })  : _chatService = chatService,
-        _loginController = loginController,
-        _chatPartnerUid = partnerUid,
-        _chatPartnerNickname = partnerNickname;
+  }) : _chatService = chatService,
+       _loginController = loginController,
+       _chatPartnerUid = partnerUid,
+       _chatPartnerNickname = partnerNickname;
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -130,8 +130,8 @@ class ChatController extends GetxController {
 
             if (isMyEchoMessage) {
               final index = messages.lastIndexWhere(
-                    (msg) =>
-                (msg.id?.startsWith('temp_') ?? false) &&
+                (msg) =>
+                    (msg.id?.startsWith('temp_') ?? false) &&
                     msg.content == receivedMessage.content,
               );
               if (index != -1) {
@@ -327,7 +327,7 @@ class ChatController extends GetxController {
 
   void _scrollListener() {
     if (scrollController.position.pixels <=
-        scrollController.position.minScrollExtent + 50 &&
+            scrollController.position.minScrollExtent + 50 &&
         !isFetchingMore.value &&
         !hasReachedMax.value) {
       fetchMoreMessages();

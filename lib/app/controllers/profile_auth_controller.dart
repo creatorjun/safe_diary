@@ -15,10 +15,10 @@ class ProfileAuthController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   ProfileAuthController(
-      this._loginController,
-      this._partnerController,
-      this._secureStorageService,
-      );
+    this._loginController,
+    this._partnerController,
+    this._secureStorageService,
+  );
 
   late TextEditingController passwordController;
 

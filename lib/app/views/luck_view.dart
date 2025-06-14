@@ -16,11 +16,12 @@ class LuckView extends GetView<LuckController> {
   void _showZodiacSelectionBottomSheet(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
-    int selectedIndex = controller.availableZodiacsForDisplay
-        .indexOf(controller.currentSelectedZodiacDisplayName);
+    int selectedIndex = controller.availableZodiacsForDisplay.indexOf(
+      controller.currentSelectedZodiacDisplayName,
+    );
 
     final FixedExtentScrollController scrollController =
-    FixedExtentScrollController(initialItem: selectedIndex);
+        FixedExtentScrollController(initialItem: selectedIndex);
 
     Get.bottomSheet(
       Container(
@@ -46,16 +47,19 @@ class LuckView extends GetView<LuckController> {
                 onSelectedItemChanged: (index) {
                   selectedIndex = index;
                 },
-                children: controller.availableZodiacsForDisplay
-                    .map((zodiac) => Center(
-                  child: Text(
-                    zodiac,
-                    style: textStyles.bodyLarge.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ))
-                    .toList(),
+                children:
+                    controller.availableZodiacsForDisplay
+                        .map(
+                          (zodiac) => Center(
+                            child: Text(
+                              zodiac,
+                              style: textStyles.bodyLarge.copyWith(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
               ),
             ),
             Padding(
@@ -66,7 +70,7 @@ class LuckView extends GetView<LuckController> {
                 ),
                 onPressed: () {
                   final selectedZodiac =
-                  controller.availableZodiacsForDisplay[selectedIndex];
+                      controller.availableZodiacsForDisplay[selectedIndex];
                   controller.changeZodiacByDisplayName(selectedZodiac);
                 },
                 child: const Text("선택"),
@@ -112,8 +116,11 @@ class LuckView extends GetView<LuckController> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline,
-                color: colorScheme.error.withAlpha(179), size: 48),
+            Icon(
+              Icons.error_outline,
+              color: colorScheme.error.withAlpha(179),
+              size: 48,
+            ),
             SizedBox(height: spacing.medium),
             Text(
               AppStrings.luckInfoError,
@@ -124,8 +131,10 @@ class LuckView extends GetView<LuckController> {
             ElevatedButton.icon(
               icon: const Icon(Icons.refresh),
               label: const Text(AppStrings.tryAgain),
-              onPressed: () => controller
-                  .fetchTodaysLuck(controller.selectedZodiacApiName.value),
+              onPressed:
+                  () => controller.fetchTodaysLuck(
+                    controller.selectedZodiacApiName.value,
+                  ),
             ),
           ],
         ),
@@ -153,8 +162,10 @@ class LuckView extends GetView<LuckController> {
           ElevatedButton.icon(
             icon: const Icon(Icons.refresh),
             label: const Text("새로고침"),
-            onPressed: () => controller
-                .fetchTodaysLuck(controller.selectedZodiacApiName.value),
+            onPressed:
+                () => controller.fetchTodaysLuck(
+                  controller.selectedZodiacApiName.value,
+                ),
           ),
         ],
       ),
@@ -175,17 +186,34 @@ class LuckView extends GetView<LuckController> {
     }
 
     final List<Widget> luckCards = [
-      _buildLuckCategoryCard(context, AppStrings.overallLuck, luckData.overallLuck),
       _buildLuckCategoryCard(
-          context, AppStrings.financialLuck, luckData.financialLuck),
+        context,
+        AppStrings.overallLuck,
+        luckData.overallLuck,
+      ),
+      _buildLuckCategoryCard(
+        context,
+        AppStrings.financialLuck,
+        luckData.financialLuck,
+      ),
       _buildLuckCategoryCard(context, AppStrings.loveLuck, luckData.loveLuck),
-      _buildLuckCategoryCard(context, AppStrings.healthLuck, luckData.healthLuck),
+      _buildLuckCategoryCard(
+        context,
+        AppStrings.healthLuck,
+        luckData.healthLuck,
+      ),
       if (luckData.luckyNumber != null)
         _buildLuckCategoryCard(
-            context, AppStrings.luckyNumber, luckData.luckyNumber.toString()),
+          context,
+          AppStrings.luckyNumber,
+          luckData.luckyNumber.toString(),
+        ),
       if (luckData.luckyColor != null)
         _buildLuckCategoryCard(
-            context, AppStrings.luckyColor, luckData.luckyColor),
+          context,
+          AppStrings.luckyColor,
+          luckData.luckyColor,
+        ),
       _buildLuckCategoryCard(context, AppStrings.advice, luckData.advice),
     ];
 
@@ -205,14 +233,17 @@ class LuckView extends GetView<LuckController> {
                     borderRadius: BorderRadius.circular(8.0),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12.0, vertical: 8.0),
+                        horizontal: 12.0,
+                        vertical: 8.0,
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Obx(
-                                () => Text(
+                            () => Text(
                               AppStrings.zodiacLuckTitle(
-                                  controller.currentSelectedZodiacDisplayName),
+                                controller.currentSelectedZodiacDisplayName,
+                              ),
                               style: textStyles.titleMedium,
                             ),
                           ),
@@ -230,8 +261,9 @@ class LuckView extends GetView<LuckController> {
                 Center(
                   child: Text(
                     requestDateFormatted,
-                    style: textStyles.bodyMedium
-                        .copyWith(color: colorScheme.onSurfaceVariant),
+                    style: textStyles.bodyMedium.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
                 SizedBox(height: spacing.medium),
@@ -240,15 +272,16 @@ class LuckView extends GetView<LuckController> {
           ),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () => controller
-                  .fetchTodaysLuck(controller.selectedZodiacApiName.value),
+              onRefresh:
+                  () => controller.fetchTodaysLuck(
+                    controller.selectedZodiacApiName.value,
+                  ),
               child: ListView(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0, vertical: 8.0),
-                children: [
-                  ...luckCards,
-                  SizedBox(height: spacing.large * 5),
-                ],
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                children: [...luckCards, SizedBox(height: spacing.large * 5)],
               ),
             ),
           ),
@@ -258,10 +291,10 @@ class LuckView extends GetView<LuckController> {
   }
 
   Widget _buildLuckCategoryCard(
-      BuildContext context,
-      String title,
-      String? content,
-      ) {
+    BuildContext context,
+    String title,
+    String? content,
+  ) {
     if (content == null || content.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -281,8 +314,10 @@ class LuckView extends GetView<LuckController> {
             SizedBox(height: spacing.small),
             Text(
               content,
-              style: textStyles.bodyMedium
-                  .copyWith(height: 1.5, color: colorScheme.onSurfaceVariant),
+              style: textStyles.bodyMedium.copyWith(
+                height: 1.5,
+                color: colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.justify,
             ),
           ],

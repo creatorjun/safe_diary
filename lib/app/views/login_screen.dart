@@ -12,9 +12,9 @@ class LoginScreen extends GetView<LoginController> {
   const LoginScreen({super.key});
 
   Widget _buildNaverLoginButton(
-      BuildContext context,
-      LoginController controller,
-      ) {
+    BuildContext context,
+    LoginController controller,
+  ) {
     final ThemeData theme = Theme.of(context);
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppBrandColors brandColors = theme.extension<AppBrandColors>()!;
@@ -45,9 +45,9 @@ class LoginScreen extends GetView<LoginController> {
   }
 
   Widget _buildKakaoLoginButton(
-      BuildContext context,
-      LoginController controller,
-      ) {
+    BuildContext context,
+    LoginController controller,
+  ) {
     final ThemeData theme = Theme.of(context);
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppBrandColors brandColors = theme.extension<AppBrandColors>()!;
@@ -78,9 +78,9 @@ class LoginScreen extends GetView<LoginController> {
   }
 
   Widget _buildUserProfileView(
-      BuildContext context,
-      LoginController controller,
-      ) {
+    BuildContext context,
+    LoginController controller,
+  ) {
     final ThemeData theme = Theme.of(context);
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
@@ -119,7 +119,7 @@ class LoginScreen extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     final String backgroundImage =
-    Get.isDarkMode ? "assets/dark_back.png" : "assets/light_back.png";
+        Get.isDarkMode ? "assets/dark_back.png" : "assets/light_back.png";
 
     return Scaffold(
       body: Obx(() {

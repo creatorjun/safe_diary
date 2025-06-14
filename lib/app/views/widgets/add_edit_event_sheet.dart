@@ -74,15 +74,19 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     List<DateTime>? dateTimeList = await showOmniDateTimeRangePicker(
       context: context,
       startInitialDate: initialStartDateTime,
-      startFirstDate:
-      DateTime(widget.eventDate.year).subtract(const Duration(days: 365)),
-      startLastDate:
-      DateTime(widget.eventDate.year).add(const Duration(days: 365)),
+      startFirstDate: DateTime(
+        widget.eventDate.year,
+      ).subtract(const Duration(days: 365)),
+      startLastDate: DateTime(
+        widget.eventDate.year,
+      ).add(const Duration(days: 365)),
       endInitialDate: initialEndDateTime,
-      endFirstDate:
-      DateTime(widget.eventDate.year).subtract(const Duration(days: 365)),
-      endLastDate:
-      DateTime(widget.eventDate.year).add(const Duration(days: 365)),
+      endFirstDate: DateTime(
+        widget.eventDate.year,
+      ).subtract(const Duration(days: 365)),
+      endLastDate: DateTime(
+        widget.eventDate.year,
+      ).add(const Duration(days: 365)),
       is24HourMode: true,
       isShowSeconds: false,
       minutesInterval: 5,
@@ -137,10 +141,7 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
             borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
           ),
         ),
-        child: Text(
-          "$startTimeStr - $endTimeStr",
-          style: textStyles.bodyLarge,
-        ),
+        child: Text("$startTimeStr - $endTimeStr", style: textStyles.bodyLarge),
       ),
     );
   }
@@ -192,8 +193,9 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
 
     final bool isEditing = widget.existingEvent != null;
     final String dialogTitleText =
-    isEditing ? AppStrings.edit : AppStrings.addEvent;
-    final String submitButtonText = isEditing ? AppStrings.edit : AppStrings.add;
+        isEditing ? AppStrings.edit : AppStrings.addEvent;
+    final String submitButtonText =
+        isEditing ? AppStrings.edit : AppStrings.add;
 
     return Container(
       decoration: BoxDecoration(
@@ -213,14 +215,18 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined,
-                        color: colorScheme.primary, size: 22),
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      color: colorScheme.primary,
+                      size: 22,
+                    ),
                     SizedBox(width: spacing.small),
                     Expanded(
                       child: Text(
                         "${DateFormat('MM월 dd일 (E)', 'ko_KR').format(widget.eventDate.toLocal())} $dialogTitleText",
-                        style: textStyles.bodyLarge
-                            .copyWith(color: colorScheme.primary),
+                        style: textStyles.bodyLarge.copyWith(
+                          color: colorScheme.primary,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -267,8 +273,9 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                     TextButton(
                       child: Text(
                         AppStrings.cancel,
-                        style: textStyles.bodyMedium
-                            .copyWith(color: colorScheme.onSurfaceVariant),
+                        style: textStyles.bodyMedium.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       onPressed: () {
                         Get.back();
@@ -276,26 +283,28 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                     ),
                     SizedBox(width: spacing.small),
                     FilledButton.icon(
-                      icon: _isSubmitting
-                          ? Container(
-                        width: 18,
-                        height: 18,
-                        margin: const EdgeInsets.only(right: 4),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colorScheme.onPrimary,
-                        ),
-                      )
-                          : Icon(
-                        isEditing
-                            ? Icons.check_circle_outline
-                            : Icons.add_circle_outline,
-                        size: 18,
-                      ),
+                      icon:
+                          _isSubmitting
+                              ? Container(
+                                width: 18,
+                                height: 18,
+                                margin: const EdgeInsets.only(right: 4),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colorScheme.onPrimary,
+                                ),
+                              )
+                              : Icon(
+                                isEditing
+                                    ? Icons.check_circle_outline
+                                    : Icons.add_circle_outline,
+                                size: 18,
+                              ),
                       label: Text(
                         submitButtonText,
-                        style: textStyles.bodyMedium
-                            .copyWith(fontWeight: FontWeight.bold),
+                        style: textStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       onPressed: _isSubmitting ? null : _handleSubmit,
                     ),

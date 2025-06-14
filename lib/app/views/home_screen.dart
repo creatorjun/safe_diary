@@ -30,9 +30,10 @@ class HomeScreen extends GetView<HomeController> {
       const LuckView(),
     ];
 
-    final String backgroundImage = Get.isDarkMode
-        ? "assets/home_dark_back.png"
-        : "assets/home_light_back.png";
+    final String backgroundImage =
+        Get.isDarkMode
+            ? "assets/home_dark_back.png"
+            : "assets/home_light_back.png";
 
     return Container(
       decoration: BoxDecoration(
@@ -47,7 +48,9 @@ class HomeScreen extends GetView<HomeController> {
         appBar: AppBar(
           title: Obx(() {
             final displayTitle = AppStrings.homeTitle(
-                loginController.user.nickname ?? '사용자', controller.currentTitle);
+              loginController.user.nickname ?? '사용자',
+              controller.currentTitle,
+            );
             return Text(
               displayTitle,
               style: textStyles.titleMedium,
@@ -68,39 +71,43 @@ class HomeScreen extends GetView<HomeController> {
                   loginController.logout();
                 }
               },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  value: 'profile',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.person_outline),
-                      SizedBox(width: spacing.small),
-                      Text(AppStrings.profile, style: textStyles.bodyMedium),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'logout',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.logout),
-                      SizedBox(width: spacing.small),
-                      Text(AppStrings.logout, style: textStyles.bodyMedium),
-                    ],
-                  ),
-                ),
-              ],
+              itemBuilder:
+                  (BuildContext context) => <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      value: 'profile',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.person_outline),
+                          SizedBox(width: spacing.small),
+                          Text(
+                            AppStrings.profile,
+                            style: textStyles.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'logout',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.logout),
+                          SizedBox(width: spacing.small),
+                          Text(AppStrings.logout, style: textStyles.bodyMedium),
+                        ],
+                      ),
+                    ),
+                  ],
             ),
           ],
         ),
         body: Obx(
-              () => IndexedStack(
+          () => IndexedStack(
             index: controller.selectedIndex.value,
             children: screens,
           ),
         ),
         bottomNavigationBar: Obx(
-              () => CrystalNavigationBar(
+          () => CrystalNavigationBar(
             currentIndex: controller.selectedIndex.value,
             onTap: (index) {
               controller.changeTabIndex(index);
