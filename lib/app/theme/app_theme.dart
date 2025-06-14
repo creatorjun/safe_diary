@@ -1,3 +1,5 @@
+// lib/app/theme/app_theme.dart
+
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
@@ -40,9 +42,9 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
 
   @override
   ThemeExtension<AppTextStyles> lerp(
-    covariant ThemeExtension<AppTextStyles>? other,
-    double t,
-  ) {
+      covariant ThemeExtension<AppTextStyles>? other,
+      double t,
+      ) {
     if (other is! AppTextStyles) {
       return this;
     }
@@ -62,7 +64,11 @@ class AppTextStyles extends ThemeExtension<AppTextStyles> {
 /// `SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium)`
 @immutable
 class AppSpacing extends ThemeExtension<AppSpacing> {
-  const AppSpacing({this.small = 8.0, this.medium = 16.0, this.large = 24.0});
+  const AppSpacing({
+    this.small = 8.0,
+    this.medium = 16.0,
+    this.large = 24.0,
+  });
 
   final double small;
   final double medium;
@@ -85,9 +91,9 @@ class AppSpacing extends ThemeExtension<AppSpacing> {
 
   @override
   ThemeExtension<AppSpacing> lerp(
-    covariant ThemeExtension<AppSpacing>? other,
-    double t,
-  ) {
+      covariant ThemeExtension<AppSpacing>? other,
+      double t,
+      ) {
     return this;
   }
 }
@@ -98,7 +104,10 @@ class AppSpacing extends ThemeExtension<AppSpacing> {
 /// `Theme.of(context).extension<AppBrandColors>()!.naver`
 @immutable
 class AppBrandColors extends ThemeExtension<AppBrandColors> {
-  const AppBrandColors({required this.naver, required this.kakao});
+  const AppBrandColors({
+    required this.naver,
+    required this.kakao,
+  });
 
   final Color naver;
   final Color kakao;
@@ -109,7 +118,10 @@ class AppBrandColors extends ThemeExtension<AppBrandColors> {
   );
 
   @override
-  ThemeExtension<AppBrandColors> copyWith({Color? naver, Color? kakao}) {
+  ThemeExtension<AppBrandColors> copyWith({
+    Color? naver,
+    Color? kakao,
+  }) {
     return AppBrandColors(
       naver: naver ?? this.naver,
       kakao: kakao ?? this.kakao,
@@ -118,9 +130,9 @@ class AppBrandColors extends ThemeExtension<AppBrandColors> {
 
   @override
   ThemeExtension<AppBrandColors> lerp(
-    covariant ThemeExtension<AppBrandColors>? other,
-    double t,
-  ) {
+      covariant ThemeExtension<AppBrandColors>? other,
+      double t,
+      ) {
     if (other is! AppBrandColors) {
       return this;
     }
@@ -131,10 +143,56 @@ class AppBrandColors extends ThemeExtension<AppBrandColors> {
   }
 }
 
+/// # 커스텀 색상 Theme Extension
+///
+/// 사용법:
+/// `Theme.of(context).extension<AppCustomColors>()!.markerColor1`
+@immutable
+class AppCustomColors extends ThemeExtension<AppCustomColors> {
+  const AppCustomColors({
+    required this.markerColor1,
+    required this.markerColor2,
+    required this.markerColor3,
+  });
+
+  final Color markerColor1;
+  final Color markerColor2;
+  final Color markerColor3;
+
+  @override
+  ThemeExtension<AppCustomColors> copyWith({
+    Color? markerColor1,
+    Color? markerColor2,
+    Color? markerColor3,
+  }) {
+    return AppCustomColors(
+      markerColor1: markerColor1 ?? this.markerColor1,
+      markerColor2: markerColor2 ?? this.markerColor2,
+      markerColor3: markerColor3 ?? this.markerColor3,
+    );
+  }
+
+  @override
+  ThemeExtension<AppCustomColors> lerp(
+      covariant ThemeExtension<AppCustomColors>? other,
+      double t,
+      ) {
+    if (other is! AppCustomColors) {
+      return this;
+    }
+    return AppCustomColors(
+      markerColor1: Color.lerp(markerColor1, other.markerColor1, t)!,
+      markerColor2: Color.lerp(markerColor2, other.markerColor2, t)!,
+      markerColor3: Color.lerp(markerColor3, other.markerColor3, t)!,
+    );
+  }
+}
+
 class AppTheme {
   AppTheme._();
 
-  static const Color _primary = Color(0xFF693EFE);
+  static const Color _primaryLight = Color(0xFF3EB0FE);
+  static const Color _primaryDark = Color(0xFF693EFE);
 
   static final AppTextStyles _lightTextStyles = AppTextStyles(
     titleLarge: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -146,6 +204,12 @@ class AppTheme {
 
   static final AppTextStyles _darkTextStyles = _lightTextStyles;
 
+  static const AppCustomColors _customColors = AppCustomColors(
+    markerColor1: Colors.blueAccent,
+    markerColor2: Colors.redAccent,
+    markerColor3: Colors.purpleAccent,
+  );
+
   static final CardThemeData _cardThemeData = CardThemeData(
     elevation: 0,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
@@ -153,35 +217,37 @@ class AppTheme {
   );
 
   static final InputDecorationTheme _inputDecorationTheme =
-      InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
-      );
+  InputDecorationTheme(
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12.0),
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+  );
 
   static final OutlinedButtonThemeData _outlinedButtonTheme =
-      OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        ),
-      );
+  OutlinedButtonThemeData(
+    style: OutlinedButton.styleFrom(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    ),
+  );
 
-  static final FilledButtonThemeData _filledButtonTheme = FilledButtonThemeData(
+  static final FilledButtonThemeData _filledButtonTheme =
+  FilledButtonThemeData(
     style: FilledButton.styleFrom(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     ),
   );
 
   static final ColorScheme _lightColorScheme = ColorScheme.fromSeed(
-    seedColor: _primary,
+    seedColor: _primaryLight,
     brightness: Brightness.light,
-    primary: _primary,
+    primary: _primaryLight,
     onPrimary: Colors.white,
     surface: const Color(0xFFFFFFFF),
     onSurface: const Color(0xFF000000),
@@ -191,9 +257,9 @@ class AppTheme {
   );
 
   static final ColorScheme _darkColorScheme = ColorScheme.fromSeed(
-    seedColor: _primary,
+    seedColor: _primaryDark,
     brightness: Brightness.dark,
-    primary: _primary,
+    primary: _primaryDark,
     onPrimary: Colors.white,
     surface: const Color(0xFF1F1D47),
     onSurface: const Color(0xFFFFFFFF),
@@ -226,6 +292,7 @@ class AppTheme {
         _lightTextStyles,
         AppSpacing.regular,
         AppBrandColors.regular,
+        _customColors,
       ],
     );
   }
@@ -254,6 +321,7 @@ class AppTheme {
         _darkTextStyles,
         AppSpacing.regular,
         AppBrandColors.regular,
+        _customColors,
       ],
     );
   }

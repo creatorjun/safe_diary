@@ -3,22 +3,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:safe_diary/app/utils/app_strings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../controllers/home_controller.dart';
 import '../models/event_item.dart';
 import '../theme/app_theme.dart';
-import '../utils/app_strings.dart';
 
 class CalendarView extends StatelessWidget {
   const CalendarView({super.key});
 
   Widget _buildEventMarker(
-    BuildContext context,
-    DateTime day,
-    EventItem event,
-    Color color,
-  ) {
+      BuildContext context,
+      DateTime day,
+      EventItem event,
+      Color color,
+      ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 1.5),
       width: 7,
@@ -28,10 +28,10 @@ class CalendarView extends StatelessWidget {
   }
 
   Widget _buildEventsCountMarker(
-    BuildContext context,
-    DateTime day,
-    int count,
-  ) {
+      BuildContext context,
+      DateTime day,
+      int count,
+      ) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -60,11 +60,12 @@ class CalendarView extends StatelessWidget {
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
+    final AppCustomColors customColors = theme.extension<AppCustomColors>()!;
 
     final List<Color> markerColors = [
-      colorScheme.primary,
-      colorScheme.secondary,
-      colorScheme.tertiary,
+      customColors.markerColor1,
+      customColors.markerColor2,
+      customColors.markerColor3,
     ];
 
     return SafeArea(
@@ -113,20 +114,17 @@ class CalendarView extends StatelessWidget {
                     color: colorScheme.primaryContainer.withAlpha(204),
                     shape: BoxShape.circle,
                   ),
-                  todayTextStyle: textStyles.bodyMedium.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                  ),
+                  todayTextStyle: textStyles.bodyMedium
+                      .copyWith(color: colorScheme.onPrimaryContainer),
                   selectedDecoration: BoxDecoration(
                     color: colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
-                  selectedTextStyle: textStyles.bodyMedium.copyWith(
-                    color: colorScheme.onPrimary,
-                  ),
+                  selectedTextStyle: textStyles.bodyMedium
+                      .copyWith(color: colorScheme.onPrimary),
                   defaultTextStyle: textStyles.bodyMedium,
-                  weekendTextStyle: textStyles.bodyMedium.copyWith(
-                    color: colorScheme.error,
-                  ),
+                  weekendTextStyle:
+                  textStyles.bodyMedium.copyWith(color: colorScheme.error),
                   outsideTextStyle: textStyles.bodyMedium.copyWith(
                     color: colorScheme.onSurface.withAlpha(128),
                   ),
@@ -210,67 +208,66 @@ class CalendarView extends StatelessWidget {
                   final event = events[index];
                   bool isCurrentlySubmittingThisEvent =
                       controller.isSubmittingEvent.value &&
-                      event.backendEventId == null;
+                          event.backendEventId == null;
 
                   return Card(
                     child: ListTile(
-                      title: Text(event.title, style: textStyles.bodyLarge),
+                      title: Text(
+                        event.title,
+                        style: textStyles.bodyLarge,
+                      ),
                       subtitle: Text(
                         event.displayTime(context),
-                        style: textStyles.bodyMedium.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+                        style: textStyles.bodyMedium
+                            .copyWith(color: colorScheme.onSurfaceVariant),
                       ),
-                      trailing:
-                          isCurrentlySubmittingThisEvent
-                              ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                              : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.edit,
-                                      color: colorScheme.secondary,
-                                      size: 20,
-                                    ),
-                                    tooltip: AppStrings.edit,
-                                    onPressed: () {
-                                      if (event.backendEventId != null) {
-                                        controller.showEditEventDialog(event);
-                                      } else {
-                                        Get.snackbar(
-                                          AppStrings.notification,
-                                          AppStrings.eventNotSynced,
-                                        );
-                                      }
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      color: colorScheme.error,
-                                      size: 20,
-                                    ),
-                                    tooltip: AppStrings.delete,
-                                    onPressed: () {
-                                      if (event.backendEventId != null) {
-                                        controller.confirmDeleteEvent(event);
-                                      } else {
-                                        Get.snackbar(
-                                          AppStrings.notification,
-                                          AppStrings.eventNotSynced,
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
+                      trailing: isCurrentlySubmittingThisEvent
+                          ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                          : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: colorScheme.secondary,
+                              size: 20,
+                            ),
+                            tooltip: AppStrings.edit,
+                            onPressed: () {
+                              if (event.backendEventId != null) {
+                                controller.showEditEventDialog(event);
+                              } else {
+                                Get.snackbar(
+                                  AppStrings.notification,
+                                  AppStrings.eventNotSynced,
+                                );
+                              }
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: colorScheme.error,
+                              size: 20,
+                            ),
+                            tooltip: AppStrings.delete,
+                            onPressed: () {
+                              if (event.backendEventId != null) {
+                                controller.confirmDeleteEvent(event);
+                              } else {
+                                Get.snackbar(
+                                  AppStrings.notification,
+                                  AppStrings.eventNotSynced,
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                       onTap: () {
                         if (event.backendEventId != null) {
                           controller.showEditEventDialog(event);
