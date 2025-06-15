@@ -14,11 +14,11 @@ class CalendarView extends StatelessWidget {
   const CalendarView({super.key});
 
   Widget _buildEventMarker(
-    BuildContext context,
-    DateTime day,
-    EventItem event,
-    Color color,
-  ) {
+      BuildContext context,
+      DateTime day,
+      EventItem event,
+      Color color,
+      ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 1.5),
       width: 7,
@@ -28,10 +28,10 @@ class CalendarView extends StatelessWidget {
   }
 
   Widget _buildEventsCountMarker(
-    BuildContext context,
-    DateTime day,
-    int count,
-  ) {
+      BuildContext context,
+      DateTime day,
+      int count,
+      ) {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
@@ -51,6 +51,44 @@ class CalendarView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildHolidayCard(BuildContext context) {
+    final HomeController controller = Get.find<HomeController>();
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+
+    return Obx(() {
+      final holidayName = controller.selectedDayHolidayName;
+      if (holidayName == null) {
+        return const SizedBox.shrink();
+      }
+      return Card(
+        color: colorScheme.tertiaryContainer.withAlpha(150),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.celebration_outlined,
+                color: colorScheme.onTertiaryContainer,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                holidayName,
+                style: textStyles.bodyMedium.copyWith(
+                  color: colorScheme.onTertiaryContainer,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   @override
@@ -73,7 +111,6 @@ class CalendarView extends StatelessWidget {
       child: Column(
         children: [
           Obx(() {
-            final _ = controller.events.length;
             return Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
               child: TableCalendar<EventItem>(
@@ -86,6 +123,9 @@ class CalendarView extends StatelessWidget {
                 selectedDayPredicate: (day) {
                   return controller.selectedDay.value != null &&
                       isSameDay(controller.selectedDay.value!, day);
+                },
+                holidayPredicate: (day) {
+                  return controller.holidays.containsKey(day);
                 },
                 onDaySelected: controller.onDaySelected,
                 onPageChanged: controller.onPageChanged,
@@ -130,6 +170,12 @@ class CalendarView extends StatelessWidget {
                   ),
                   outsideTextStyle: textStyles.bodyMedium.copyWith(
                     color: colorScheme.onSurface.withAlpha(128),
+                  ),
+                  holidayTextStyle: textStyles.bodyMedium.copyWith(
+                    color: colorScheme.error,
+                  ),
+                  holidayDecoration: const BoxDecoration(
+                    shape: BoxShape.circle,
                   ),
                 ),
                 calendarBuilders: CalendarBuilders(
@@ -186,6 +232,7 @@ class CalendarView extends StatelessWidget {
               ),
             );
           }),
+          _buildHolidayCard(context),
           SizedBox(height: spacing.small),
           Expanded(
             child: Obx(() {
@@ -211,7 +258,7 @@ class CalendarView extends StatelessWidget {
                   final event = events[index];
                   bool isCurrentlySubmittingThisEvent =
                       controller.isSubmittingEvent.value &&
-                      event.backendEventId == null;
+                          event.backendEventId == null;
 
                   return Card(
                     child: ListTile(
@@ -223,55 +270,55 @@ class CalendarView extends StatelessWidget {
                         ),
                       ),
                       trailing:
-                          isCurrentlySubmittingThisEvent
-                              ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                              : Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.edit,
-                                      color: colorScheme.secondary,
-                                      size: 20,
-                                    ),
-                                    tooltip: AppStrings.edit,
-                                    onPressed: () {
-                                      if (event.backendEventId != null) {
-                                        controller.showEditEventDialog(event);
-                                      } else {
-                                        Get.snackbar(
-                                          AppStrings.notification,
-                                          AppStrings.eventNotSynced,
-                                        );
-                                      }
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.delete_outline,
-                                      color: colorScheme.error,
-                                      size: 20,
-                                    ),
-                                    tooltip: AppStrings.delete,
-                                    onPressed: () {
-                                      if (event.backendEventId != null) {
-                                        controller.confirmDeleteEvent(event);
-                                      } else {
-                                        Get.snackbar(
-                                          AppStrings.notification,
-                                          AppStrings.eventNotSynced,
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
+                      isCurrentlySubmittingThisEvent
+                          ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                        ),
+                      )
+                          : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.edit,
+                              color: colorScheme.secondary,
+                              size: 20,
+                            ),
+                            tooltip: AppStrings.edit,
+                            onPressed: () {
+                              if (event.backendEventId != null) {
+                                controller.showEditEventDialog(event);
+                              } else {
+                                Get.snackbar(
+                                  AppStrings.notification,
+                                  AppStrings.eventNotSynced,
+                                );
+                              }
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: colorScheme.error,
+                              size: 20,
+                            ),
+                            tooltip: AppStrings.delete,
+                            onPressed: () {
+                              if (event.backendEventId != null) {
+                                controller.confirmDeleteEvent(event);
+                              } else {
+                                Get.snackbar(
+                                  AppStrings.notification,
+                                  AppStrings.eventNotSynced,
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                       onTap: () {
                         if (event.backendEventId != null) {
                           controller.showEditEventDialog(event);

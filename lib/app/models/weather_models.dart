@@ -1,59 +1,45 @@
 // lib/app/models/weather_models.dart
 
-/// 전체 날씨 응답을 감싸는 최상위 DTO
 class WeatherResponseDto {
   final CurrentWeatherResponseDto? currentWeather;
   final HourlyForecastResponseDto? hourlyForecast;
   final List<DailyWeatherForecastResponseDto> dailyForecast;
-  final AirQualityInfoResponseDto? airQuality; // airQuality 필드 추가
 
   WeatherResponseDto({
     this.currentWeather,
     this.hourlyForecast,
     required this.dailyForecast,
-    this.airQuality, // 생성자에 추가
   });
 
   factory WeatherResponseDto.fromJson(Map<String, dynamic> json) {
     return WeatherResponseDto(
-      currentWeather:
-          json['currentWeather'] != null
-              ? CurrentWeatherResponseDto.fromJson(
-                json['currentWeather'] as Map<String, dynamic>,
-              )
-              : null,
-      hourlyForecast:
-          json['hourlyForecast'] != null
-              ? HourlyForecastResponseDto.fromJson(
-                json['hourlyForecast'] as Map<String, dynamic>,
-              )
-              : null,
-      dailyForecast:
-          (json['dailyForecast'] as List<dynamic>?)
-              ?.map(
-                (e) => DailyWeatherForecastResponseDto.fromJson(
-                  e as Map<String, dynamic>,
-                ),
-              )
-              .toList() ??
+      currentWeather: json['currentWeather'] != null
+          ? CurrentWeatherResponseDto.fromJson(
+        json['currentWeather'] as Map<String, dynamic>,
+      )
+          : null,
+      hourlyForecast: json['hourlyForecast'] != null
+          ? HourlyForecastResponseDto.fromJson(
+        json['hourlyForecast'] as Map<String, dynamic>,
+      )
+          : null,
+      dailyForecast: (json['dailyForecast'] as List<dynamic>?)
+          ?.map(
+            (e) => DailyWeatherForecastResponseDto.fromJson(
+          e as Map<String, dynamic>,
+        ),
+      )
+          .toList() ??
           [],
-      // airQuality 필드 파싱 로직 추가
-      airQuality:
-          json['airQuality'] != null
-              ? AirQualityInfoResponseDto.fromJson(
-                json['airQuality'] as Map<String, dynamic>,
-              )
-              : null,
     );
   }
 
   @override
   String toString() {
-    return 'WeatherResponseDto(currentWeather: $currentWeather, hourlyForecast: $hourlyForecast, dailyForecast: $dailyForecast, airQuality: $airQuality)';
+    return 'WeatherResponseDto(currentWeather: $currentWeather, hourlyForecast: $hourlyForecast, dailyForecast: $dailyForecast)';
   }
 }
 
-/// 현재 날씨 정보 DTO
 class CurrentWeatherResponseDto {
   final String measuredAt;
   final double temperature;
@@ -62,6 +48,8 @@ class CurrentWeatherResponseDto {
   final double humidity;
   final double windSpeed;
   final int uvIndex;
+  final String? pm10Grade;
+  final String? pm25Grade;
 
   CurrentWeatherResponseDto({
     required this.measuredAt,
@@ -71,6 +59,8 @@ class CurrentWeatherResponseDto {
     required this.humidity,
     required this.windSpeed,
     required this.uvIndex,
+    this.pm10Grade,
+    this.pm25Grade,
   });
 
   factory CurrentWeatherResponseDto.fromJson(Map<String, dynamic> json) {
@@ -78,40 +68,17 @@ class CurrentWeatherResponseDto {
       measuredAt: json['measuredAt'] as String? ?? '',
       temperature: (json['temperature'] as num?)?.toDouble() ?? 0.0,
       apparentTemperature:
-          (json['apparentTemperature'] as num?)?.toDouble() ?? 0.0,
+      (json['apparentTemperature'] as num?)?.toDouble() ?? 0.0,
       conditionCode: json['conditionCode'] as String? ?? 'Unknown',
       humidity: (json['humidity'] as num?)?.toDouble() ?? 0.0,
       windSpeed: (json['windSpeed'] as num?)?.toDouble() ?? 0.0,
       uvIndex: json['uvIndex'] as int? ?? 0,
-    );
-  }
-}
-
-/// 새로 추가된 대기질 정보 DTO
-class AirQualityInfoResponseDto {
-  final String? pm10Grade;
-  final String? pm25Grade;
-  final String? overallForecast;
-  final String? informCause;
-
-  AirQualityInfoResponseDto({
-    this.pm10Grade,
-    this.pm25Grade,
-    this.overallForecast,
-    this.informCause,
-  });
-
-  factory AirQualityInfoResponseDto.fromJson(Map<String, dynamic> json) {
-    return AirQualityInfoResponseDto(
       pm10Grade: json['pm10Grade'] as String?,
       pm25Grade: json['pm25Grade'] as String?,
-      overallForecast: json['overallForecast'] as String?,
-      informCause: json['informCause'] as String?,
     );
   }
 }
 
-/// 시간별 예보 정보 DTO
 class HourlyForecastResponseDto {
   final String? summary;
   final String forecastExpireTime;
@@ -127,18 +94,16 @@ class HourlyForecastResponseDto {
     return HourlyForecastResponseDto(
       summary: json['summary'] as String?,
       forecastExpireTime: json['forecastExpireTime'] as String? ?? '',
-      minutes:
-          (json['minutes'] as List<dynamic>?)
-              ?.map(
-                (e) => MinuteForecastDto.fromJson(e as Map<String, dynamic>),
-              )
-              .toList() ??
+      minutes: (json['minutes'] as List<dynamic>?)
+          ?.map(
+            (e) => MinuteForecastDto.fromJson(e as Map<String, dynamic>),
+      )
+          .toList() ??
           [],
     );
   }
 }
 
-/// 분 단위 예보 정보 DTO
 class MinuteForecastDto {
   final String startTime;
   final double precipitationChance;
@@ -154,14 +119,13 @@ class MinuteForecastDto {
     return MinuteForecastDto(
       startTime: json['startTime'] as String? ?? '',
       precipitationChance:
-          (json['precipitationChance'] as num?)?.toDouble() ?? 0.0,
+      (json['precipitationChance'] as num?)?.toDouble() ?? 0.0,
       precipitationIntensity:
-          (json['precipitationIntensity'] as num?)?.toDouble() ?? 0.0,
+      (json['precipitationIntensity'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }
 
-/// 일일 예보 정보 DTO
 class DailyWeatherForecastResponseDto {
   final String date;
   final double? minTemp;

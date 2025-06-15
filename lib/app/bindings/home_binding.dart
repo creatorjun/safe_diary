@@ -3,6 +3,7 @@ import 'package:safe_diary/app/controllers/home_controller.dart';
 import 'package:safe_diary/app/controllers/luck_controller.dart';
 import 'package:safe_diary/app/controllers/weather_controller.dart';
 import 'package:safe_diary/app/services/event_service.dart';
+import 'package:safe_diary/app/services/holiday_service.dart';
 import 'package:safe_diary/app/services/luck_service.dart';
 import 'package:safe_diary/app/services/weather_service.dart';
 
@@ -12,16 +13,16 @@ class HomeBinding extends Bindings {
     Get.lazyPut<EventService>(() => EventService(Get.find()));
     Get.lazyPut<WeatherService>(() => WeatherService(Get.find()));
     Get.lazyPut<LuckService>(() => LuckService(Get.find()));
+    Get.lazyPut<HolidayService>(() => HolidayService(Get.find(), Get.find()));
 
-    // HomeController 생성자에 Get.find()를 추가하여 DialogService를 주입합니다.
     Get.lazyPut<HomeController>(
-      () => HomeController(Get.find(), Get.find(), Get.find()),
+          () => HomeController(Get.find(), Get.find(), Get.find(), Get.find()),
     );
     Get.lazyPut<WeatherController>(
-      () => WeatherController(Get.find(), Get.find(), Get.find()),
+          () => WeatherController(Get.find(), Get.find(), Get.find()),
     );
     Get.lazyPut<LuckController>(
-      () => LuckController(Get.find(), Get.find(), Get.find()),
+          () => LuckController(Get.find(), Get.find(), Get.find()),
     );
   }
 }

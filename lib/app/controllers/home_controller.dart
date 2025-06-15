@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:safe_diary/app/services/dialog_service.dart';
+import 'package:safe_diary/app/services/holiday_service.dart';
 import 'package:safe_diary/app/utils/app_strings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -18,12 +19,14 @@ class HomeController extends GetxController {
   final LoginController _loginController;
   final EventService _eventService;
   final DialogService _dialogService;
+  final HolidayService _holidayService;
 
   HomeController(
-    this._loginController,
-    this._eventService,
-    this._dialogService,
-  );
+      this._loginController,
+      this._eventService,
+      this._dialogService,
+      this._holidayService,
+      );
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -45,12 +48,14 @@ class HomeController extends GetxController {
   late final Rx<DateTime?> selectedDay;
 
   final RxMap<DateTime, List<EventItem>> events =
-      RxMap<DateTime, List<EventItem>>(
-        LinkedHashMap<DateTime, List<EventItem>>(
-          equals: isSameDay,
-          hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
-        ),
-      );
+  RxMap<DateTime, List<EventItem>>(
+    LinkedHashMap<DateTime, List<EventItem>>(
+      equals: isSameDay,
+      hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
+    ),
+  );
+
+  final RxMap<DateTime, String> holidays = RxMap<DateTime, String>();
 
   List<EventItem> get selectedDayEvents {
     final day = selectedDay.value;
@@ -62,6 +67,11 @@ class HomeController extends GetxController {
       return orderA.compareTo(orderB);
     });
     return eventsForDay;
+  }
+
+  String? get selectedDayHolidayName {
+    if (selectedDay.value == null) return null;
+    return holidays[selectedDay.value];
   }
 
   DateTime _normalizeDate(DateTime dateTime) {
@@ -77,6 +87,7 @@ class HomeController extends GetxController {
     selectedDay = normalizedNow.obs;
 
     _loadEventsFromServer();
+    _loadHolidaysForYear(now.year);
   }
 
   @override
@@ -194,7 +205,11 @@ class HomeController extends GetxController {
   }
 
   void onPageChanged(DateTime newFocusedDay) {
-    focusedDay.value = _normalizeDate(newFocusedDay);
+    final normalizedDay = _normalizeDate(newFocusedDay);
+    if (focusedDay.value.year != normalizedDay.year) {
+      _loadHolidaysForYear(normalizedDay.year);
+    }
+    focusedDay.value = normalizedDay;
   }
 
   List<EventItem> getEventsForDay(DateTime day) {
@@ -206,6 +221,18 @@ class HomeController extends GetxController {
       return orderA.compareTo(orderB);
     });
     return eventsForDay;
+  }
+
+  Future<void> _loadHolidaysForYear(int year) async {
+    try {
+      final holidayList = await _holidayService.getHolidays(year);
+      for (final holiday in holidayList) {
+        holidays[_normalizeDate(holiday.date)] = holiday.name;
+      }
+      holidays.refresh();
+    } catch (e) {
+      _errorController.handleError(e, userFriendlyMessage: '공휴일 정보를 불러오는 데 실패했습니다.');
+    }
   }
 
   Future<void> _loadEventsFromServer() async {
@@ -295,7 +322,7 @@ class HomeController extends GetxController {
       final originalNormalizedDate = _normalizeDate(eventToUpdate.eventDate);
       if (events[originalNormalizedDate] != null) {
         events[originalNormalizedDate]!.removeWhere(
-          (e) => e.backendEventId == updatedEventFromServer.backendEventId,
+              (e) => e.backendEventId == updatedEventFromServer.backendEventId,
         );
         if (events[originalNormalizedDate]!.isEmpty) {
           events.remove(originalNormalizedDate);
@@ -338,7 +365,7 @@ class HomeController extends GetxController {
       final normalizedEventDate = _normalizeDate(eventToDelete.eventDate);
       if (events[normalizedEventDate] != null) {
         events[normalizedEventDate]!.removeWhere(
-          (e) => e.backendEventId == eventToDelete.backendEventId,
+              (e) => e.backendEventId == eventToDelete.backendEventId,
         );
         if (events[normalizedEventDate]!.isEmpty) {
           events.remove(normalizedEventDate);
