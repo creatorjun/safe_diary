@@ -79,6 +79,7 @@ class AppStrings {
   // Weather & Air Quality
   static const String selectRegion = "지역 선택";
   static const String weatherInfoError = '날씨 정보를 불러오는 데 실패했습니다.';
+  static const String weatherInfoIncomplete = '일부 날씨 정보가 누락되었습니다. 새로고침 해주세요.';
   static const String apparentTemp = '체감 온도';
   static const String maxTemp = '최고';
   static const String minTemp = '최저';

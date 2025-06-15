@@ -44,7 +44,12 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     if (widget.existingEvent == null) {
       final now = DateTime.now();
       _startTime = TimeOfDay.fromDateTime(now);
-      _endTime = TimeOfDay.fromDateTime(now.add(const Duration(hours: 1)));
+
+      if (now.hour >= 23) {
+        _endTime = const TimeOfDay(hour: 23, minute: 59);
+      } else {
+        _endTime = TimeOfDay.fromDateTime(now.add(const Duration(hours: 1)));
+      }
     }
   }
 
@@ -123,8 +128,11 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     final String endTimeStr =
         _endTime?.format(context) ?? AppStrings.unspecified;
 
+    final bool isEndTimeFixed =
+        widget.existingEvent == null && _startTime != null && _startTime!.hour >= 23;
+
     return InkWell(
-      onTap: () => _selectDateTimeRange(context),
+      onTap: isEndTimeFixed ? null : () => _selectDateTimeRange(context),
       borderRadius: BorderRadius.circular(12.0),
       child: InputDecorator(
         decoration: InputDecoration(
@@ -142,8 +150,23 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
             borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
           ),
+          enabledBorder: isEndTimeFixed
+              ? OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: BorderSide(
+              color: colorScheme.onSurface.withAlpha(77),
+            ),
+          )
+              : null,
         ),
-        child: Text("$startTimeStr - $endTimeStr", style: textStyles.bodyLarge),
+        child: Text(
+          "$startTimeStr - $endTimeStr",
+          style: textStyles.bodyLarge.copyWith(
+            color: isEndTimeFixed
+                ? colorScheme.onSurface.withAlpha(128)
+                : colorScheme.onSurface,
+          ),
+        ),
       ),
     );
   }
@@ -195,9 +218,9 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
 
     final bool isEditing = widget.existingEvent != null;
     final String dialogTitleText =
-        isEditing ? AppStrings.editEvent : AppStrings.addEvent;
+    isEditing ? AppStrings.editEvent : AppStrings.addEvent;
     final String submitButtonText =
-        isEditing ? AppStrings.edit : AppStrings.add;
+    isEditing ? AppStrings.edit : AppStrings.add;
 
     return Container(
       decoration: BoxDecoration(
@@ -286,22 +309,22 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                     SizedBox(width: spacing.small),
                     FilledButton.icon(
                       icon:
-                          _isSubmitting
-                              ? Container(
-                                width: 18,
-                                height: 18,
-                                margin: const EdgeInsets.only(right: 4),
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: colorScheme.onPrimary,
-                                ),
-                              )
-                              : Icon(
-                                isEditing
-                                    ? Icons.check_circle_outline
-                                    : Icons.add_circle_outline,
-                                size: 18,
-                              ),
+                      _isSubmitting
+                          ? Container(
+                        width: 18,
+                        height: 18,
+                        margin: const EdgeInsets.only(right: 4),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
+                      )
+                          : Icon(
+                        isEditing
+                            ? Icons.check_circle_outline
+                            : Icons.add_circle_outline,
+                        size: 18,
+                      ),
                       label: Text(
                         submitButtonText,
                         style: textStyles.bodyMedium.copyWith(

@@ -111,6 +111,8 @@ class CalendarView extends StatelessWidget {
       child: Column(
         children: [
           Obx(() {
+            final _ = controller.events.length;
+
             return Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
               child: TableCalendar<EventItem>(
@@ -203,10 +205,14 @@ class CalendarView extends StatelessWidget {
                       );
                     }
                     return Positioned(
+                      left: 0,
+                      right: 0,
                       bottom: 1,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: markers,
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: markers,
+                        ),
                       ),
                     );
                   },

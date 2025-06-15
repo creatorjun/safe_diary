@@ -52,8 +52,7 @@ class WeatherView extends GetView<WeatherController> {
                 onSelectedItemChanged: (index) {
                   selectedIndex = index;
                 },
-                children:
-                controller.availableCities
+                children: controller.availableCities
                     .map(
                       (city) => Center(
                     child: Text(
@@ -98,7 +97,7 @@ class WeatherView extends GetView<WeatherController> {
       }
 
       if (controller.weatherData.value == null) {
-        return _buildErrorView(context);
+        return _buildErrorView(context, AppStrings.weatherInfoError);
       }
 
       final weather = controller.weatherData.value!;
@@ -119,10 +118,17 @@ class WeatherView extends GetView<WeatherController> {
         allDailyForecasts.isNotEmpty ? allDailyForecasts.first : null;
       }
 
+      final bool isDataIncomplete = weather.currentWeather == null ||
+          todayForecast == null ||
+          todayForecast.maxTemp == null ||
+          todayForecast.minTemp == null;
+
+      if (isDataIncomplete) {
+        return _buildErrorView(context, AppStrings.weatherInfoIncomplete);
+      }
+
       final futureForecasts =
-      allDailyForecasts
-          .where((f) => f.date != todayForecast?.date)
-          .toList();
+      allDailyForecasts.where((f) => f.date != todayForecast?.date).toList();
 
       return SafeArea(
         bottom: false,
@@ -132,12 +138,11 @@ class WeatherView extends GetView<WeatherController> {
             children: [
               SizedBox(height: spacing.small),
               _buildCitySelectorHeader(context),
-              if (weather.currentWeather != null && todayForecast != null)
-                _buildModernCurrentWeather(
-                  context,
-                  weather.currentWeather!,
-                  todayForecast,
-                ),
+              _buildModernCurrentWeather(
+                context,
+                weather.currentWeather!,
+                todayForecast,
+              ),
               SizedBox(height: spacing.large),
               Expanded(
                 child: SingleChildScrollView(
@@ -345,7 +350,6 @@ class WeatherView extends GetView<WeatherController> {
                       value: current.pm25Grade ?? '-',
                       label: AppStrings.pm25Label,
                     ),
-
                   ],
                 ),
               ],
@@ -527,7 +531,7 @@ class WeatherView extends GetView<WeatherController> {
     );
   }
 
-  Widget _buildErrorView(BuildContext context) {
+  Widget _buildErrorView(BuildContext context, String message) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
@@ -546,7 +550,7 @@ class WeatherView extends GetView<WeatherController> {
             ),
             SizedBox(height: spacing.medium),
             Text(
-              AppStrings.weatherInfoError,
+              message,
               style: textStyles.bodyLarge,
               textAlign: TextAlign.center,
             ),
