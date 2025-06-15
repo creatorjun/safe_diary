@@ -22,11 +22,11 @@ class HomeController extends GetxController {
   final HolidayService _holidayService;
 
   HomeController(
-      this._loginController,
-      this._eventService,
-      this._dialogService,
-      this._holidayService,
-      );
+    this._loginController,
+    this._eventService,
+    this._dialogService,
+    this._holidayService,
+  );
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -48,12 +48,12 @@ class HomeController extends GetxController {
   late final Rx<DateTime?> selectedDay;
 
   final RxMap<DateTime, List<EventItem>> events =
-  RxMap<DateTime, List<EventItem>>(
-    LinkedHashMap<DateTime, List<EventItem>>(
-      equals: isSameDay,
-      hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
-    ),
-  );
+      RxMap<DateTime, List<EventItem>>(
+        LinkedHashMap<DateTime, List<EventItem>>(
+          equals: isSameDay,
+          hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
+        ),
+      );
 
   final RxMap<DateTime, String> holidays = RxMap<DateTime, String>();
 
@@ -231,7 +231,10 @@ class HomeController extends GetxController {
       }
       holidays.refresh();
     } catch (e) {
-      _errorController.handleError(e, userFriendlyMessage: '공휴일 정보를 불러오는 데 실패했습니다.');
+      _errorController.handleError(
+        e,
+        userFriendlyMessage: '공휴일 정보를 불러오는 데 실패했습니다.',
+      );
     }
   }
 
@@ -322,7 +325,7 @@ class HomeController extends GetxController {
       final originalNormalizedDate = _normalizeDate(eventToUpdate.eventDate);
       if (events[originalNormalizedDate] != null) {
         events[originalNormalizedDate]!.removeWhere(
-              (e) => e.backendEventId == updatedEventFromServer.backendEventId,
+          (e) => e.backendEventId == updatedEventFromServer.backendEventId,
         );
         if (events[originalNormalizedDate]!.isEmpty) {
           events.remove(originalNormalizedDate);
@@ -365,7 +368,7 @@ class HomeController extends GetxController {
       final normalizedEventDate = _normalizeDate(eventToDelete.eventDate);
       if (events[normalizedEventDate] != null) {
         events[normalizedEventDate]!.removeWhere(
-              (e) => e.backendEventId == eventToDelete.backendEventId,
+          (e) => e.backendEventId == eventToDelete.backendEventId,
         );
         if (events[normalizedEventDate]!.isEmpty) {
           events.remove(normalizedEventDate);

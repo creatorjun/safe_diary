@@ -14,9 +14,6 @@ class HolidayDto {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'date': date.toIso8601String().substring(0, 10),
-      'name': name,
-    };
+    return {'date': date.toIso8601String().substring(0, 10), 'name': name};
   }
 }

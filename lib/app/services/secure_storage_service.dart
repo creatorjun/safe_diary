@@ -12,6 +12,7 @@ class SecureStorageService {
   static const String keyFailedAttemptCount = 'failedAttemptCount';
 
   String _holidayDataKey(int year) => 'holiday_data_$year';
+
   String _holidayETagKey(int year) => 'holiday_etag_$year';
 
   Future<void> saveRefreshToken({required String refreshToken}) async {

@@ -129,7 +129,9 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
         _endTime?.format(context) ?? AppStrings.unspecified;
 
     final bool isEndTimeFixed =
-        widget.existingEvent == null && _startTime != null && _startTime!.hour >= 23;
+        widget.existingEvent == null &&
+        _startTime != null &&
+        _startTime!.hour >= 23;
 
     return InkWell(
       onTap: isEndTimeFixed ? null : () => _selectDateTimeRange(context),
@@ -150,21 +152,23 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
             borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
           ),
-          enabledBorder: isEndTimeFixed
-              ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(
-              color: colorScheme.onSurface.withAlpha(77),
-            ),
-          )
-              : null,
+          enabledBorder:
+              isEndTimeFixed
+                  ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(
+                      color: colorScheme.onSurface.withAlpha(77),
+                    ),
+                  )
+                  : null,
         ),
         child: Text(
           "$startTimeStr - $endTimeStr",
           style: textStyles.bodyLarge.copyWith(
-            color: isEndTimeFixed
-                ? colorScheme.onSurface.withAlpha(128)
-                : colorScheme.onSurface,
+            color:
+                isEndTimeFixed
+                    ? colorScheme.onSurface.withAlpha(128)
+                    : colorScheme.onSurface,
           ),
         ),
       ),
@@ -218,9 +222,9 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
 
     final bool isEditing = widget.existingEvent != null;
     final String dialogTitleText =
-    isEditing ? AppStrings.editEvent : AppStrings.addEvent;
+        isEditing ? AppStrings.editEvent : AppStrings.addEvent;
     final String submitButtonText =
-    isEditing ? AppStrings.edit : AppStrings.add;
+        isEditing ? AppStrings.edit : AppStrings.add;
 
     return Container(
       decoration: BoxDecoration(
@@ -309,22 +313,22 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                     SizedBox(width: spacing.small),
                     FilledButton.icon(
                       icon:
-                      _isSubmitting
-                          ? Container(
-                        width: 18,
-                        height: 18,
-                        margin: const EdgeInsets.only(right: 4),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colorScheme.onPrimary,
-                        ),
-                      )
-                          : Icon(
-                        isEditing
-                            ? Icons.check_circle_outline
-                            : Icons.add_circle_outline,
-                        size: 18,
-                      ),
+                          _isSubmitting
+                              ? Container(
+                                width: 18,
+                                height: 18,
+                                margin: const EdgeInsets.only(right: 4),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colorScheme.onPrimary,
+                                ),
+                              )
+                              : Icon(
+                                isEditing
+                                    ? Icons.check_circle_outline
+                                    : Icons.add_circle_outline,
+                                size: 18,
+                              ),
                       label: Text(
                         submitButtonText,
                         style: textStyles.bodyMedium.copyWith(

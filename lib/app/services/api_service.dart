@@ -27,11 +27,7 @@ class ApiResponse<T> {
   final int statusCode;
   final Map<String, String> headers;
 
-  ApiResponse({
-    this.body,
-    required this.statusCode,
-    required this.headers,
-  });
+  ApiResponse({this.body, required this.statusCode, required this.headers});
 }
 
 class ApiService extends GetxService {
@@ -68,10 +64,10 @@ class ApiService extends GetxService {
   }
 
   Future<T> get<T>(
-      String endpoint, {
-        Map<String, String>? queryParams,
-        T Function(dynamic data)? parser,
-      }) async {
+    String endpoint, {
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
     final url = Uri.parse(
       '$_baseUrl$endpoint',
     ).replace(queryParameters: queryParams);
@@ -85,25 +81,28 @@ class ApiService extends GetxService {
   }
 
   Future<ApiResponse<T>> getWithETag<T>(
-      String endpoint, {
-        Map<String, String>? queryParams,
-        String? eTag,
-        T Function(dynamic data)? parser,
-      }) async {
-    final url = Uri.parse('$_baseUrl$endpoint').replace(
-      queryParameters: queryParams,
-    );
+    String endpoint, {
+    Map<String, String>? queryParams,
+    String? eTag,
+    T Function(dynamic data)? parser,
+  }) async {
+    final url = Uri.parse(
+      '$_baseUrl$endpoint',
+    ).replace(queryParameters: queryParams);
     final headers = await _getHeaders(eTag: eTag);
 
     if (kDebugMode) print('ApiService GET with ETag: $url, ETag: $eTag');
 
     final response = await http.get(url, headers: headers);
-    final T? body = (response.statusCode == 200 && parser != null)
-        ? parser(json.decode(utf8.decode(response.bodyBytes)))
-        : null;
+    final T? body =
+        (response.statusCode == 200 && parser != null)
+            ? parser(json.decode(utf8.decode(response.bodyBytes)))
+            : null;
 
     if (kDebugMode) {
-      print('ApiService Response: ${response.statusCode}, ETag: ${response.headers['etag']}');
+      print(
+        'ApiService Response: ${response.statusCode}, ETag: ${response.headers['etag']}',
+      );
     }
 
     if (response.statusCode != 200 && response.statusCode != 304) {
@@ -118,11 +117,11 @@ class ApiService extends GetxService {
   }
 
   Future<T> post<T>(
-      String endpoint, {
-        dynamic body,
-        Map<String, String>? queryParams,
-        T Function(dynamic data)? parser,
-      }) async {
+    String endpoint, {
+    dynamic body,
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
     final url = Uri.parse(
       '$_baseUrl$endpoint',
     ).replace(queryParameters: queryParams);
@@ -137,11 +136,11 @@ class ApiService extends GetxService {
   }
 
   Future<T> put<T>(
-      String endpoint, {
-        dynamic body,
-        Map<String, String>? queryParams,
-        T Function(dynamic data)? parser,
-      }) async {
+    String endpoint, {
+    dynamic body,
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
     final url = Uri.parse(
       '$_baseUrl$endpoint',
     ).replace(queryParameters: queryParams);
@@ -156,11 +155,11 @@ class ApiService extends GetxService {
   }
 
   Future<T> patch<T>(
-      String endpoint, {
-        dynamic body,
-        Map<String, String>? queryParams,
-        T Function(dynamic data)? parser,
-      }) async {
+    String endpoint, {
+    dynamic body,
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
     final url = Uri.parse(
       '$_baseUrl$endpoint',
     ).replace(queryParameters: queryParams);
@@ -175,11 +174,11 @@ class ApiService extends GetxService {
   }
 
   Future<T> delete<T>(
-      String endpoint, {
-        dynamic body,
-        Map<String, String>? queryParams,
-        T Function(dynamic data)? parser,
-      }) async {
+    String endpoint, {
+    dynamic body,
+    Map<String, String>? queryParams,
+    T Function(dynamic data)? parser,
+  }) async {
     final url = Uri.parse(
       '$_baseUrl$endpoint',
     ).replace(queryParameters: queryParams);
@@ -203,7 +202,9 @@ class ApiService extends GetxService {
 
   dynamic _handleResponse(http.Response response) {
     if (kDebugMode) {
-      print('ApiService Response: ${response.request?.method} ${response.request?.url}');
+      print(
+        'ApiService Response: ${response.request?.method} ${response.request?.url}',
+      );
       print('Status Code: ${response.statusCode}');
       try {
         print('Body: ${utf8.decode(response.bodyBytes)}');
@@ -213,7 +214,9 @@ class ApiService extends GetxService {
     }
 
     final dynamic decodedBody =
-    (response.body.isNotEmpty) ? json.decode(utf8.decode(response.bodyBytes)) : null;
+        (response.body.isNotEmpty)
+            ? json.decode(utf8.decode(response.bodyBytes))
+            : null;
 
     switch (response.statusCode) {
       case 200:
@@ -221,14 +224,22 @@ class ApiService extends GetxService {
       case 204:
         return decodedBody;
       case 401:
-        throw UnauthorizedException(decodedBody?['message'] ?? '인증에 실패했습니다. 다시 로그인해주세요.');
+        throw UnauthorizedException(
+          decodedBody?['message'] ?? '인증에 실패했습니다. 다시 로그인해주세요.',
+        );
       case 400:
       case 403:
       case 404:
       case 409:
-        throw ApiException(decodedBody?['message'] ?? '잘못된 요청입니다.', statusCode: response.statusCode);
+        throw ApiException(
+          decodedBody?['message'] ?? '잘못된 요청입니다.',
+          statusCode: response.statusCode,
+        );
       default:
-        throw ApiException('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', statusCode: response.statusCode);
+        throw ApiException(
+          '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+          statusCode: response.statusCode,
+        );
     }
   }
 }

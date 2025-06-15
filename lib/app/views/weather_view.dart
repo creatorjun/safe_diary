@@ -26,7 +26,7 @@ class WeatherView extends GetView<WeatherController> {
     }
 
     final FixedExtentScrollController scrollController =
-    FixedExtentScrollController(initialItem: selectedIndex);
+        FixedExtentScrollController(initialItem: selectedIndex);
 
     Get.bottomSheet(
       Container(
@@ -52,18 +52,19 @@ class WeatherView extends GetView<WeatherController> {
                 onSelectedItemChanged: (index) {
                   selectedIndex = index;
                 },
-                children: controller.availableCities
-                    .map(
-                      (city) => Center(
-                    child: Text(
-                      city,
-                      style: textStyles.bodyLarge.copyWith(
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                )
-                    .toList(),
+                children:
+                    controller.availableCities
+                        .map(
+                          (city) => Center(
+                            child: Text(
+                              city,
+                              style: textStyles.bodyLarge.copyWith(
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
               ),
             ),
             Padding(
@@ -74,7 +75,7 @@ class WeatherView extends GetView<WeatherController> {
                 ),
                 onPressed: () {
                   final selectedCity =
-                  controller.availableCities[selectedIndex];
+                      controller.availableCities[selectedIndex];
                   controller.changeCity(selectedCity);
                 },
                 child: const Text(AppStrings.select),
@@ -115,10 +116,11 @@ class WeatherView extends GetView<WeatherController> {
         });
       } catch (e) {
         todayForecast =
-        allDailyForecasts.isNotEmpty ? allDailyForecasts.first : null;
+            allDailyForecasts.isNotEmpty ? allDailyForecasts.first : null;
       }
 
-      final bool isDataIncomplete = weather.currentWeather == null ||
+      final bool isDataIncomplete =
+          weather.currentWeather == null ||
           todayForecast == null ||
           todayForecast.maxTemp == null ||
           todayForecast.minTemp == null;
@@ -128,7 +130,9 @@ class WeatherView extends GetView<WeatherController> {
       }
 
       final futureForecasts =
-      allDailyForecasts.where((f) => f.date != todayForecast?.date).toList();
+          allDailyForecasts
+              .where((f) => f.date != todayForecast?.date)
+              .toList();
 
       return SafeArea(
         bottom: false,
@@ -149,12 +153,9 @@ class WeatherView extends GetView<WeatherController> {
                   child: Column(
                     children: [
                       if (weather.hourlyForecast != null)
-                        _buildHourlyForecast(
-                          context,
-                          weather.hourlyForecast!,
-                        ),
+                        _buildHourlyForecast(context, weather.hourlyForecast!),
                       ...futureForecasts.map(
-                            (forecast) =>
+                        (forecast) =>
                             _buildDailyForecastCard(context, forecast),
                       ),
                       SizedBox(height: spacing.large * 5),
@@ -204,10 +205,10 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildModernCurrentWeather(
-      BuildContext context,
-      CurrentWeatherResponseDto current,
-      DailyWeatherForecastResponseDto today,
-      ) {
+    BuildContext context,
+    CurrentWeatherResponseDto current,
+    DailyWeatherForecastResponseDto today,
+  ) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
@@ -216,9 +217,9 @@ class WeatherView extends GetView<WeatherController> {
     final String highTemp = today.maxTemp?.toStringAsFixed(0) ?? '--';
     final String lowTemp = today.minTemp?.toStringAsFixed(0) ?? '--';
     final String cardBackgroundImage =
-    Get.isDarkMode
-        ? 'assets/weather/card_back_dark.png'
-        : 'assets/weather/card_back_light.png';
+        Get.isDarkMode
+            ? 'assets/weather/card_back_dark.png'
+            : 'assets/weather/card_back_light.png';
 
     bool isDay = true;
     if (today.sunset != null && today.sunset!.isNotEmpty) {
@@ -361,18 +362,18 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildDetailItem(
-      BuildContext context, {
-        required IconData icon,
-        required String value,
-        required String label,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final color =
-    (label == AppStrings.pm10Label || label == AppStrings.pm25Label)
-        ? WeatherUtils.getColorForGrade(value)
-        : colorScheme.onPrimary;
+        (label == AppStrings.pm10Label || label == AppStrings.pm25Label)
+            ? WeatherUtils.getColorForGrade(value)
+            : colorScheme.onPrimary;
 
     return Column(
       children: [
@@ -392,9 +393,9 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildHourlyForecast(
-      BuildContext context,
-      HourlyForecastResponseDto hourly,
-      ) {
+    BuildContext context,
+    HourlyForecastResponseDto hourly,
+  ) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
@@ -441,9 +442,9 @@ class WeatherView extends GetView<WeatherController> {
   }
 
   Widget _buildDailyForecastCard(
-      BuildContext context,
-      DailyWeatherForecastResponseDto day,
-      ) {
+    BuildContext context,
+    DailyWeatherForecastResponseDto day,
+  ) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;

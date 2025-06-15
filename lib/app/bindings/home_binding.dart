@@ -16,13 +16,13 @@ class HomeBinding extends Bindings {
     Get.lazyPut<HolidayService>(() => HolidayService(Get.find(), Get.find()));
 
     Get.lazyPut<HomeController>(
-          () => HomeController(Get.find(), Get.find(), Get.find(), Get.find()),
+      () => HomeController(Get.find(), Get.find(), Get.find(), Get.find()),
     );
     Get.lazyPut<WeatherController>(
-          () => WeatherController(Get.find(), Get.find(), Get.find()),
+      () => WeatherController(Get.find(), Get.find(), Get.find()),
     );
     Get.lazyPut<LuckController>(
-          () => LuckController(Get.find(), Get.find(), Get.find()),
+      () => LuckController(Get.find(), Get.find(), Get.find()),
     );
   }
 }

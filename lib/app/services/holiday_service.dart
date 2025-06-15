@@ -1,6 +1,7 @@
 // lib/app/services/holiday_service.dart
 
 import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:safe_diary/app/models/holiday_dto.dart';
@@ -32,13 +33,16 @@ class HolidayService extends GetxService {
       if (kDebugMode) print("Fetching new holiday data for $year from server.");
       final newETag = response.headers['etag'];
       if (newETag != null) {
-        final holidaysJson = json.encode(response.body!.map((h) => h.toJson()).toList());
+        final holidaysJson = json.encode(
+          response.body!.map((h) => h.toJson()).toList(),
+        );
         await _storageService.saveHolidayETag(year, newETag);
         await _storageService.saveHolidays(year, holidaysJson);
       }
       return response.body!;
     } else if (response.statusCode == 304 && cachedData != null) {
-      if (kDebugMode) print("Holiday data for $year is up to date. Using cache.");
+      if (kDebugMode)
+        print("Holiday data for $year is up to date. Using cache.");
       final List<dynamic> decodedData = json.decode(cachedData);
       return decodedData.map((item) => HolidayDto.fromJson(item)).toList();
     } else if (cachedData != null) {

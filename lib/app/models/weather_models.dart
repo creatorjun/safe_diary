@@ -13,23 +13,26 @@ class WeatherResponseDto {
 
   factory WeatherResponseDto.fromJson(Map<String, dynamic> json) {
     return WeatherResponseDto(
-      currentWeather: json['currentWeather'] != null
-          ? CurrentWeatherResponseDto.fromJson(
-        json['currentWeather'] as Map<String, dynamic>,
-      )
-          : null,
-      hourlyForecast: json['hourlyForecast'] != null
-          ? HourlyForecastResponseDto.fromJson(
-        json['hourlyForecast'] as Map<String, dynamic>,
-      )
-          : null,
-      dailyForecast: (json['dailyForecast'] as List<dynamic>?)
-          ?.map(
-            (e) => DailyWeatherForecastResponseDto.fromJson(
-          e as Map<String, dynamic>,
-        ),
-      )
-          .toList() ??
+      currentWeather:
+          json['currentWeather'] != null
+              ? CurrentWeatherResponseDto.fromJson(
+                json['currentWeather'] as Map<String, dynamic>,
+              )
+              : null,
+      hourlyForecast:
+          json['hourlyForecast'] != null
+              ? HourlyForecastResponseDto.fromJson(
+                json['hourlyForecast'] as Map<String, dynamic>,
+              )
+              : null,
+      dailyForecast:
+          (json['dailyForecast'] as List<dynamic>?)
+              ?.map(
+                (e) => DailyWeatherForecastResponseDto.fromJson(
+                  e as Map<String, dynamic>,
+                ),
+              )
+              .toList() ??
           [],
     );
   }
@@ -68,7 +71,7 @@ class CurrentWeatherResponseDto {
       measuredAt: json['measuredAt'] as String? ?? '',
       temperature: (json['temperature'] as num?)?.toDouble() ?? 0.0,
       apparentTemperature:
-      (json['apparentTemperature'] as num?)?.toDouble() ?? 0.0,
+          (json['apparentTemperature'] as num?)?.toDouble() ?? 0.0,
       conditionCode: json['conditionCode'] as String? ?? 'Unknown',
       humidity: (json['humidity'] as num?)?.toDouble() ?? 0.0,
       windSpeed: (json['windSpeed'] as num?)?.toDouble() ?? 0.0,
@@ -94,11 +97,12 @@ class HourlyForecastResponseDto {
     return HourlyForecastResponseDto(
       summary: json['summary'] as String?,
       forecastExpireTime: json['forecastExpireTime'] as String? ?? '',
-      minutes: (json['minutes'] as List<dynamic>?)
-          ?.map(
-            (e) => MinuteForecastDto.fromJson(e as Map<String, dynamic>),
-      )
-          .toList() ??
+      minutes:
+          (json['minutes'] as List<dynamic>?)
+              ?.map(
+                (e) => MinuteForecastDto.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
           [],
     );
   }
@@ -119,9 +123,9 @@ class MinuteForecastDto {
     return MinuteForecastDto(
       startTime: json['startTime'] as String? ?? '',
       precipitationChance:
-      (json['precipitationChance'] as num?)?.toDouble() ?? 0.0,
+          (json['precipitationChance'] as num?)?.toDouble() ?? 0.0,
       precipitationIntensity:
-      (json['precipitationIntensity'] as num?)?.toDouble() ?? 0.0,
+          (json['precipitationIntensity'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }
