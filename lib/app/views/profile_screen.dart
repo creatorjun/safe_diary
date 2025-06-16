@@ -11,6 +11,7 @@ import '../controllers/profile_controller.dart';
 import '../models/user.dart' show LoginPlatform;
 import '../routes/app_pages.dart';
 import '../theme/app_theme.dart';
+import 'widgets/shared_background.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -68,9 +69,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required VoidCallback toggleVisibility,
   }) {
     final AppTextStyles textStyles =
-        Theme.of(context).extension<AppTextStyles>()!;
+    Theme.of(context).extension<AppTextStyles>()!;
     return Obx(
-      () => TextField(
+          () => TextField(
         controller: controller,
         obscureText: isObscured.value,
         style: textStyles.bodyLarge,
@@ -95,135 +96,141 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          AppStrings.profileAndSettings,
-          style: textStyles.titleMedium,
+    return SharedBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Text(
+            AppStrings.profileAndSettings,
+            style: textStyles.titleMedium,
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(spacing.medium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(AppStrings.editProfile, style: textStyles.titleLarge),
-              SizedBox(height: spacing.small),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: spacing.medium),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      controller: _nicknameController,
-                      style: textStyles.bodyLarge,
-                      decoration: const InputDecoration(
-                        labelText: AppStrings.nickname,
-                        hintText: AppStrings.newNicknameHint,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(spacing.medium),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(AppStrings.editProfile, style: textStyles.titleLarge),
+                SizedBox(height: spacing.small),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: spacing.medium),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextField(
+                        controller: _nicknameController,
+                        style: textStyles.bodyLarge,
+                        decoration: const InputDecoration(
+                          labelText: AppStrings.nickname,
+                          hintText: AppStrings.newNicknameHint,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: spacing.large),
-                    Text(
-                      controller.loginController.user.isAppPasswordSet
-                          ? AppStrings.changeAppPassword
-                          : AppStrings.setAppPassword,
-                      style: textStyles.bodyLarge,
-                    ),
-                    SizedBox(height: spacing.small),
-                    _buildPasswordField(
-                      controller: _newPasswordController,
-                      labelText: AppStrings.newPassword,
-                      hintText: AppStrings.newPasswordHint,
-                      isObscured: controller.isNewPasswordObscured,
-                      toggleVisibility: controller.toggleNewPasswordVisibility,
-                    ),
-                    SizedBox(height: spacing.medium),
-                    _buildPasswordField(
-                      controller: _confirmPasswordController,
-                      labelText: AppStrings.newPasswordConfirm,
-                      hintText: AppStrings.newPasswordConfirmHint,
-                      isObscured: controller.isConfirmPasswordObscured,
-                      toggleVisibility:
-                          controller.toggleConfirmPasswordVisibility,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: spacing.small),
-              Obx(
-                () => FilledButton.icon(
-                  icon: const Icon(Icons.save_outlined, size: 18),
-                  label: Text(
-                    AppStrings.saveChanges,
-                    style: textStyles.labelLarge,
-                  ),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                  ),
-                  onPressed:
-                      controller.hasChanges.value
-                          ? () {
-                            controller
-                                .saveChanges(
-                                  newNickname: _nicknameController.text,
-                                  newPassword: _newPasswordController.text,
-                                  confirmPassword:
-                                      _confirmPasswordController.text,
-                                )
-                                .then((_) {
-                                  _newPasswordController.clear();
-                                  _confirmPasswordController.clear();
-                                });
-                          }
-                          : null,
-                ),
-              ),
-              Obx(() {
-                if (controller.loginController.user.isAppPasswordSet) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: OutlinedButton.icon(
-                      icon: Icon(
-                        Icons.lock_open_outlined,
-                        color: colorScheme.error,
+                      SizedBox(height: spacing.large),
+                      Text(
+                        controller.loginController.user.isAppPasswordSet
+                            ? AppStrings.changeAppPassword
+                            : AppStrings.setAppPassword,
+                        style: textStyles.bodyLarge,
                       ),
-                      label: Text(
-                        AppStrings.removeAppPassword,
-                        style: textStyles.bodyLarge.copyWith(
+                      SizedBox(height: spacing.small),
+                      _buildPasswordField(
+                        controller: _newPasswordController,
+                        labelText: AppStrings.newPassword,
+                        hintText: AppStrings.newPasswordHint,
+                        isObscured: controller.isNewPasswordObscured,
+                        toggleVisibility:
+                        controller.toggleNewPasswordVisibility,
+                      ),
+                      SizedBox(height: spacing.medium),
+                      _buildPasswordField(
+                        controller: _confirmPasswordController,
+                        labelText: AppStrings.newPasswordConfirm,
+                        hintText: AppStrings.newPasswordConfirmHint,
+                        isObscured: controller.isConfirmPasswordObscured,
+                        toggleVisibility:
+                        controller.toggleConfirmPasswordVisibility,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: spacing.small),
+                Obx(
+                      () => FilledButton.icon(
+                    icon: const Icon(Icons.save_outlined, size: 18),
+                    label: Text(
+                      AppStrings.saveChanges,
+                      style: textStyles.labelLarge,
+                    ),
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
+                    onPressed: controller.hasChanges.value
+                        ? () {
+                      controller
+                          .saveChanges(
+                        newNickname: _nicknameController.text,
+                        newPassword: _newPasswordController.text,
+                        confirmPassword:
+                        _confirmPasswordController.text,
+                      )
+                          .then((_) {
+                        _newPasswordController.clear();
+                        _confirmPasswordController.clear();
+                      });
+                    }
+                        : null,
+                  ),
+                ),
+                Obx(() {
+                  if (controller.loginController.user.isAppPasswordSet) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: OutlinedButton.icon(
+                        icon: Icon(
+                          Icons.lock_open_outlined,
                           color: colorScheme.error,
                         ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50),
-                        side: BorderSide(
-                          color: colorScheme.error.withAlpha(80),
+                        label: Text(
+                          AppStrings.removeAppPassword,
+                          style: textStyles.bodyLarge.copyWith(
+                            color: colorScheme.error,
+                          ),
                         ),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                          side: BorderSide(
+                            color: colorScheme.error.withAlpha(80),
+                          ),
+                        ),
+                        onPressed: controller.promptForPasswordAndRemove,
                       ),
-                      onPressed: controller.promptForPasswordAndRemove,
-                    ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-              SizedBox(height: spacing.large),
-              const Divider(),
-              SizedBox(height: spacing.large),
-              Text(AppStrings.partnerConnection, style: textStyles.titleLarge),
-              SizedBox(height: spacing.medium),
-              _buildPartnerSection(context),
-              SizedBox(height: spacing.large),
-              const Divider(),
-              SizedBox(height: spacing.medium),
-              Text(AppStrings.accountInfo, style: textStyles.titleLarge),
-              SizedBox(height: spacing.small),
-              _buildAccountInfoSection(),
-              SizedBox(height: spacing.medium),
-              _buildAccountDeletionSection(),
-              SizedBox(height: spacing.large),
-            ],
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+                SizedBox(height: spacing.large),
+                const Divider(),
+                SizedBox(height: spacing.large),
+                Text(AppStrings.partnerConnection,
+                    style: textStyles.titleLarge),
+                SizedBox(height: spacing.medium),
+                _buildPartnerSection(context),
+                SizedBox(height: spacing.large),
+                const Divider(),
+                SizedBox(height: spacing.medium),
+                Text(AppStrings.accountInfo, style: textStyles.titleLarge),
+                SizedBox(height: spacing.small),
+                _buildAccountInfoSection(),
+                SizedBox(height: spacing.medium),
+                _buildAccountDeletionSection(),
+                SizedBox(height: spacing.large),
+              ],
+            ),
           ),
         ),
       ),
@@ -288,14 +295,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: FilledButton.styleFrom(
                 minimumSize: const Size(double.infinity, 45),
               ),
-              onPressed:
-                  () => Get.toNamed(
-                    Routes.chat,
-                    arguments: {
-                      'partnerUid': user.partnerUid,
-                      'partnerNickname': partnerNickname,
-                    },
-                  ),
+              onPressed: () => Get.toNamed(
+                Routes.chat,
+                arguments: {
+                  'partnerUid': user.partnerUid,
+                  'partnerNickname': partnerNickname,
+                },
+              ),
             ),
             SizedBox(height: spacing.small),
             OutlinedButton.icon(
@@ -306,7 +312,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               label: Text(
                 AppStrings.unfriendButton,
-                style: textStyles.bodyMedium.copyWith(color: colorScheme.error),
+                style:
+                textStyles.bodyMedium.copyWith(color: colorScheme.error),
               ),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 45),
@@ -434,16 +441,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 SizedBox(
                   width: 22,
                   height: 22,
-                  child:
-                      user.platform == LoginPlatform.naver
-                          ? const Image(image: Svg('assets/naver_icon.svg'))
-                          : user.platform == LoginPlatform.kakao
-                          ? const Image(image: Svg('assets/kakao_icon.svg'))
-                          : Icon(
-                            Icons.device_unknown_outlined,
-                            color: colorScheme.onSurfaceVariant,
-                            size: 22,
-                          ),
+                  child: user.platform == LoginPlatform.naver
+                      ? const Image(image: Svg('assets/naver_icon.svg'))
+                      : user.platform == LoginPlatform.kakao
+                      ? const Image(image: Svg('assets/kakao_icon.svg'))
+                      : Icon(
+                    Icons.device_unknown_outlined,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 22,
+                  ),
                 ),
                 SizedBox(width: spacing.small),
                 Text(

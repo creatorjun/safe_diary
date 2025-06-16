@@ -9,6 +9,7 @@ import '../controllers/login_controller.dart';
 import '../routes/app_pages.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_strings.dart';
+import '../views/widgets/shared_background.dart';
 import './calendar_view.dart';
 import './luck_view.dart';
 import './weather_view.dart';
@@ -30,18 +31,7 @@ class HomeScreen extends GetView<HomeController> {
       const LuckView(),
     ];
 
-    final String backgroundImage =
-        Get.isDarkMode
-            ? "assets/home_dark_back.png"
-            : "assets/home_light_back.png";
-
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(backgroundImage),
-          fit: BoxFit.cover,
-        ),
-      ),
+    return SharedBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         extendBody: true,
@@ -73,41 +63,41 @@ class HomeScreen extends GetView<HomeController> {
               },
               itemBuilder:
                   (BuildContext context) => <PopupMenuEntry<String>>[
-                    PopupMenuItem<String>(
-                      value: 'profile',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.person_outline),
-                          SizedBox(width: spacing.small),
-                          Text(
-                            AppStrings.profile,
-                            style: textStyles.bodyMedium,
-                          ),
-                        ],
+                PopupMenuItem<String>(
+                  value: 'profile',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.person_outline),
+                      SizedBox(width: spacing.small),
+                      Text(
+                        AppStrings.profile,
+                        style: textStyles.bodyMedium,
                       ),
-                    ),
-                    PopupMenuItem<String>(
-                      value: 'logout',
-                      child: Row(
-                        children: [
-                          const Icon(Icons.logout),
-                          SizedBox(width: spacing.small),
-                          Text(AppStrings.logout, style: textStyles.bodyMedium),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'logout',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.logout),
+                      SizedBox(width: spacing.small),
+                      Text(AppStrings.logout, style: textStyles.bodyMedium),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
         body: Obx(
-          () => IndexedStack(
+              () => IndexedStack(
             index: controller.selectedIndex.value,
             children: screens,
           ),
         ),
         bottomNavigationBar: Obx(
-          () => CrystalNavigationBar(
+              () => CrystalNavigationBar(
             currentIndex: controller.selectedIndex.value,
             onTap: (index) {
               controller.changeTabIndex(index);
