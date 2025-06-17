@@ -91,6 +91,18 @@ flutter:
     - assets/
     - assets/weather/
 
+  # --- flutter_native_splash ---
+
+flutter_native_splash:
+    background_image: "assets/home_light_back.png"
+    background_image_dark: "assets/home_dark_back.png"
+
+    android_12:
+      color: "#F4F3F9"
+      color_dark: "#141233"
+
+    fullscreen: true
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

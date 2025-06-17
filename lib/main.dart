@@ -1,8 +1,7 @@
-// lib/main.dart
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk_user.dart';
@@ -17,11 +16,11 @@ import 'app/theme/app_theme.dart';
 import 'firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // InitialBinding을 먼저 실행하여 모든 서비스와 컨트롤러를 등록합니다.
   InitialBinding().dependencies();
 
   await Get.find<NotificationService>().init();
@@ -32,12 +31,9 @@ void main() async {
 
   final LoginController loginController = Get.find<LoginController>();
 
-  // --- 여기부터 수정 ---
-
-  // 자동 로그인을 시도하고 결과에 따라 초기 라우트 경로를 결정합니다.
-  final String initialRoute = await loginController.tryAutoLoginAndGetInitialRoute();
-
-  // --- 여기까지 수정 ---
+  // 자동 로그인 및 초기 화면 설정
+  final String initialRoute =
+      await loginController.tryAutoLoginAndGetInitialRoute();
 
   final String naverAppName = dotenv.env['AppName'] ?? 'YOUR_APP_NAME_DEFAULT';
   final String naverClientId =
@@ -57,6 +53,8 @@ void main() async {
   );
 
   KakaoSdk.init(nativeAppKey: kakaoNativeAppKey);
+
+  FlutterNativeSplash.remove();
 
   runApp(MyApp(initialRoute: initialRoute));
 }

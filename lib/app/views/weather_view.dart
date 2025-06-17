@@ -220,23 +220,25 @@ class WeatherView extends GetView<WeatherController> {
         ? 'assets/weather/card_back_dark.png'
         : 'assets/weather/card_back_light.png';
 
-    bool isDay = true;
-    if (today.sunset != null && today.sunset!.isNotEmpty) {
+    bool isDay = false;
+    if (today.sunrise != null &&
+        today.sunrise!.isNotEmpty &&
+        today.sunset != null &&
+        today.sunset!.isNotEmpty) {
       try {
         final now = DateTime.now();
-        final sunsetParts = today.sunset!.split(':');
-        final sunsetTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(sunsetParts[0]),
-          int.parse(sunsetParts[1]),
-        );
-        if (now.isAfter(sunsetTime)) {
-          isDay = false;
+
+        final apiSunrise = DateTime.parse(today.sunrise!).toLocal();
+        final apiSunset = DateTime.parse(today.sunset!).toLocal();
+
+        final todaySunrise = DateTime(now.year, now.month, now.day, apiSunrise.hour, apiSunrise.minute);
+        final todaySunset = DateTime(now.year, now.month, now.day, apiSunset.hour, apiSunset.minute);
+
+        if (now.isAfter(todaySunrise) && now.isBefore(todaySunset)) {
+          isDay = true;
         }
       } catch (e) {
-        // Parsing failed, default to day
+        // 파싱 실패 시 기본값(밤)으로 유지
       }
     }
 
