@@ -53,6 +53,7 @@ class ProfileAuthScreen extends GetView<ProfileAuthController> {
                   autofocus: true,
                   textAlign: TextAlign.center,
                   style: textStyles.bodyLarge,
+                  keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     hintText: AppStrings.password,
                   ),

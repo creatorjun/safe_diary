@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:safe_diary/app/services/dialog_service.dart';
 import 'package:safe_diary/app/theme/app_theme.dart';
 import 'package:safe_diary/app/utils/app_strings.dart';
 
-import '../routes/app_pages.dart';
+import '../views/widgets/password_prompt_dialog.dart';
 import 'error_controller.dart';
 import 'login_controller.dart';
 import 'partner_controller.dart';
@@ -73,6 +72,10 @@ class ProfileController extends GetxController {
     final isNicknameChanged = currentNickname != initialNickname.value;
     final isPasswordEntered = newPassword.isNotEmpty;
     hasChanges.value = isNicknameChanged || isPasswordEntered;
+  }
+
+  void clearVerifiedPassword() {
+    _verifiedPassword = null;
   }
 
   Future<void> saveChanges() async {
@@ -145,45 +148,9 @@ class ProfileController extends GetxController {
   }
 
   void promptForPasswordAndRemove() {
-    final TextEditingController dialogPasswordController =
-    TextEditingController();
-
-    _dialogService.showConfirmDialog(
-      title: AppStrings.removePasswordPromptTitle,
-      content: AppStrings.removePasswordPromptContent,
-      confirmText: AppStrings.removeAppPassword,
-      customContent: TextField(
-        controller: dialogPasswordController,
-        obscureText: true,
-        autofocus: true,
-        decoration: const InputDecoration(
-          labelText: AppStrings.currentPassword,
-          border: OutlineInputBorder(),
-        ),
-      ),
-      onConfirm: () async {
-        final String currentPassword = dialogPasswordController.text.trim();
-        dialogPasswordController.dispose();
-
-        if (currentPassword.isEmpty) {
-          _dialogService.showSnackbar(
-            AppStrings.error,
-            AppStrings.currentPasswordRequired,
-          );
-          return;
-        }
-
-        final bool success = await loginController.removeAppPassword(
-          currentPassword,
-        );
-
-        if (success) {
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            Get.offNamedUntil(Routes.home, (route) => route.isFirst);
-            Get.toNamed(Routes.profileAuth);
-          });
-        }
-      },
+    Get.dialog(
+      const PasswordPromptDialog(),
+      barrierDismissible: false,
     );
   }
 

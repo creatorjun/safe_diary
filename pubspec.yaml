@@ -57,6 +57,7 @@ dependencies:
   firebase_analytics: ^11.4.6
   omni_datetime_picker: ^2.1.1
   flex_color_scheme: ^8.2.0
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:

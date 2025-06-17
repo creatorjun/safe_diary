@@ -1,5 +1,3 @@
-// lib/app/controllers/home_controller.dart
-
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
@@ -41,8 +39,7 @@ class HomeController extends GetxController {
 
   String get currentTitle => tabTitles[selectedIndex.value];
 
-  // 신규 사용자에게 비밀번호 설정 안내 팝업이 표시되었는지 확인하는 플래그
-  final RxBool _passwordSetupWarningShown = false.obs;
+  final RxBool _newUserWarningShown = false.obs;
 
   final RxBool isLoadingEvents = false.obs;
   final RxBool isSubmittingEvent = false.obs;
@@ -96,40 +93,45 @@ class HomeController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    // 홈 화면이 준비되면, 신규 사용자에게 비밀번호 설정을 안내합니다.
-    _showPasswordSetupWarningIfNeeded();
+    _checkAndShowNewUserWarning();
   }
 
-  /// 신규 사용자이고, 아직 앱 비밀번호를 설정하지 않았으며,
-  /// 안내 팝업이 표시된 적이 없다면 팝업을 표시합니다.
-  void _showPasswordSetupWarningIfNeeded() {
-    // isNew 플래그는 서버에서 로그인 시 한 번만 true로 내려옵니다.
-    // 사용자가 한 번이라도 로그인하면 다음부터는 false가 됩니다.
+  void _checkAndShowNewUserWarning() {
     if (_loginController.user.isNew &&
         !_loginController.user.isAppPasswordSet &&
-        !_passwordSetupWarningShown.value) {
-
-      // 화면이 완전히 그려진 후에 BottomSheet를 보여주기 위해 짧은 지연을 줍니다.
-      Future.delayed(const Duration(milliseconds: 500), () {
-        // BottomSheet가 표시되는 동안 사용자가 다른 화면으로 이동했을 경우를 대비해
-        // 현재 화면이 HomeController인지 다시 한 번 확인합니다.
+        !_newUserWarningShown.value) {
+      Future.delayed(const Duration(milliseconds: 100), () {
         if (Get.isRegistered<HomeController>() && Get.context != null) {
-          _showPasswordSetupBottomSheet();
-          _passwordSetupWarningShown.value = true; // 팝업이 다시 뜨지 않도록 플래그 설정
+          _showNewUserPasswordSetupWarning();
+          _newUserWarningShown.value = true;
         }
       });
     }
   }
 
-  void _showPasswordSetupBottomSheet() {
+  void _showNewUserPasswordSetupWarning() {
     final BuildContext context = Get.context!;
     final ThemeData theme = Theme.of(context);
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
-    _dialogService.showCustomBottomSheet(
-      child: Container(
+    Get.bottomSheet(
+      Container(
         padding: const EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(16.0),
+            topRight: Radius.circular(16.0),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(10),
+              spreadRadius: 0,
+              blurRadius: 10,
+            ),
+          ],
+        ),
         child: Wrap(
           children: <Widget>[
             Column(
@@ -137,13 +139,13 @@ class HomeController extends GetxController {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '🔒 ${AppStrings.profileAndSettings}',
+                  '🔒 ${AppStrings.profile}',
                   style: textStyles.titleMedium,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: spacing.medium),
                 Text(
-                  "소중한 정보를 안전하게 보호하기 위해\n앱 비밀번호를 설정하는 것을 권장해요.",
+                  "개인정보 - 비밀번호 설정을 활성화 해주세요.",
                   style: textStyles.bodyMedium.copyWith(height: 1.5),
                   textAlign: TextAlign.center,
                 ),
@@ -154,10 +156,12 @@ class HomeController extends GetxController {
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: BorderSide(color: theme.colorScheme.outline.withAlpha(128)),
+                          side: BorderSide(color: Colors.grey.shade400),
                         ),
-                        onPressed: () => Get.back(),
-                        child: Text('나중에 할게요', style: textStyles.bodyMedium),
+                        onPressed: () {
+                          Get.back();
+                        },
+                        child: Text('나중에 하기', style: textStyles.bodyMedium),
                       ),
                     ),
                     SizedBox(width: spacing.small),
@@ -165,16 +169,17 @@ class HomeController extends GetxController {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: theme.colorScheme.onPrimary,
+                          backgroundColor: theme.primaryColor,
                         ),
                         onPressed: () {
-                          Get.back(); // BottomSheet 닫기
-                          Get.toNamed(Routes.profileAuth); // 프로필 인증 화면으로 이동
+                          Get.back();
+                          Get.toNamed(Routes.profileAuth);
                         },
                         child: Text(
-                          '지금 설정하기',
-                          style: textStyles.bodyMedium,
+                          '지금 설정',
+                          style: textStyles.bodyMedium.copyWith(
+                            color: theme.colorScheme.onPrimary,
+                          ),
                         ),
                       ),
                     ),
@@ -189,7 +194,6 @@ class HomeController extends GetxController {
       enableDrag: false,
     );
   }
-
 
   void onDaySelected(DateTime newSelectedDay, DateTime newFocusedDay) {
     final normalizedNewSelectedDay = _normalizeDate(newSelectedDay);
@@ -206,6 +210,7 @@ class HomeController extends GetxController {
       _loadHolidaysForYear(normalizedDay.year);
     }
     focusedDay.value = normalizedDay;
+    selectedDay.value = null;
   }
 
   List<EventItem> getEventsForDay(DateTime day) {
@@ -227,10 +232,8 @@ class HomeController extends GetxController {
       }
       holidays.refresh();
     } catch (e) {
-      _errorController.handleError(
-        e,
-        userFriendlyMessage: '공휴일 정보를 불러오는 데 실패했습니다.',
-      );
+      _errorController.handleError(e,
+          userFriendlyMessage: '공휴일 정보를 불러오는 데 실패했습니다.');
     }
   }
 
@@ -269,9 +272,7 @@ class HomeController extends GetxController {
     _dialogService.showCustomBottomSheet(
       child: AddEditEventSheet(
         eventDate: selectedDay.value!,
-        onSubmit: (event) {
-          _createEventOnServer(event);
-        },
+        onSubmit: _createEventOnServer,
       ),
     );
   }
@@ -291,6 +292,7 @@ class HomeController extends GetxController {
       events.refresh();
     } catch (e) {
       _errorController.handleError(e, userFriendlyMessage: '일정 추가에 실패했습니다.');
+      rethrow;
     } finally {
       isSubmittingEvent.value = false;
     }
@@ -301,9 +303,7 @@ class HomeController extends GetxController {
       child: AddEditEventSheet(
         eventDate: existingEvent.eventDate,
         existingEvent: existingEvent,
-        onSubmit: (event) {
-          _updateEventOnServer(event);
-        },
+        onSubmit: _updateEventOnServer,
       ),
     );
   }
@@ -337,6 +337,7 @@ class HomeController extends GetxController {
       events.refresh();
     } catch (e) {
       _errorController.handleError(e, userFriendlyMessage: '일정 수정에 실패했습니다.');
+      rethrow;
     } finally {
       isSubmittingEvent.value = false;
     }

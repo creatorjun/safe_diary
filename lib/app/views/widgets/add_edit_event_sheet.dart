@@ -12,7 +12,7 @@ import '../../utils/app_strings.dart';
 class AddEditEventSheet extends StatefulWidget {
   final DateTime eventDate;
   final EventItem? existingEvent;
-  final Function(EventItem event) onSubmit;
+  final Future<void> Function(EventItem event) onSubmit;
 
   const AddEditEventSheet({
     super.key,
@@ -128,8 +128,7 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     final String endTimeStr =
         _endTime?.format(context) ?? AppStrings.unspecified;
 
-    final bool isEndTimeFixed =
-        widget.existingEvent == null &&
+    final bool isEndTimeFixed = widget.existingEvent == null &&
         _startTime != null &&
         _startTime!.hour >= 23;
 
@@ -152,30 +151,28 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
             borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
           ),
-          enabledBorder:
-              isEndTimeFixed
-                  ? OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                    borderSide: BorderSide(
-                      color: colorScheme.onSurface.withAlpha(77),
-                    ),
-                  )
-                  : null,
+          enabledBorder: isEndTimeFixed
+              ? OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: BorderSide(
+              color: colorScheme.onSurface.withAlpha(77),
+            ),
+          )
+              : null,
         ),
         child: Text(
           "$startTimeStr - $endTimeStr",
           style: textStyles.bodyLarge.copyWith(
-            color:
-                isEndTimeFixed
-                    ? colorScheme.onSurface.withAlpha(128)
-                    : colorScheme.onSurface,
+            color: isEndTimeFixed
+                ? colorScheme.onSurface.withAlpha(128)
+                : colorScheme.onSurface,
           ),
         ),
       ),
     );
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
     if (_isSubmitting) return;
 
     if (_formKey.currentState!.validate()) {
@@ -195,21 +192,33 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
           return;
         }
       }
+
       setState(() {
         _isSubmitting = true;
       });
 
-      final event = EventItem(
-        backendEventId: widget.existingEvent?.backendEventId,
-        title: _titleController.text.trim(),
-        eventDate: widget.eventDate,
-        startTime: _startTime,
-        endTime: _endTime,
-        createdAt: widget.existingEvent?.createdAt,
-      );
+      try {
+        final event = EventItem(
+          backendEventId: widget.existingEvent?.backendEventId,
+          title: _titleController.text.trim(),
+          eventDate: widget.eventDate,
+          startTime: _startTime,
+          endTime: _endTime,
+          createdAt: widget.existingEvent?.createdAt,
+        );
 
-      widget.onSubmit(event);
-      Get.back();
+        await widget.onSubmit(event);
+        Get.back();
+
+      } catch (e) {
+        // 에러 처리는 HomeController에서 하므로 여기서는 별도 처리가 필요 없습니다.
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isSubmitting = false;
+          });
+        }
+      }
     }
   }
 
@@ -222,9 +231,9 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
 
     final bool isEditing = widget.existingEvent != null;
     final String dialogTitleText =
-        isEditing ? AppStrings.editEvent : AppStrings.addEvent;
+    isEditing ? AppStrings.editEvent : AppStrings.addEvent;
     final String submitButtonText =
-        isEditing ? AppStrings.edit : AppStrings.add;
+    isEditing ? AppStrings.edit : AppStrings.add;
 
     return Container(
       decoration: BoxDecoration(
@@ -312,23 +321,22 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                     ),
                     SizedBox(width: spacing.small),
                     FilledButton.icon(
-                      icon:
-                          _isSubmitting
-                              ? Container(
-                                width: 18,
-                                height: 18,
-                                margin: const EdgeInsets.only(right: 4),
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: colorScheme.onPrimary,
-                                ),
-                              )
-                              : Icon(
-                                isEditing
-                                    ? Icons.check_circle_outline
-                                    : Icons.add_circle_outline,
-                                size: 18,
-                              ),
+                      icon: _isSubmitting
+                          ? Container(
+                        width: 18,
+                        height: 18,
+                        margin: const EdgeInsets.only(right: 4),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
+                      )
+                          : Icon(
+                        isEditing
+                            ? Icons.check_circle_outline
+                            : Icons.add_circle_outline,
+                        size: 18,
+                      ),
                       label: Text(
                         submitButtonText,
                         style: textStyles.bodyMedium.copyWith(

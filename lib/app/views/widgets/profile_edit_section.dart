@@ -123,6 +123,7 @@ class ProfileEditSection extends GetView<ProfileController> {
         controller: controller,
         obscureText: isObscured.value,
         style: textStyles.bodyLarge,
+        keyboardType: TextInputType.number,
         decoration: InputDecoration(
           labelText: labelText,
           hintText: hintText,
