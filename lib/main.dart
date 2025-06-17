@@ -1,5 +1,6 @@
+// lib/main.dart
+
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -20,6 +21,7 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // InitialBinding을 먼저 실행하여 모든 서비스와 컨트롤러를 등록합니다.
   InitialBinding().dependencies();
 
   await Get.find<NotificationService>().init();
@@ -30,15 +32,12 @@ void main() async {
 
   final LoginController loginController = Get.find<LoginController>();
 
-  bool autoLoginSuccess = false;
-  try {
-    autoLoginSuccess = await loginController.tryAutoLoginWithRefreshToken();
-  } catch (e) {
-    if (kDebugMode) {
-      print("[main.dart] Auto login attempt failed: $e");
-    }
-    autoLoginSuccess = false;
-  }
+  // --- 여기부터 수정 ---
+
+  // 자동 로그인을 시도하고 결과에 따라 초기 라우트 경로를 결정합니다.
+  final String initialRoute = await loginController.tryAutoLoginAndGetInitialRoute();
+
+  // --- 여기까지 수정 ---
 
   final String naverAppName = dotenv.env['AppName'] ?? 'YOUR_APP_NAME_DEFAULT';
   final String naverClientId =
@@ -59,7 +58,7 @@ void main() async {
 
   KakaoSdk.init(nativeAppKey: kakaoNativeAppKey);
 
-  runApp(MyApp(initialRoute: autoLoginSuccess ? Routes.home : Routes.login));
+  runApp(MyApp(initialRoute: initialRoute));
 }
 
 class MyApp extends StatelessWidget {

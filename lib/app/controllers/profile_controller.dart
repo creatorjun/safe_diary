@@ -16,14 +16,19 @@ class ProfileController extends GetxController {
   final DialogService _dialogService;
 
   ProfileController(
-    this.loginController,
-    this.partnerController,
-    this._dialogService,
-  );
+      this.loginController,
+      this.partnerController,
+      this._dialogService,
+      );
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
   String? _verifiedPassword;
+
+  late final TextEditingController nicknameController;
+  late final TextEditingController newPasswordController;
+  late final TextEditingController confirmPasswordController;
+  late final TextEditingController invitationCodeInputController;
 
   final RxString initialNickname = ''.obs;
   final RxBool hasChanges = false.obs;
@@ -35,6 +40,33 @@ class ProfileController extends GetxController {
     super.onInit();
     _verifiedPassword = Get.arguments?['verifiedPassword'];
     initialNickname.value = loginController.user.nickname ?? '';
+
+    nicknameController = TextEditingController(text: initialNickname.value);
+    newPasswordController = TextEditingController();
+    confirmPasswordController = TextEditingController();
+    invitationCodeInputController = TextEditingController();
+
+    nicknameController.addListener(_onChanged);
+    newPasswordController.addListener(_onChanged);
+  }
+
+  @override
+  void onClose() {
+    nicknameController.removeListener(_onChanged);
+    newPasswordController.removeListener(_onChanged);
+
+    nicknameController.dispose();
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
+    invitationCodeInputController.dispose();
+    super.onClose();
+  }
+
+  void _onChanged() {
+    checkForChanges(
+      nicknameController.text,
+      newPasswordController.text,
+    );
   }
 
   void checkForChanges(String currentNickname, String newPassword) {
@@ -43,11 +75,11 @@ class ProfileController extends GetxController {
     hasChanges.value = isNicknameChanged || isPasswordEntered;
   }
 
-  Future<void> saveChanges({
-    required String newNickname,
-    required String newPassword,
-    required String confirmPassword,
-  }) async {
+  Future<void> saveChanges() async {
+    final newNickname = nicknameController.text;
+    final newPassword = newPasswordController.text;
+    final confirmPassword = confirmPasswordController.text;
+
     final isNicknameChanged =
         newNickname.isNotEmpty && newNickname != initialNickname.value;
     final isPasswordChanged = newPassword.isNotEmpty;
@@ -87,7 +119,7 @@ class ProfileController extends GetxController {
 
       if (isPasswordChanged) {
         final currentPwd =
-            loginController.user.isAppPasswordSet ? _verifiedPassword : null;
+        loginController.user.isAppPasswordSet ? _verifiedPassword : null;
         final bool success = await loginController.setOrUpdateAppPassword(
           currentAppPassword: currentPwd,
           newAppPassword: newPassword,
@@ -101,6 +133,8 @@ class ProfileController extends GetxController {
       _dialogService.hideLoading();
       _dialogService.showSnackbar(AppStrings.success, AppStrings.saveSuccess);
       hasChanges.value = false;
+      newPasswordController.clear();
+      confirmPasswordController.clear();
     } catch (e) {
       _dialogService.hideLoading();
       _errorController.handleError(
@@ -112,7 +146,7 @@ class ProfileController extends GetxController {
 
   void promptForPasswordAndRemove() {
     final TextEditingController dialogPasswordController =
-        TextEditingController();
+    TextEditingController();
 
     _dialogService.showConfirmDialog(
       title: AppStrings.removePasswordPromptTitle,

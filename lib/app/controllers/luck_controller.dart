@@ -1,6 +1,7 @@
 // lib/app/controllers/luck_controller.dart
 
 import 'package:get/get.dart';
+import 'package:safe_diary/app/config/data_constants.dart';
 
 import '../models/luck_models.dart';
 import '../services/luck_service.dart';
@@ -15,10 +16,10 @@ class LuckController extends GetxController {
   final SecureStorageService _secureStorageService;
 
   LuckController(
-    this._luckService,
-    this._loginController,
-    this._secureStorageService,
-  );
+      this._luckService,
+      this._loginController,
+      this._secureStorageService,
+      );
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -28,33 +29,19 @@ class LuckController extends GetxController {
   static const String _defaultZodiacApiName = "쥐띠";
   final RxString selectedZodiacApiName = _defaultZodiacApiName.obs;
 
-  final Map<String, String> zodiacNameMap = {
-    "자(쥐)": "쥐띠",
-    "축(소)": "소띠",
-    "인(호랑이)": "호랑이띠",
-    "묘(토끼)": "토끼띠",
-    "진(용)": "용띠",
-    "사(뱀)": "뱀띠",
-    "오(말)": "말띠",
-    "미(양)": "양띠",
-    "신(원숭이)": "원숭이띠",
-    "유(닭)": "닭띠",
-    "술(개)": "개띠",
-    "해(돼지)": "돼지띠",
-  };
-
-  List<String> get availableZodiacsForDisplay => zodiacNameMap.keys.toList();
+  List<String> get availableZodiacsForDisplay =>
+      DataConstants.availableZodiacsForDisplay;
 
   String get currentSelectedZodiacDisplayName {
-    return zodiacNameMap.entries
+    return DataConstants.zodiacNameMap.entries
         .firstWhere(
           (entry) => entry.value == selectedZodiacApiName.value,
-          orElse:
-              () => MapEntry(
-                availableZodiacsForDisplay.first,
-                _defaultZodiacApiName,
-              ),
-        )
+      orElse:
+          () => MapEntry(
+        availableZodiacsForDisplay.first,
+        _defaultZodiacApiName,
+      ),
+    )
         .key;
   }
 
@@ -74,9 +61,9 @@ class LuckController extends GetxController {
 
   Future<void> _loadSavedZodiacAndFetchLuck() async {
     String? savedZodiacApiName =
-        await _secureStorageService.getSelectedZodiac();
+    await _secureStorageService.getSelectedZodiac();
     if (savedZodiacApiName != null &&
-        zodiacNameMap.containsValue(savedZodiacApiName)) {
+        DataConstants.zodiacNameMap.containsValue(savedZodiacApiName)) {
       selectedZodiacApiName.value = savedZodiacApiName;
     } else {
       selectedZodiacApiName.value = _defaultZodiacApiName;
@@ -104,7 +91,7 @@ class LuckController extends GetxController {
   }
 
   Future<void> changeZodiacByDisplayName(String zodiacDisplayName) async {
-    String? newApiName = zodiacNameMap[zodiacDisplayName];
+    String? newApiName = DataConstants.zodiacNameMap[zodiacDisplayName];
 
     if (newApiName != null && selectedZodiacApiName.value != newApiName) {
       selectedZodiacApiName.value = newApiName;

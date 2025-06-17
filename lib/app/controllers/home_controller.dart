@@ -1,3 +1,5 @@
+// lib/app/controllers/home_controller.dart
+
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
@@ -22,11 +24,11 @@ class HomeController extends GetxController {
   final HolidayService _holidayService;
 
   HomeController(
-    this._loginController,
-    this._eventService,
-    this._dialogService,
-    this._holidayService,
-  );
+      this._loginController,
+      this._eventService,
+      this._dialogService,
+      this._holidayService,
+      );
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -39,7 +41,8 @@ class HomeController extends GetxController {
 
   String get currentTitle => tabTitles[selectedIndex.value];
 
-  final RxBool _newUserWarningShown = false.obs;
+  // 신규 사용자에게 비밀번호 설정 안내 팝업이 표시되었는지 확인하는 플래그
+  final RxBool _passwordSetupWarningShown = false.obs;
 
   final RxBool isLoadingEvents = false.obs;
   final RxBool isSubmittingEvent = false.obs;
@@ -48,12 +51,12 @@ class HomeController extends GetxController {
   late final Rx<DateTime?> selectedDay;
 
   final RxMap<DateTime, List<EventItem>> events =
-      RxMap<DateTime, List<EventItem>>(
-        LinkedHashMap<DateTime, List<EventItem>>(
-          equals: isSameDay,
-          hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
-        ),
-      );
+  RxMap<DateTime, List<EventItem>>(
+    LinkedHashMap<DateTime, List<EventItem>>(
+      equals: isSameDay,
+      hashCode: (key) => key.year * 1000000 + key.month * 10000 + key.day,
+    ),
+  );
 
   final RxMap<DateTime, String> holidays = RxMap<DateTime, String>();
 
@@ -93,45 +96,40 @@ class HomeController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    _checkAndShowNewUserWarning();
+    // 홈 화면이 준비되면, 신규 사용자에게 비밀번호 설정을 안내합니다.
+    _showPasswordSetupWarningIfNeeded();
   }
 
-  void _checkAndShowNewUserWarning() {
+  /// 신규 사용자이고, 아직 앱 비밀번호를 설정하지 않았으며,
+  /// 안내 팝업이 표시된 적이 없다면 팝업을 표시합니다.
+  void _showPasswordSetupWarningIfNeeded() {
+    // isNew 플래그는 서버에서 로그인 시 한 번만 true로 내려옵니다.
+    // 사용자가 한 번이라도 로그인하면 다음부터는 false가 됩니다.
     if (_loginController.user.isNew &&
         !_loginController.user.isAppPasswordSet &&
-        !_newUserWarningShown.value) {
-      Future.delayed(const Duration(milliseconds: 100), () {
+        !_passwordSetupWarningShown.value) {
+
+      // 화면이 완전히 그려진 후에 BottomSheet를 보여주기 위해 짧은 지연을 줍니다.
+      Future.delayed(const Duration(milliseconds: 500), () {
+        // BottomSheet가 표시되는 동안 사용자가 다른 화면으로 이동했을 경우를 대비해
+        // 현재 화면이 HomeController인지 다시 한 번 확인합니다.
         if (Get.isRegistered<HomeController>() && Get.context != null) {
-          _showNewUserPasswordSetupWarning();
-          _newUserWarningShown.value = true;
+          _showPasswordSetupBottomSheet();
+          _passwordSetupWarningShown.value = true; // 팝업이 다시 뜨지 않도록 플래그 설정
         }
       });
     }
   }
 
-  void _showNewUserPasswordSetupWarning() {
+  void _showPasswordSetupBottomSheet() {
     final BuildContext context = Get.context!;
     final ThemeData theme = Theme.of(context);
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
-    Get.bottomSheet(
-      Container(
+    _dialogService.showCustomBottomSheet(
+      child: Container(
         padding: const EdgeInsets.all(20.0),
-        decoration: BoxDecoration(
-          color: theme.cardColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(16.0),
-            topRight: Radius.circular(16.0),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(10),
-              spreadRadius: 0,
-              blurRadius: 10,
-            ),
-          ],
-        ),
         child: Wrap(
           children: <Widget>[
             Column(
@@ -139,13 +137,13 @@ class HomeController extends GetxController {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  '🔒 ${AppStrings.profile}',
+                  '🔒 ${AppStrings.profileAndSettings}',
                   style: textStyles.titleMedium,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: spacing.medium),
                 Text(
-                  "개인정보 - 비밀번호 설정을 활성화 해주세요.",
+                  "소중한 정보를 안전하게 보호하기 위해\n앱 비밀번호를 설정하는 것을 권장해요.",
                   style: textStyles.bodyMedium.copyWith(height: 1.5),
                   textAlign: TextAlign.center,
                 ),
@@ -156,12 +154,10 @@ class HomeController extends GetxController {
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: BorderSide(color: Colors.grey.shade400),
+                          side: BorderSide(color: theme.colorScheme.outline.withAlpha(128)),
                         ),
-                        onPressed: () {
-                          Get.back();
-                        },
-                        child: Text('나중에 하기', style: textStyles.bodyMedium),
+                        onPressed: () => Get.back(),
+                        child: Text('나중에 할게요', style: textStyles.bodyMedium),
                       ),
                     ),
                     SizedBox(width: spacing.small),
@@ -169,17 +165,16 @@ class HomeController extends GetxController {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: theme.primaryColor,
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: theme.colorScheme.onPrimary,
                         ),
                         onPressed: () {
-                          Get.back();
-                          Get.toNamed(Routes.profileAuth);
+                          Get.back(); // BottomSheet 닫기
+                          Get.toNamed(Routes.profileAuth); // 프로필 인증 화면으로 이동
                         },
                         child: Text(
-                          '지금 설정',
-                          style: textStyles.bodyMedium.copyWith(
-                            color: theme.colorScheme.onPrimary,
-                          ),
+                          '지금 설정하기',
+                          style: textStyles.bodyMedium,
                         ),
                       ),
                     ),
@@ -194,6 +189,7 @@ class HomeController extends GetxController {
       enableDrag: false,
     );
   }
+
 
   void onDaySelected(DateTime newSelectedDay, DateTime newFocusedDay) {
     final normalizedNewSelectedDay = _normalizeDate(newSelectedDay);
@@ -325,7 +321,7 @@ class HomeController extends GetxController {
       final originalNormalizedDate = _normalizeDate(eventToUpdate.eventDate);
       if (events[originalNormalizedDate] != null) {
         events[originalNormalizedDate]!.removeWhere(
-          (e) => e.backendEventId == updatedEventFromServer.backendEventId,
+              (e) => e.backendEventId == updatedEventFromServer.backendEventId,
         );
         if (events[originalNormalizedDate]!.isEmpty) {
           events.remove(originalNormalizedDate);
@@ -368,7 +364,7 @@ class HomeController extends GetxController {
       final normalizedEventDate = _normalizeDate(eventToDelete.eventDate);
       if (events[normalizedEventDate] != null) {
         events[normalizedEventDate]!.removeWhere(
-          (e) => e.backendEventId == eventToDelete.backendEventId,
+              (e) => e.backendEventId == eventToDelete.backendEventId,
         );
         if (events[normalizedEventDate]!.isEmpty) {
           events.remove(normalizedEventDate);

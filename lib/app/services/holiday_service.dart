@@ -41,8 +41,9 @@ class HolidayService extends GetxService {
       }
       return response.body!;
     } else if (response.statusCode == 304 && cachedData != null) {
-      if (kDebugMode)
+      if (kDebugMode) {
         print("Holiday data for $year is up to date. Using cache.");
+      }
       final List<dynamic> decodedData = json.decode(cachedData);
       return decodedData.map((item) => HolidayDto.fromJson(item)).toList();
     } else if (cachedData != null) {

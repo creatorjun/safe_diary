@@ -22,32 +22,28 @@ import 'partner_controller.dart';
 class LoginController extends GetxController {
   final AuthService _authService;
   final UserService _userService;
-
   // ignore: unused_field
   final SecureStorageService _secureStorageService;
 
   LoginController(
-    this._authService,
-    this._userService,
-    this._secureStorageService,
-  );
+      this._authService,
+      this._userService,
+      this._secureStorageService,
+      );
 
   PartnerController get _partnerController => Get.find<PartnerController>();
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
   final Rx<User> _user = User(platform: LoginPlatform.none).obs;
-
   User get user => _user.value;
-
   Rx<User> get userState => _user;
 
   RxBool get isLoggedIn =>
       (_user.value.platform != LoginPlatform.none &&
-              _user.value.safeAccessToken != null)
+          _user.value.safeAccessToken != null)
           .obs;
   final RxBool _isLoading = false.obs;
-
   bool get isLoading => _isLoading.value;
 
   @override
@@ -92,14 +88,12 @@ class LoginController extends GetxController {
     NaverLoginSDK.authenticate(
       callback: OAuthLoginCallback(
         onSuccess: () => completer.complete(),
-        onFailure:
-            (status, message) => completer.completeError(
-              'Naver Login Failed: $message (Status: $status)',
-            ),
-        onError:
-            (code, message) => completer.completeError(
-              'Naver Login Error: $message (Code: $code)',
-            ),
+        onFailure: (status, message) => completer.completeError(
+          'Naver Login Failed: $message (Status: $status)',
+        ),
+        onError: (code, message) => completer.completeError(
+          'Naver Login Error: $message (Code: $code)',
+        ),
       ),
     );
     return completer.future;
@@ -123,14 +117,12 @@ class LoginController extends GetxController {
         onSuccess: (resultCode, message, response) {
           completer.complete(NaverLoginProfile.fromJson(response: response));
         },
-        onFailure:
-            (httpStatus, message) => completer.completeError(
-              'Naver Profile Fail: $message (HTTP: $httpStatus)',
-            ),
-        onError:
-            (errorCode, message) => completer.completeError(
-              'Naver Profile Error: $message (Code: $errorCode)',
-            ),
+        onFailure: (httpStatus, message) => completer.completeError(
+          'Naver Profile Fail: $message (HTTP: $httpStatus)',
+        ),
+        onError: (errorCode, message) => completer.completeError(
+          'Naver Profile Error: $message (Code: $errorCode)',
+        ),
       ),
     );
     return completer.future;
@@ -198,12 +190,34 @@ class LoginController extends GetxController {
       if (authenticatedUser != null) {
         _user.value = authenticatedUser;
         await _getAndSendFcmTokenWithRetry();
-        Get.offAllNamed(Routes.home);
+
+        if (authenticatedUser.isNew) {
+          Get.offAllNamed(Routes.privacyPolicy);
+        } else {
+          Get.offAllNamed(Routes.home);
+        }
       }
     } catch (e) {
       _handleError(e, userFriendlyMsg: AppStrings.serverConnectionError);
       rethrow;
     }
+  }
+
+  Future<String> tryAutoLoginAndGetInitialRoute() async {
+    _setLoading(true);
+    try {
+      final authenticatedUser = await _authService.attemptAutoLogin();
+      if (authenticatedUser != null) {
+        _user.value = authenticatedUser;
+        await _getAndSendFcmTokenWithRetry();
+        _setLoading(false);
+        return authenticatedUser.isNew ? Routes.privacyPolicy : Routes.home;
+      }
+    } catch (e) {
+      //
+    }
+    _setLoading(false);
+    return Routes.login;
   }
 
   Future<void> logout() async {
@@ -228,29 +242,50 @@ class LoginController extends GetxController {
     }
   }
 
+  // --- 여기부터 추가 ---
+
+  /// 개인정보 동의 거부에 따른 회원가입을 철회하고 로그아웃합니다.
+  Future<void> withdrawRegistrationAndLogout() async {
+    _setLoading(true);
+    try {
+      // 서버에 회원가입 철회 요청
+      await _userService.withdrawRegistration();
+
+      // 소셜 SDK 로그아웃 처리
+      if (_user.value.platform == LoginPlatform.naver) {
+        await NaverLoginSDK.release();
+      } else if (_user.value.platform == LoginPlatform.kakao) {
+        await kakao.UserApi.instance.logout();
+      }
+
+      // 로컬 데이터 및 상태 초기화
+      _partnerController.clearPartnerStateOnLogout();
+      await _authService.clearTokensOnLogout();
+      _user.value = User(platform: LoginPlatform.none);
+
+      // 로그인 화면으로 이동
+      Get.offAllNamed(Routes.login);
+      Get.snackbar(AppStrings.notification, "회원가입이 정상적으로 철회되었습니다.");
+
+    } catch (e) {
+      _handleError(e, userFriendlyMsg: "가입 철회 중 오류가 발생했습니다. 다시 시도해주세요.");
+      // 실패하더라도 일단 로그인 화면으로 보내서 사용자가 다시 시도할 수 있도록 함
+      if (isLoggedIn.value) {
+        await logout();
+      }
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  // --- 여기까지 추가 ---
+
   void updateUserPartnerUid(String? newPartnerUid, {String? partnerNickname}) {
     if (_user.value.partnerUid != newPartnerUid) {
       _user.value = _user.value.copyWith(
         partnerUid: newPartnerUid,
         partnerNickname: partnerNickname,
       );
-    }
-  }
-
-  Future<bool> tryAutoLoginWithRefreshToken() async {
-    _setLoading(true);
-    try {
-      final authenticatedUser = await _authService.attemptAutoLogin();
-      if (authenticatedUser != null) {
-        _user.value = authenticatedUser;
-        await _getAndSendFcmTokenWithRetry();
-        return true;
-      }
-      return false;
-    } catch (e) {
-      return false;
-    } finally {
-      _setLoading(false);
     }
   }
 

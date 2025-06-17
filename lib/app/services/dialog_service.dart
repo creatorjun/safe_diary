@@ -1,3 +1,5 @@
+// lib/app/services/dialog_service.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:safe_diary/app/theme/app_theme.dart';
@@ -69,9 +71,6 @@ class DialogService extends GetxService {
           TextButton(onPressed: () => Get.back(), child: Text(cancelText)),
           FilledButton(
             onPressed: () {
-              // Get.back()을 onConfirm 내부에서 호출하도록 변경하여
-              // onConfirm 내의 비동기 작업이 완료된 후 닫히게 할 수 있음.
-              // 여기서는 즉시 닫고 onConfirm을 호출합니다.
               Get.back();
               onConfirm();
             },
@@ -86,22 +85,28 @@ class DialogService extends GetxService {
     );
   }
 
+  // --- 여기부터 수정 ---
   void showCustomBottomSheet({
     required Widget child,
     bool isScrollControlled = true,
+    bool isDismissible = true, // 파라미터 추가
+    bool enableDrag = true,    // 파라미터 추가
   }) {
     Get.bottomSheet(
       child,
       backgroundColor: Colors.transparent,
       isScrollControlled: isScrollControlled,
+      isDismissible: isDismissible, // 전달받은 값 사용
+      enableDrag: enableDrag,       // 전달받은 값 사용
     );
   }
+  // --- 여기까지 수정 ---
 
   void showSnackbar(
-    String title,
-    String message, {
-    SnackPosition position = SnackPosition.BOTTOM,
-  }) {
+      String title,
+      String message, {
+        SnackPosition position = SnackPosition.BOTTOM,
+      }) {
     if (Get.isSnackbarOpen) {
       Get.closeCurrentSnackbar();
     }

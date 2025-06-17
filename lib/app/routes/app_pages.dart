@@ -5,21 +5,22 @@ import 'package:get/get.dart';
 import '../bindings/chat_binding.dart';
 import '../bindings/home_binding.dart';
 import '../bindings/login_binding.dart';
+import '../bindings/privacy_policy_binding.dart'; // <<< 추가
 import '../bindings/profile_auth_binding.dart';
 import '../bindings/profile_binding.dart';
-// ChatScreen 및 ChatBinding 임포트 추가
 import '../views/chat_screen.dart';
 import '../views/home_screen.dart';
 import '../views/login_screen.dart';
+import '../views/privacy_policy_screen.dart'; // <<< 추가
 import '../views/profile_auth_screen.dart';
 import '../views/profile_screen.dart';
 
-part 'app_routes.dart'; // app_routes.dart 파일을 현재 파일의 일부로 포함
+part 'app_routes.dart';
 
 class AppPages {
-  AppPages._(); // private constructor로, 이 클래스의 직접적인 인스턴스화 방지
+  AppPages._();
 
-  static const initial = Routes.login; // 앱 시작 시 첫 화면 경로
+  static const initial = Routes.login;
 
   static final routes = [
     GetPage(
@@ -33,19 +34,24 @@ class AppPages {
       binding: HomeBinding(),
     ),
     GetPage(
-      name: _Paths.profileAuth, // 개인정보 접근 인증 화면 경로
-      page: () => const ProfileAuthScreen(), // 화면 위젯
-      binding: ProfileAuthBinding(), // 바인딩
+      name: _Paths.profileAuth,
+      page: () => const ProfileAuthScreen(),
+      binding: ProfileAuthBinding(),
     ),
     GetPage(
       name: _Paths.profile,
-      page: () => ProfileScreen(),
+      page: () => const ProfileScreen(),
       binding: ProfileBinding(),
     ),
     GetPage(
-      name: _Paths.chat, // 채팅 화면 경로
-      page: () => const ChatScreen(), // 화면 위젯
-      binding: ChatBinding(), // 바인딩
+      name: _Paths.chat,
+      page: () => const ChatScreen(),
+      binding: ChatBinding(),
+    ),
+    GetPage( // <<< 추가
+      name: _Paths.privacyPolicy,
+      page: () => const PrivacyPolicyScreen(),
+      binding: PrivacyPolicyBinding(),
     ),
   ];
 }

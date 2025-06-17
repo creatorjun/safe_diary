@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import '../models/user.dart';
@@ -12,12 +13,18 @@ class UserService extends GetxService {
 
   UserService(this._apiService);
 
+
   Future<User> updateNickname(String newNickname) async {
     return await _apiService.patch<User>(
       '/api/v1/users/me',
       body: {'nickname': newNickname},
       parser: (data) => User.fromJson(data as Map<String, dynamic>),
     );
+  }
+
+  /// 최초 소셜 로그인 후 사용자가 동의를 거부했을 때 회원가입을 철회합니다.
+  Future<void> withdrawRegistration() async {
+    await _apiService.delete('/api/v1/users/me/withdrawal');
   }
 
   Future<bool> verifyAppPassword(String appPassword) async {
@@ -65,7 +72,9 @@ class UserService extends GetxService {
         body: {'fcmToken': fcmToken},
       );
     } on ApiException {
-      // FCM 토큰 전송 실패는 치명적이지 않으므로 에러를 무시할 수 있습니다.
+      if(kDebugMode){
+        print('[UserService] FCM 토큰 업데이트 실패: $fcmToken');
+      }
     }
   }
 }
