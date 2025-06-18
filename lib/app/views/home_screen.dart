@@ -38,7 +38,6 @@ class HomeScreen extends GetView<HomeController> {
         appBar: AppBar(
           title: Obx(() {
             final displayTitle = AppStrings.homeTitle(
-              loginController.user.nickname ?? '사용자',
               controller.currentTitle,
             );
             return Text(

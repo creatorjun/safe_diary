@@ -1,7 +1,10 @@
+// lib/app/controllers/home_controller.dart
+
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:safe_diary/app/services/dialog_service.dart';
 import 'package:safe_diary/app/services/holiday_service.dart';
 import 'package:safe_diary/app/utils/app_strings.dart';
@@ -266,7 +269,8 @@ class HomeController extends GetxController {
 
   void showAddEventDialog() {
     if (selectedDay.value == null) {
-      _dialogService.showSnackbar(AppStrings.notification, "먼저 날짜를 선택해주세요.");
+      _dialogService.showSnackbar(
+          AppStrings.notification, "먼저 날짜를 선택해주세요.");
       return;
     }
     _dialogService.showCustomBottomSheet(
@@ -291,7 +295,8 @@ class HomeController extends GetxController {
       list.add(createdEvent);
       events.refresh();
     } catch (e) {
-      _errorController.handleError(e, userFriendlyMessage: '일정 추가에 실패했습니다.');
+      _errorController.handleError(e,
+          userFriendlyMessage: '일정 추가에 실패했습니다.');
       rethrow;
     } finally {
       isSubmittingEvent.value = false;
@@ -314,9 +319,8 @@ class HomeController extends GetxController {
     }
     isSubmittingEvent.value = true;
     try {
-      final updatedEventFromServer = await _eventService.updateEvent(
-        eventToUpdate,
-      );
+      final updatedEventFromServer =
+      await _eventService.updateEvent(eventToUpdate);
 
       final originalNormalizedDate = _normalizeDate(eventToUpdate.eventDate);
       if (events[originalNormalizedDate] != null) {
@@ -328,15 +332,15 @@ class HomeController extends GetxController {
         }
       }
 
-      final updatedNormalizedDate = _normalizeDate(
-        updatedEventFromServer.eventDate,
-      );
+      final updatedNormalizedDate =
+      _normalizeDate(updatedEventFromServer.eventDate);
       final list = events.putIfAbsent(updatedNormalizedDate, () => []);
       list.add(updatedEventFromServer);
 
       events.refresh();
     } catch (e) {
-      _errorController.handleError(e, userFriendlyMessage: '일정 수정에 실패했습니다.');
+      _errorController.handleError(e,
+          userFriendlyMessage: '일정 수정에 실패했습니다.');
       rethrow;
     } finally {
       isSubmittingEvent.value = false;
@@ -373,7 +377,8 @@ class HomeController extends GetxController {
         events.refresh();
       }
     } catch (e) {
-      _errorController.handleError(e, userFriendlyMessage: '일정 삭제에 실패했습니다.');
+      _errorController.handleError(e,
+          userFriendlyMessage: '일정 삭제에 실패했습니다.');
     } finally {
       isSubmittingEvent.value = false;
     }
@@ -383,5 +388,71 @@ class HomeController extends GetxController {
     if (index >= 0 && index < tabTitles.length) {
       selectedIndex.value = index;
     }
+  }
+
+  void handleDateLongPress(DateTime date) {
+    _confirmAndShare(
+      title: AppStrings.shareDateTitle,
+      content: AppStrings.shareDateContent(
+        DateFormat('yyyy년 MM월 dd일').format(date),
+      ),
+      onConfirm: () {
+        final dateString = DateFormat('yyyy-MM-dd').format(date);
+        _navigateToChatWithShareData(
+            {'type': 'date', 'content': dateString});
+      },
+    );
+  }
+
+  void handleEventLongPress(EventItem event) {
+    if (event.backendEventId == null) {
+      _dialogService.showSnackbar(
+        AppStrings.notification,
+        AppStrings.eventNotSynced,
+      );
+      return;
+    }
+
+    _confirmAndShare(
+      title: AppStrings.shareScheduleTitle,
+      content: AppStrings.shareScheduleContent(event.title),
+      onConfirm: () {
+        _navigateToChatWithShareData({
+          'type': 'schedule',
+          'content': event.backendEventId!,
+        });
+      },
+    );
+  }
+
+  void _confirmAndShare(
+      {required String title,
+        required String content,
+        required VoidCallback onConfirm}) {
+    final user = _loginController.user;
+    if (user.partnerUid == null || user.partnerUid!.isEmpty) {
+      _dialogService.showSnackbar(
+          AppStrings.notification, AppStrings.partnerRequiredForSharing);
+      return;
+    }
+
+    _dialogService.showConfirmDialog(
+      title: title,
+      content: content,
+      confirmText: AppStrings.shareAction,
+      onConfirm: onConfirm,
+    );
+  }
+
+  void _navigateToChatWithShareData(Map<String, String> shareData) {
+    final user = _loginController.user;
+    Get.toNamed(
+      Routes.chat,
+      arguments: {
+        'partnerUid': user.partnerUid,
+        'partnerNickname': user.partnerNickname,
+        'share_request': shareData,
+      },
+    );
   }
 }

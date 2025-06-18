@@ -46,7 +46,6 @@ class AppStrings {
   static const String accountDeletionFailed = "회원 탈퇴 중 오류가 발생했습니다.";
   static const String memberSince = '가입일';
 
-  // --- 여기부터 추가 ---
   // Privacy Policy & Withdrawal
   static const String decline = '거부';
   static const String agreeAndStart = '동의하고 시작하기';
@@ -55,11 +54,9 @@ class AppStrings {
   static const String withdrawRegistrationContent = '동의를 거부하고 가입을 철회하시겠습니까?\n입력된 정보는 즉시 삭제됩니다.';
   static const String withdrawalSuccess = '회원가입이 정상적으로 철회되었습니다.';
   static const String withdrawalError = '가입 철회 중 오류가 발생했습니다. 다시 시도해주세요.';
-  // --- 여기까지 추가 ---
 
   // Home Screen & Tabs
-  static String homeTitle(String nickname, String tabTitle) =>
-      '$nickname님 - $tabTitle';
+  static String homeTitle(String tabTitle) => tabTitle;
   static const String more = '더보기';
   static const String profile = '개인정보';
   static const String tabCalendar = '일정';
@@ -218,4 +215,15 @@ class AppStrings {
   // Error Controller & General Errors
   static const String networkError = "네트워크에 연결할 수 없습니다. 인터넷 상태를 확인해주세요.";
   static const String unknownError = "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+
+  // Chat Sharing
+  static const String partnerRequiredForSharing = '파트너와 연결되어야 공유할 수 있습니다.';
+  static const String shareDateTitle = '날짜 공유';
+  static String shareDateContent(String date) => '$date 날짜를 파트너와 공유하시겠습니까?';
+  static const String shareScheduleTitle = '일정 공유';
+  static String shareScheduleContent(String schedule) => "'$schedule' 일정을 파트너와 공유하시겠습니까?";
+  static const String sharedADate = '날짜를 공유했습니다.';
+  static const String sharedASchedule = '일정을 공유했습니다.';
+  static const String shareAction = '공유하기';
+
 }

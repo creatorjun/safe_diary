@@ -26,10 +26,10 @@ class ChatController extends GetxController {
     required LoginController loginController,
     required String partnerUid,
     String? partnerNickname,
-  }) : _chatService = chatService,
-       _loginController = loginController,
-       _chatPartnerUid = partnerUid,
-       _chatPartnerNickname = partnerNickname;
+  })  : _chatService = chatService,
+        _loginController = loginController,
+        _chatPartnerUid = partnerUid,
+        _chatPartnerNickname = partnerNickname;
 
   ErrorController get _errorController => Get.find<ErrorController>();
 
@@ -47,12 +47,19 @@ class ChatController extends GetxController {
   StompClient? stompClient;
   StompUnsubscribe? _chatSubscription;
   StompUnsubscribe? _readReceiptSubscription;
+  final Completer<void> _stompConnectionCompleter = Completer<void>();
 
   @override
   void onInit() {
     super.onInit();
     _initializeChat();
     scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    _handleShareRequest();
   }
 
   void _initializeChat() {
@@ -115,6 +122,9 @@ class ChatController extends GetxController {
 
   void _onStompConnected(StompFrame frame) {
     if (kDebugMode) print('[ChatController] STOMP Connected.');
+    if (!_stompConnectionCompleter.isCompleted) {
+      _stompConnectionCompleter.complete();
+    }
 
     _onEnterChatRoom();
 
@@ -131,12 +141,14 @@ class ChatController extends GetxController {
 
             if (isMyEchoMessage) {
               final index = messages.lastIndexWhere(
-                (msg) =>
-                    (msg.id?.startsWith('temp_') ?? false) &&
+                    (msg) =>
+                (msg.id?.startsWith('temp_') ?? false) &&
                     msg.content == receivedMessage.content,
               );
               if (index != -1) {
                 messages[index] = receivedMessage;
+              } else if (!messages.any((m) => m.id == receivedMessage.id)) {
+                messages.add(receivedMessage);
               }
             } else {
               if (!messages.any((m) => m.id == receivedMessage.id)) {
@@ -290,45 +302,75 @@ class ChatController extends GetxController {
     }
   }
 
-  void sendMessage() {
+  Future<void> _handleShareRequest() async {
+    final arguments = Get.arguments as Map<String, dynamic>?;
+    if (arguments == null || !arguments.containsKey('share_request')) return;
+
+    final shareData = arguments['share_request'] as Map<String, dynamic>;
+    final type = shareData['type'] as String?;
+    final content = shareData['content'] as String?;
+
+    if (type != null && content != null) {
+      await _sendMessage(type: MessageType.fromJson(type), content: content);
+    }
+
+    arguments.remove('share_request');
+  }
+
+  Future<void> sendTextMessage() async {
     final String content = messageInputController.text.trim();
     if (content.isEmpty) return;
+    await _sendMessage(type: MessageType.chat, content: content);
+    messageInputController.clear();
+  }
+
+  Future<void> _sendMessage(
+      {required MessageType type, required String content}) async {
+    try {
+      await _stompConnectionCompleter.future;
+    } catch (e) {
+      _errorController.handleError(e,
+          userFriendlyMessage: "채팅 서버 연결 대기 중 오류 발생");
+      return;
+    }
+
     if (stompClient == null || !stompClient!.connected) {
       _errorController.handleError(AppStrings.chatServerError);
       return;
     }
 
-    final tempMessage = ChatMessage(
-      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
-      type: MessageType.chat,
-      content: content,
-      senderUid: _currentUserUid,
-      receiverUid: _chatPartnerUid,
-      timestamp: DateTime.now().millisecondsSinceEpoch,
-      isRead: false,
-    );
-    messages.add(tempMessage);
-
-    final messageToSendPayload = {
-      'type': MessageType.chat.name,
+    final messagePayload = {
+      'type': type.name,
       'content': content,
       'senderUid': _currentUserUid,
       'receiverUid': _chatPartnerUid,
     };
 
+    if (type == MessageType.chat) {
+      final tempMessage = ChatMessage(
+        id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+        type: type,
+        content: content,
+        senderUid: _currentUserUid,
+        receiverUid: _chatPartnerUid,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+        isRead: false,
+      );
+      messages.add(tempMessage);
+    }
+
     stompClient?.send(
       destination: '/app/chat.sendMessage',
-      body: json.encode(messageToSendPayload),
+      body: json.encode(messagePayload),
       headers: {
         'Authorization': 'Bearer ${_loginController.user.safeAccessToken}',
       },
     );
-    messageInputController.clear();
   }
 
   void _scrollListener() {
     if (scrollController.position.pixels <=
-            scrollController.position.minScrollExtent + 50 &&
+        scrollController.position.minScrollExtent + 50 &&
         !isFetchingMore.value &&
         !hasReachedMax.value) {
       fetchMoreMessages();

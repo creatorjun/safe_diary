@@ -3,14 +3,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:no_screenshot/no_screenshot.dart';
 import 'package:safe_diary/app/routes/app_pages.dart';
 import 'package:safe_diary/app/utils/app_strings.dart';
+import 'package:safe_diary/app/views/widgets/chat_message_bubble.dart';
 
 import '../controllers/chat_controller.dart';
 import '../controllers/login_controller.dart';
-import '../models/chat_models.dart';
 import '../theme/app_theme.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -49,9 +48,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _toggleScreenshotProtection(bool turnOff) async {
+  Future<void> _toggleScreenshotProtection(bool turnOn) async {
     try {
-      if (turnOff) {
+      if (turnOn) {
         await _noScreenshot.screenshotOff();
         if (kDebugMode) {
           print('[ChatScreen] Screenshot protection enabled.');
@@ -124,8 +123,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 controller: controller.scrollController,
                 reverse: true,
                 padding: const EdgeInsets.all(8.0),
-                itemCount:
-                    controller.messages.length +
+                itemCount: controller.messages.length +
                     (controller.isFetchingMore.value ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (controller.isFetchingMore.value &&
@@ -138,11 +136,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     );
                   }
                   final message =
-                      controller.messages[controller.messages.length -
-                          1 -
-                          index];
+                  controller.messages[controller.messages.length - 1 - index];
                   final bool isMe = message.senderUid == currentUserUid;
-                  return _buildMessageBubble(context, message, isMe);
+                  return ChatMessageBubble(message: message, isMe: isMe);
                 },
               );
             }),
@@ -164,7 +160,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: theme.colorScheme.error, size: 48),
+            Icon(Icons.error_outline,
+                color: theme.colorScheme.error, size: 48),
             SizedBox(height: spacing.medium),
             Text(
               AppStrings.messageLoadError,
@@ -176,99 +173,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildMessageBubble(
-    BuildContext context,
-    ChatMessage message,
-    bool isMe,
-  ) {
-    final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
-    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
-    final AppSpacing spacing = theme.extension<AppSpacing>()!;
-
-    final align = isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
-    final bubbleColor =
-        isMe ? colorScheme.primary : colorScheme.surfaceContainerHighest;
-    final textColor =
-        isMe ? colorScheme.onPrimary : colorScheme.onSurfaceVariant;
-    final radius =
-        isMe
-            ? const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              bottomLeft: Radius.circular(16),
-              bottomRight: Radius.circular(16),
-            )
-            : const BorderRadius.only(
-              topRight: Radius.circular(16),
-              bottomLeft: Radius.circular(16),
-              bottomRight: Radius.circular(16),
-            );
-
-    return Column(
-      crossAxisAlignment: align,
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 14.0),
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.65,
-          ),
-          decoration: BoxDecoration(
-            color: bubbleColor,
-            borderRadius: radius,
-            boxShadow: [
-              BoxShadow(
-                color: theme.shadowColor.withAlpha(50),
-                blurRadius: 3,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: Text(
-            message.content ?? '',
-            style: textStyles.bodyMedium.copyWith(
-              color: textColor,
-              height: 1.4,
-            ),
-          ),
-        ),
-        Padding(
-          padding:
-              isMe
-                  ? const EdgeInsets.only(right: 10.0, bottom: 6.0)
-                  : const EdgeInsets.only(left: 10.0, bottom: 6.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (isMe &&
-                  message.id != null &&
-                  !(message.id!.startsWith('temp_')) &&
-                  !message.isRead) ...[
-                Text(
-                  AppStrings.unread,
-                  style: textStyles.bodyMedium.copyWith(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                SizedBox(width: spacing.small),
-              ],
-              Text(
-                DateFormat('HH:mm').format(message.dateTime.toLocal()),
-                style: textStyles.bodyMedium.copyWith(
-                  fontSize: 11,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -316,7 +220,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   textCapitalization: TextCapitalization.sentences,
                   minLines: 1,
                   maxLines: 5,
-                  onSubmitted: (value) => controller.sendMessage(),
+                  onSubmitted: (value) => controller.sendTextMessage(),
                 ),
               ),
             ),
@@ -326,7 +230,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               borderRadius: BorderRadius.circular(24.0),
               child: InkWell(
                 borderRadius: BorderRadius.circular(24.0),
-                onTap: controller.sendMessage,
+                onTap: controller.sendTextMessage,
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Icon(
