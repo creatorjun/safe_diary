@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+import 'package:safe_diary/app/models/anniversary_dtos.dart';
 
 import '../../models/event_item.dart';
 import '../../theme/app_theme.dart';
@@ -12,14 +13,18 @@ import '../../utils/app_strings.dart';
 class AddEditEventSheet extends StatefulWidget {
   final DateTime eventDate;
   final EventItem? existingEvent;
-  final Future<void> Function(EventItem event) onSubmit;
+  final Future<void> Function(EventItem event)? onEventSubmit;
+  final Future<void> Function(AnniversaryCreateRequestDto anniversary)?
+  onAnniversarySubmit;
+  final bool isEditMode;
 
   const AddEditEventSheet({
     super.key,
     required this.eventDate,
     this.existingEvent,
-    required this.onSubmit,
-  });
+    this.onEventSubmit,
+    this.onAnniversarySubmit,
+  }) : isEditMode = existingEvent != null;
 
   @override
   State<AddEditEventSheet> createState() => _AddEditEventSheetState();
@@ -31,6 +36,7 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
   TimeOfDay? _endTime;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isSubmitting = false;
+  bool _isAnniversaryMode = false;
 
   @override
   void initState() {
@@ -59,6 +65,12 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     super.dispose();
   }
 
+  void _toggleMode() {
+    setState(() {
+      _isAnniversaryMode = !_isAnniversaryMode;
+    });
+  }
+
   Future<void> _selectDateTimeRange(BuildContext context) async {
     final now = DateTime.now();
     final initialStartDateTime = DateTime(
@@ -79,19 +91,15 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     List<DateTime>? dateTimeList = await showOmniDateTimeRangePicker(
       context: context,
       startInitialDate: initialStartDateTime,
-      startFirstDate: DateTime(
-        widget.eventDate.year,
-      ).subtract(const Duration(days: 365)),
-      startLastDate: DateTime(
-        widget.eventDate.year,
-      ).add(const Duration(days: 365)),
+      startFirstDate:
+      DateTime(widget.eventDate.year).subtract(const Duration(days: 365)),
+      startLastDate:
+      DateTime(widget.eventDate.year).add(const Duration(days: 365)),
       endInitialDate: initialEndDateTime,
-      endFirstDate: DateTime(
-        widget.eventDate.year,
-      ).subtract(const Duration(days: 365)),
-      endLastDate: DateTime(
-        widget.eventDate.year,
-      ).add(const Duration(days: 365)),
+      endFirstDate:
+      DateTime(widget.eventDate.year).subtract(const Duration(days: 365)),
+      endLastDate:
+      DateTime(widget.eventDate.year).add(const Duration(days: 365)),
       is24HourMode: true,
       isShowSeconds: false,
       minutesInterval: 5,
@@ -176,42 +184,55 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     if (_isSubmitting) return;
 
     if (_formKey.currentState!.validate()) {
-      if (_startTime != null && _endTime != null) {
-        final startTimeDouble = _startTime!.hour + _startTime!.minute / 60.0;
-        final endTimeDouble = _endTime!.hour + _endTime!.minute / 60.0;
-        if (endTimeDouble <= startTimeDouble) {
-          final colorScheme = Theme.of(context).colorScheme;
-          Get.snackbar(
-            AppStrings.error,
-            AppStrings.endTimeAfterStartTimeError,
-            snackPosition: SnackPosition.BOTTOM,
-            margin: const EdgeInsets.all(12),
-            backgroundColor: colorScheme.errorContainer,
-            colorText: colorScheme.onErrorContainer,
-          );
-          return;
-        }
-      }
-
       setState(() {
         _isSubmitting = true;
       });
 
       try {
-        final event = EventItem(
-          backendEventId: widget.existingEvent?.backendEventId,
-          title: _titleController.text.trim(),
-          eventDate: widget.eventDate,
-          startTime: _startTime,
-          endTime: _endTime,
-          createdAt: widget.existingEvent?.createdAt,
-        );
-
-        await widget.onSubmit(event);
+        if (_isAnniversaryMode) {
+          if (widget.onAnniversarySubmit != null) {
+            final anniversary = AnniversaryCreateRequestDto(
+              title: _titleController.text.trim(),
+              date: DateFormat('yyyy-MM-dd').format(widget.eventDate),
+            );
+            await widget.onAnniversarySubmit!(anniversary);
+          }
+        } else {
+          if (widget.onEventSubmit != null) {
+            if (_startTime != null && _endTime != null) {
+              final startTimeDouble =
+                  _startTime!.hour + _startTime!.minute / 60.0;
+              final endTimeDouble = _endTime!.hour + _endTime!.minute / 60.0;
+              if (endTimeDouble <= startTimeDouble) {
+                final colorScheme = Theme.of(context).colorScheme;
+                Get.snackbar(
+                  AppStrings.error,
+                  AppStrings.endTimeAfterStartTimeError,
+                  snackPosition: SnackPosition.BOTTOM,
+                  margin: const EdgeInsets.all(12),
+                  backgroundColor: colorScheme.errorContainer,
+                  colorText: colorScheme.onErrorContainer,
+                );
+                setState(() {
+                  _isSubmitting = false;
+                });
+                return;
+              }
+            }
+            final event = EventItem(
+              backendEventId: widget.existingEvent?.backendEventId,
+              title: _titleController.text.trim(),
+              eventDate: widget.eventDate,
+              startTime: _startTime,
+              endTime: _endTime,
+              createdAt: widget.existingEvent?.createdAt,
+            );
+            await widget.onEventSubmit!(event);
+          }
+        }
         Get.back();
-
       } catch (e) {
-        // 에러 처리는 HomeController에서 하므로 여기서는 별도 처리가 필요 없습니다.
+        // Error handling is managed by the calling controller
       } finally {
         if (mounted) {
           setState(() {
@@ -229,11 +250,15 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
 
-    final bool isEditing = widget.existingEvent != null;
-    final String dialogTitleText =
-    isEditing ? AppStrings.editEvent : AppStrings.addEvent;
-    final String submitButtonText =
-    isEditing ? AppStrings.edit : AppStrings.add;
+    final String dialogTitleText = _isAnniversaryMode
+        ? "기념일 추가"
+        : (widget.isEditMode ? AppStrings.editEvent : AppStrings.addEvent);
+    final String submitButtonText = _isAnniversaryMode
+        ? AppStrings.add
+        : (widget.isEditMode ? AppStrings.edit : AppStrings.add);
+    final String hintText = _isAnniversaryMode
+        ? "기념일 이름을 입력하세요"
+        : AppStrings.eventContentHint;
 
     return Container(
       decoration: BoxDecoration(
@@ -254,7 +279,9 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                 Row(
                   children: [
                     Icon(
-                      Icons.calendar_today_outlined,
+                      _isAnniversaryMode
+                          ? Icons.cake_outlined
+                          : Icons.calendar_today_outlined,
                       color: colorScheme.primary,
                       size: 22,
                     ),
@@ -268,6 +295,16 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    if (!widget.isEditMode) ...[
+                      SizedBox(width: spacing.small),
+                      OutlinedButton(
+                        onPressed: _toggleMode,
+                        child: Text(
+                          _isAnniversaryMode ? "일반 일정" : "기념일 지정",
+                          style: textStyles.bodyMedium,
+                        ),
+                      ),
+                    ]
                   ],
                 ),
                 SizedBox(height: spacing.medium),
@@ -281,11 +318,15 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                       TextFormField(
                         controller: _titleController,
                         autofocus: true,
-                        decoration: const InputDecoration(
-                          labelText: AppStrings.eventContent,
-                          hintText: AppStrings.eventContentHint,
+                        decoration: InputDecoration(
+                          labelText: _isAnniversaryMode
+                              ? "기념일 이름"
+                              : AppStrings.eventContent,
+                          hintText: hintText,
                           prefixIcon: Icon(
-                            Icons.notes_rounded,
+                            _isAnniversaryMode
+                                ? Icons.favorite_border
+                                : Icons.notes_rounded,
                             color: Colors.grey,
                             size: 20,
                           ),
@@ -293,13 +334,17 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                         style: textStyles.bodyLarge,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return AppStrings.eventContentRequired;
+                            return _isAnniversaryMode
+                                ? "기념일 이름을 입력해주세요."
+                                : AppStrings.eventContentRequired;
                           }
                           return null;
                         },
                       ),
-                      SizedBox(height: spacing.medium),
-                      _buildTimeRangePicker(context),
+                      if (!_isAnniversaryMode) ...[
+                        SizedBox(height: spacing.medium),
+                        _buildTimeRangePicker(context),
+                      ],
                       SizedBox(height: spacing.small),
                     ],
                   ),
@@ -332,7 +377,7 @@ class _AddEditEventSheetState extends State<AddEditEventSheet> {
                         ),
                       )
                           : Icon(
-                        isEditing
+                        widget.isEditMode
                             ? Icons.check_circle_outline
                             : Icons.add_circle_outline,
                         size: 18,

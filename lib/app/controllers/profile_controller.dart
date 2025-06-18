@@ -1,8 +1,13 @@
+// lib/app/controllers/profile_controller.dart
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:safe_diary/app/models/anniversary_dtos.dart';
+import 'package:safe_diary/app/services/anniversary_service.dart';
 import 'package:safe_diary/app/services/dialog_service.dart';
 import 'package:safe_diary/app/theme/app_theme.dart';
 import 'package:safe_diary/app/utils/app_strings.dart';
+import 'package:safe_diary/app/views/widgets/upsert_anniversary_sheet.dart';
 
 import '../views/widgets/password_prompt_dialog.dart';
 import 'error_controller.dart';
@@ -13,11 +18,13 @@ class ProfileController extends GetxController {
   final LoginController loginController;
   final PartnerController partnerController;
   final DialogService _dialogService;
+  final AnniversaryService _anniversaryService;
 
   ProfileController(
       this.loginController,
       this.partnerController,
       this._dialogService,
+      this._anniversaryService,
       );
 
   ErrorController get _errorController => Get.find<ErrorController>();
@@ -34,6 +41,10 @@ class ProfileController extends GetxController {
   final RxBool isNewPasswordObscured = true.obs;
   final RxBool isConfirmPasswordObscured = true.obs;
 
+  final RxList<AnniversaryResponseDto> anniversaries =
+      <AnniversaryResponseDto>[].obs;
+  final RxBool isAnniversaryLoading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -47,6 +58,8 @@ class ProfileController extends GetxController {
 
     nicknameController.addListener(_onChanged);
     newPasswordController.addListener(_onChanged);
+
+    fetchAnniversaries();
   }
 
   @override
@@ -259,5 +272,66 @@ class ProfileController extends GetxController {
 
   Future<void> generateInvitationCode() async {
     await partnerController.createPartnerInvitationCode();
+  }
+
+  // --- Anniversary Methods ---
+  Future<void> fetchAnniversaries() async {
+    isAnniversaryLoading.value = true;
+    try {
+      final result = await _anniversaryService.getAnniversaries();
+      anniversaries.assignAll(result);
+    } catch (e) {
+      _errorController.handleError(e,
+          userFriendlyMessage: "기념일 목록을 불러오는데 실패했습니다.");
+    } finally {
+      isAnniversaryLoading.value = false;
+    }
+  }
+
+  void showEditAnniversaryDialog(AnniversaryResponseDto anniversary) {
+    _dialogService.showCustomBottomSheet(
+        child: UpsertAnniversarySheet(
+          existingAnniversary: anniversary,
+          onSubmit: (request) async {
+            await _updateAnniversary(anniversary.id, request);
+          },
+        ));
+  }
+
+  Future<void> _updateAnniversary(
+      String id, AnniversaryUpdateRequestDto request) async {
+    try {
+      _dialogService.showLoading();
+      await _anniversaryService.updateAnniversary(id, request);
+      await fetchAnniversaries();
+      _dialogService.hideLoading();
+      _dialogService.showSnackbar("성공", "기념일이 수정되었습니다.");
+    } catch (e) {
+      _dialogService.hideLoading();
+      _errorController.handleError(e, userFriendlyMessage: "기념일 수정에 실패했습니다.");
+      rethrow;
+    }
+  }
+
+  void confirmDeleteAnniversary(String anniversaryId) {
+    _dialogService.showConfirmDialog(
+      title: "기념일 삭제",
+      content: "이 기념일을 정말 삭제하시겠습니까?",
+      confirmText: AppStrings.delete,
+      onConfirm: () => _deleteAnniversary(anniversaryId),
+    );
+  }
+
+  Future<void> _deleteAnniversary(String anniversaryId) async {
+    try {
+      _dialogService.showLoading();
+      await _anniversaryService.deleteAnniversary(anniversaryId);
+      await fetchAnniversaries();
+      _dialogService.hideLoading();
+      _dialogService.showSnackbar("성공", "기념일이 삭제되었습니다.");
+    } catch (e) {
+      _dialogService.hideLoading();
+      _errorController.handleError(e, userFriendlyMessage: "기념일 삭제에 실패했습니다.");
+    }
   }
 }

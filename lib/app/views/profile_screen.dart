@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:safe_diary/app/controllers/profile_controller.dart';
 import 'package:safe_diary/app/theme/app_theme.dart';
 import 'package:safe_diary/app/views/widgets/account_section.dart';
+import 'package:safe_diary/app/views/widgets/anniversary_section.dart';
 import 'package:safe_diary/app/views/widgets/partner_section.dart';
 import 'package:safe_diary/app/views/widgets/profile_edit_section.dart';
 import 'package:safe_diary/app/views/widgets/shared_background.dart';
@@ -17,7 +18,8 @@ class ProfileScreen extends GetView<ProfileController> {
   @override
   Widget build(BuildContext context) {
     final AppSpacing spacing = Theme.of(context).extension<AppSpacing>()!;
-    final AppTextStyles textStyles = Theme.of(context).extension<AppTextStyles>()!;
+    final AppTextStyles textStyles =
+    Theme.of(context).extension<AppTextStyles>()!;
 
     return SharedBackground(
       child: Scaffold(
@@ -41,6 +43,9 @@ class ProfileScreen extends GetView<ProfileController> {
                 SizedBox(height: spacing.large),
                 const Divider(),
                 const PartnerSection(),
+                SizedBox(height: spacing.large),
+                const Divider(),
+                const AnniversarySection(),
                 SizedBox(height: spacing.large),
                 const Divider(),
                 const AccountSection(),

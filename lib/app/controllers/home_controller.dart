@@ -5,6 +5,8 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:safe_diary/app/models/anniversary_dtos.dart';
+import 'package:safe_diary/app/services/anniversary_service.dart';
 import 'package:safe_diary/app/services/dialog_service.dart';
 import 'package:safe_diary/app/services/holiday_service.dart';
 import 'package:safe_diary/app/utils/app_strings.dart';
@@ -23,12 +25,14 @@ class HomeController extends GetxController {
   final EventService _eventService;
   final DialogService _dialogService;
   final HolidayService _holidayService;
+  final AnniversaryService _anniversaryService;
 
   HomeController(
       this._loginController,
       this._eventService,
       this._dialogService,
       this._holidayService,
+      this._anniversaryService,
       );
 
   ErrorController get _errorController => Get.find<ErrorController>();
@@ -59,6 +63,8 @@ class HomeController extends GetxController {
   );
 
   final RxMap<DateTime, String> holidays = RxMap<DateTime, String>();
+  final RxMap<DateTime, AnniversaryResponseDto> anniversaries =
+  RxMap<DateTime, AnniversaryResponseDto>();
 
   List<EventItem> get selectedDayEvents {
     final day = selectedDay.value;
@@ -77,6 +83,11 @@ class HomeController extends GetxController {
     return holidays[selectedDay.value];
   }
 
+  AnniversaryResponseDto? get selectedDayAnniversary {
+    if (selectedDay.value == null) return null;
+    return anniversaries[selectedDay.value];
+  }
+
   DateTime _normalizeDate(DateTime dateTime) {
     return DateTime.utc(dateTime.year, dateTime.month, dateTime.day);
   }
@@ -91,6 +102,7 @@ class HomeController extends GetxController {
 
     _loadEventsFromServer();
     _loadHolidaysForYear(now.year);
+    _loadAnniversaries();
   }
 
   @override
@@ -240,6 +252,20 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> _loadAnniversaries() async {
+    try {
+      final anniversaryList = await _anniversaryService.getAnniversaries();
+      final newAnniversaryMap = <DateTime, AnniversaryResponseDto>{};
+      for (final anniversary in anniversaryList) {
+        newAnniversaryMap[_normalizeDate(anniversary.dateTime)] = anniversary;
+      }
+      anniversaries.value = newAnniversaryMap;
+    } catch (e) {
+      _errorController.handleError(e,
+          userFriendlyMessage: '기념일 정보를 불러오는 데 실패했습니다.');
+    }
+  }
+
   Future<void> _loadEventsFromServer() async {
     isLoadingEvents.value = true;
     try {
@@ -276,7 +302,8 @@ class HomeController extends GetxController {
     _dialogService.showCustomBottomSheet(
       child: AddEditEventSheet(
         eventDate: selectedDay.value!,
-        onSubmit: _createEventOnServer,
+        onEventSubmit: _createEventOnServer,
+        onAnniversarySubmit: _createAnniversaryOnServer,
       ),
     );
   }
@@ -303,12 +330,27 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> _createAnniversaryOnServer(
+      AnniversaryCreateRequestDto anniversary) async {
+    isSubmittingEvent.value = true;
+    try {
+      await _anniversaryService.createAnniversary(anniversary);
+      await _loadAnniversaries();
+    } catch (e) {
+      _errorController.handleError(e,
+          userFriendlyMessage: '기념일 추가에 실패했습니다.');
+      rethrow;
+    } finally {
+      isSubmittingEvent.value = false;
+    }
+  }
+
   void showEditEventDialog(EventItem existingEvent) {
     _dialogService.showCustomBottomSheet(
       child: AddEditEventSheet(
         eventDate: existingEvent.eventDate,
         existingEvent: existingEvent,
-        onSubmit: _updateEventOnServer,
+        onEventSubmit: _updateEventOnServer,
       ),
     );
   }
@@ -413,9 +455,27 @@ class HomeController extends GetxController {
       return;
     }
 
+    final context = Get.context!;
+    final theme = Theme.of(context);
+    final textStyles = theme.extension<AppTextStyles>()!;
+
+    final dateString =
+    DateFormat('yy.MM.dd (E)', 'ko_KR').format(event.eventDate);
+    final timeString = event.displayTime(context);
+
     _confirmAndShare(
       title: AppStrings.shareScheduleTitle,
-      content: AppStrings.shareScheduleContent(event.title),
+      content: "아래 일정을 파트너와 공유하시겠습니까?",
+      customContent: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(event.title, style: textStyles.bodyLarge),
+          const SizedBox(height: 8),
+          Text("∙ 날짜: $dateString", style: textStyles.bodyMedium),
+          Text("∙ 시간: $timeString", style: textStyles.bodyMedium),
+        ],
+      ),
       onConfirm: () {
         _navigateToChatWithShareData({
           'type': 'schedule',
@@ -425,10 +485,12 @@ class HomeController extends GetxController {
     );
   }
 
-  void _confirmAndShare(
-      {required String title,
-        required String content,
-        required VoidCallback onConfirm}) {
+  void _confirmAndShare({
+    required String title,
+    required String content,
+    Widget? customContent,
+    required VoidCallback onConfirm,
+  }) {
     final user = _loginController.user;
     if (user.partnerUid == null || user.partnerUid!.isEmpty) {
       _dialogService.showSnackbar(
@@ -439,6 +501,7 @@ class HomeController extends GetxController {
     _dialogService.showConfirmDialog(
       title: title,
       content: content,
+      customContent: customContent,
       confirmText: AppStrings.shareAction,
       onConfirm: onConfirm,
     );

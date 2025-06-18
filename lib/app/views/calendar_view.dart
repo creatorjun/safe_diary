@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:safe_diary/app/models/anniversary_dtos.dart';
 import 'package:safe_diary/app/utils/app_strings.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -53,42 +54,89 @@ class CalendarView extends StatelessWidget {
     );
   }
 
-  Widget _buildHolidayCard(BuildContext context) {
-    final HomeController controller = Get.find<HomeController>();
+  Widget _buildHolidayCard(BuildContext context, String holidayName) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
 
-    return Obx(() {
-      final holidayName = controller.selectedDayHolidayName;
-      if (holidayName == null) {
-        return const SizedBox.shrink();
-      }
-      return Card(
-        color: colorScheme.tertiaryContainer.withAlpha(150),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.celebration_outlined,
+    return Card(
+      color: colorScheme.tertiaryContainer.withAlpha(150),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.celebration_outlined,
+              color: colorScheme.onTertiaryContainer,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              holidayName,
+              style: textStyles.bodyMedium.copyWith(
                 color: colorScheme.onTertiaryContainer,
-                size: 18,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(width: 8),
-              Text(
-                holidayName,
-                style: textStyles.bodyMedium.copyWith(
-                  color: colorScheme.onTertiaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
+  }
+
+  Widget _buildAnniversaryCard(
+      BuildContext context, AnniversaryResponseDto anniversary) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+
+    final now = DateTime.now();
+    final anniversaryDate = anniversary.dateTime;
+    final difference = anniversaryDate
+        .difference(DateTime(now.year, now.month, now.day))
+        .inDays;
+    String dDayText;
+
+    if (difference == 0) {
+      dDayText = 'D-DAY';
+    } else if (difference < 0) {
+      dDayText = 'D+${-difference}';
+    } else {
+      dDayText = 'D-${difference}';
+    }
+
+    return Card(
+      color: colorScheme.secondaryContainer.withAlpha(200),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.cake_outlined,
+              color: colorScheme.onSecondaryContainer,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              anniversary.title,
+              style: textStyles.bodyMedium.copyWith(
+                color: colorScheme.onSecondaryContainer,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              dDayText,
+              style: textStyles.bodyMedium.copyWith(
+                color: colorScheme.onSecondaryContainer.withAlpha(200),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -112,6 +160,7 @@ class CalendarView extends StatelessWidget {
         children: [
           Obx(() {
             final _ = controller.events.length;
+            final __ = controller.anniversaries.length;
 
             return Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
@@ -127,7 +176,8 @@ class CalendarView extends StatelessWidget {
                       isSameDay(controller.selectedDay.value!, day);
                 },
                 holidayPredicate: (day) {
-                  return controller.holidays.containsKey(day);
+                  return controller.holidays.containsKey(day) ||
+                      controller.anniversaries.containsKey(day);
                 },
                 onDaySelected: controller.onDaySelected,
                 onDayLongPressed: (day, focusedDay) =>
@@ -240,7 +290,17 @@ class CalendarView extends StatelessWidget {
               ),
             );
           }),
-          _buildHolidayCard(context),
+          Obx(() {
+            final anniversary = controller.selectedDayAnniversary;
+            final holidayName = controller.selectedDayHolidayName;
+            return Column(
+              children: [
+                if (anniversary != null)
+                  _buildAnniversaryCard(context, anniversary),
+                if (holidayName != null) _buildHolidayCard(context, holidayName),
+              ],
+            );
+          }),
           SizedBox(height: spacing.small),
           Expanded(
             child: Obx(() {
