@@ -120,7 +120,7 @@ class LoginScreen extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     final String backgroundImage =
-    Get.isDarkMode ? "assets/dark_back.png" : "assets/light_back.png";
+    Get.isDarkMode ? "assets/login_dark_back.png" : "assets/login_light_back.png";
 
     return Scaffold(
       body: Obx(() {

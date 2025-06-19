@@ -63,8 +63,12 @@ class HomeController extends GetxController {
   );
 
   final RxMap<DateTime, String> holidays = RxMap<DateTime, String>();
+
+  // 원본 기념일
   final RxMap<DateTime, AnniversaryResponseDto> anniversaries =
   RxMap<DateTime, AnniversaryResponseDto>();
+  // 계산된 100일, N주년 기념일
+  final RxMap<DateTime, String> derivedAnniversaries = RxMap<DateTime, String>();
 
   List<EventItem> get selectedDayEvents {
     final day = selectedDay.value;
@@ -88,6 +92,11 @@ class HomeController extends GetxController {
     return anniversaries[selectedDay.value];
   }
 
+  String? get selectedDayDerivedAnniversary {
+    if (selectedDay.value == null) return null;
+    return derivedAnniversaries[selectedDay.value];
+  }
+
   DateTime _normalizeDate(DateTime dateTime) {
     return DateTime.utc(dateTime.year, dateTime.month, dateTime.day);
   }
@@ -102,7 +111,7 @@ class HomeController extends GetxController {
 
     _loadEventsFromServer();
     _loadHolidaysForYear(now.year);
-    _loadAnniversaries();
+    loadAnniversaries();
   }
 
   @override
@@ -252,18 +261,59 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> _loadAnniversaries() async {
+  Future<void> loadAnniversaries() async {
     try {
-      final anniversaryList = await _anniversaryService.getAnniversaries();
-      final newAnniversaryMap = <DateTime, AnniversaryResponseDto>{};
-      for (final anniversary in anniversaryList) {
-        newAnniversaryMap[_normalizeDate(anniversary.dateTime)] = anniversary;
+      final baseAnniversaryList = await _anniversaryService.getAnniversaries();
+      final newBaseAnniversaryMap = <DateTime, AnniversaryResponseDto>{};
+      for (final anniversary in baseAnniversaryList) {
+        newBaseAnniversaryMap[_normalizeDate(anniversary.dateTime)] =
+            anniversary;
       }
-      anniversaries.value = newAnniversaryMap;
+      anniversaries.value = newBaseAnniversaryMap;
+
+      _calculateDerivedAnniversaries();
     } catch (e) {
       _errorController.handleError(e,
           userFriendlyMessage: '기념일 정보를 불러오는 데 실패했습니다.');
     }
+  }
+
+  void _calculateDerivedAnniversaries() {
+    final newDerivedAnniversaries = <DateTime, String>{};
+    const maxYears = 50;
+    const max100DayIncrements = 100;
+
+    anniversaries.forEach((baseDate, baseAnniversary) {
+      // 1. 100일 단위 기념일 계산
+      for (int i = 1; i <= max100DayIncrements; i++) {
+        final derivedDate =
+        _normalizeDate(baseDate.add(Duration(days: i * 100)));
+        final title = "${baseAnniversary.title} (${i * 100}일)";
+
+        // 원본 기념일 날짜와 겹치지 않을 경우에만 추가
+        if (!anniversaries.containsKey(derivedDate)) {
+          newDerivedAnniversaries[derivedDate] = title;
+        }
+      }
+
+      // 2. 연간 기념일 계산
+      for (int i = 1; i <= maxYears; i++) {
+        final derivedDate = _normalizeDate(DateTime.utc(
+          baseDate.year + i,
+          baseDate.month,
+          baseDate.day,
+        ));
+        final title = "${baseAnniversary.title} ($i주년)";
+
+        // 원본 및 100일 기념일과 겹치지 않을 경우에만 추가
+        if (!anniversaries.containsKey(derivedDate) &&
+            !newDerivedAnniversaries.containsKey(derivedDate)) {
+          newDerivedAnniversaries[derivedDate] = title;
+        }
+      }
+    });
+
+    derivedAnniversaries.value = newDerivedAnniversaries;
   }
 
   Future<void> _loadEventsFromServer() async {
@@ -311,13 +361,8 @@ class HomeController extends GetxController {
   Future<void> _createEventOnServer(EventItem event) async {
     isSubmittingEvent.value = true;
     try {
-      final normalizedDate = _normalizeDate(event.eventDate);
-      final newOrder = events[normalizedDate]?.length ?? 0;
-
-      final eventWithOrder = event.copyWith(displayOrder: newOrder);
-
-      final createdEvent = await _eventService.createEvent(eventWithOrder);
-
+      final createdEvent = await _eventService.createEvent(event);
+      final normalizedDate = _normalizeDate(createdEvent.eventDate);
       final list = events.putIfAbsent(normalizedDate, () => []);
       list.add(createdEvent);
       events.refresh();
@@ -335,7 +380,7 @@ class HomeController extends GetxController {
     isSubmittingEvent.value = true;
     try {
       await _anniversaryService.createAnniversary(anniversary);
-      await _loadAnniversaries();
+      await loadAnniversaries();
     } catch (e) {
       _errorController.handleError(e,
           userFriendlyMessage: '기념일 추가에 실패했습니다.');
@@ -356,30 +401,20 @@ class HomeController extends GetxController {
   }
 
   Future<void> _updateEventOnServer(EventItem eventToUpdate) async {
-    if (eventToUpdate.backendEventId == null) {
-      return;
-    }
     isSubmittingEvent.value = true;
     try {
       final updatedEventFromServer =
       await _eventService.updateEvent(eventToUpdate);
+      final normalizedDate = _normalizeDate(updatedEventFromServer.eventDate);
 
-      final originalNormalizedDate = _normalizeDate(eventToUpdate.eventDate);
-      if (events[originalNormalizedDate] != null) {
-        events[originalNormalizedDate]!.removeWhere(
-              (e) => e.backendEventId == updatedEventFromServer.backendEventId,
-        );
-        if (events[originalNormalizedDate]!.isEmpty) {
-          events.remove(originalNormalizedDate);
+      if (events[normalizedDate] != null) {
+        final index = events[normalizedDate]!.indexWhere(
+                (e) => e.backendEventId == updatedEventFromServer.backendEventId);
+        if (index != -1) {
+          events[normalizedDate]![index] = updatedEventFromServer;
+          events.refresh();
         }
       }
-
-      final updatedNormalizedDate =
-      _normalizeDate(updatedEventFromServer.eventDate);
-      final list = events.putIfAbsent(updatedNormalizedDate, () => []);
-      list.add(updatedEventFromServer);
-
-      events.refresh();
     } catch (e) {
       _errorController.handleError(e,
           userFriendlyMessage: '일정 수정에 실패했습니다.');

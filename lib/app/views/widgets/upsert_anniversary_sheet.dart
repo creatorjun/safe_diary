@@ -86,7 +86,6 @@ class _UpsertAnniversarySheetState extends State<UpsertAnniversarySheet> {
     final ThemeData theme = Theme.of(context);
     final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
     final AppSpacing spacing = theme.extension<AppSpacing>()!;
-    final ColorScheme colorScheme = theme.colorScheme;
     final bool isEditMode = widget.existingAnniversary != null;
 
     return Container(

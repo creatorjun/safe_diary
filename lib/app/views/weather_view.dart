@@ -133,7 +133,7 @@ class WeatherView extends GetView<WeatherController> {
       return SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Column(
             children: [
               SizedBox(height: spacing.small),

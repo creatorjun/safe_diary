@@ -11,6 +11,7 @@ import 'package:safe_diary/app/views/widgets/upsert_anniversary_sheet.dart';
 
 import '../views/widgets/password_prompt_dialog.dart';
 import 'error_controller.dart';
+import 'home_controller.dart';
 import 'login_controller.dart';
 import 'partner_controller.dart';
 
@@ -136,14 +137,10 @@ class ProfileController extends GetxController {
       if (isPasswordChanged) {
         final currentPwd =
         loginController.user.isAppPasswordSet ? _verifiedPassword : null;
-        final bool success = await loginController.setOrUpdateAppPassword(
+        await loginController.setOrUpdateAppPassword(
           currentAppPassword: currentPwd,
           newAppPassword: newPassword,
         );
-
-        if (success) {
-          _verifiedPassword = newPassword;
-        }
       }
 
       _dialogService.hideLoading();
@@ -304,6 +301,9 @@ class ProfileController extends GetxController {
       _dialogService.showLoading();
       await _anniversaryService.updateAnniversary(id, request);
       await fetchAnniversaries();
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().loadAnniversaries();
+      }
       _dialogService.hideLoading();
       _dialogService.showSnackbar("성공", "기념일이 수정되었습니다.");
     } catch (e) {
@@ -327,6 +327,9 @@ class ProfileController extends GetxController {
       _dialogService.showLoading();
       await _anniversaryService.deleteAnniversary(anniversaryId);
       await fetchAnniversaries();
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().loadAnniversaries();
+      }
       _dialogService.hideLoading();
       _dialogService.showSnackbar("성공", "기념일이 삭제되었습니다.");
     } catch (e) {

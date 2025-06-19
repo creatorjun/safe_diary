@@ -103,7 +103,7 @@ class CalendarView extends StatelessWidget {
     } else if (difference < 0) {
       dDayText = 'D+${-difference}';
     } else {
-      dDayText = 'D-${difference}';
+      dDayText = 'D-$difference';
     }
 
     return Card(
@@ -139,6 +139,37 @@ class CalendarView extends StatelessWidget {
     );
   }
 
+  Widget _buildDerivedAnniversaryCard(BuildContext context, String title) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    final AppTextStyles textStyles = theme.extension<AppTextStyles>()!;
+
+    return Card(
+      color: colorScheme.secondaryContainer.withAlpha(150),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.star_border_outlined,
+              color: colorScheme.onSecondaryContainer,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: textStyles.bodyMedium.copyWith(
+                color: colorScheme.onSecondaryContainer,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final HomeController controller = Get.find<HomeController>();
@@ -160,7 +191,6 @@ class CalendarView extends StatelessWidget {
         children: [
           Obx(() {
             final _ = controller.events.length;
-            final __ = controller.anniversaries.length;
 
             return Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
@@ -177,7 +207,8 @@ class CalendarView extends StatelessWidget {
                 },
                 holidayPredicate: (day) {
                   return controller.holidays.containsKey(day) ||
-                      controller.anniversaries.containsKey(day);
+                      controller.anniversaries.containsKey(day) ||
+                      controller.derivedAnniversaries.containsKey(day);
                 },
                 onDaySelected: controller.onDaySelected,
                 onDayLongPressed: (day, focusedDay) =>
@@ -292,12 +323,18 @@ class CalendarView extends StatelessWidget {
           }),
           Obx(() {
             final anniversary = controller.selectedDayAnniversary;
+            final derivedAnniversary = controller.selectedDayDerivedAnniversary;
             final holidayName = controller.selectedDayHolidayName;
+
             return Column(
               children: [
                 if (anniversary != null)
-                  _buildAnniversaryCard(context, anniversary),
-                if (holidayName != null) _buildHolidayCard(context, holidayName),
+                  _buildAnniversaryCard(context, anniversary)
+                else if (derivedAnniversary != null)
+                  _buildDerivedAnniversaryCard(context, derivedAnniversary),
+
+                if (holidayName != null)
+                  _buildHolidayCard(context, holidayName),
               ],
             );
           }),

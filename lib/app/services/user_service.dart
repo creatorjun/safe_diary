@@ -40,7 +40,7 @@ class UserService extends GetxService {
     }
   }
 
-  Future<void> setOrUpdateAppPassword({
+  Future<User> setOrUpdateAppPassword({
     String? currentAppPassword,
     required String newAppPassword,
   }) async {
@@ -48,11 +48,18 @@ class UserService extends GetxService {
     if (currentAppPassword != null && currentAppPassword.isNotEmpty) {
       body['currentAppPassword'] = currentAppPassword;
     }
-    await _apiService.patch('/api/v1/users/me', body: body);
+    // 명세에 따라 서버는 UserAccountUpdateResponseDto를 반환하며,
+    // User.fromJson 팩토리에서 이를 처리합니다.
+    return await _apiService.patch<User>(
+      '/api/v1/users/me',
+      body: body,
+      parser: (data) => User.fromJson(data as Map<String, dynamic>),
+    );
   }
 
   Future<void> removeAppPassword(String currentAppPassword) async {
-    await _apiService.delete(
+    // 명세에 따라 서버는 204 No Content를 반환하므로, 반환 타입을 void로 변경합니다.
+    await _apiService.delete<void>(
       '/api/v1/users/me/app-password',
       body: {'currentAppPassword': currentAppPassword},
     );
